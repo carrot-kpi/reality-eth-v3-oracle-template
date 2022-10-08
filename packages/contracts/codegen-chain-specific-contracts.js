@@ -4,7 +4,7 @@ const { join } = require("path");
 const { readFile, writeFile } = require("fs/promises");
 
 const REALITYV3_ADDRESS = {
-    5: "0xc1C6805B857Bef1f412519C4A842522431aFed39",
+    5: "0x6F80C5cBCF9FbC2dA2F0675E56A5900BB70Df72f",
 };
 
 const [, , chainId] = process.argv;
