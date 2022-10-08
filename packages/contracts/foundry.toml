@@ -7,7 +7,7 @@ remappings = [
     'carrot/=lib/carrot/contracts/',
     'ds-test/=lib/ds-test/src/',
     'forge-std/=lib/forge-std/src/',
-    'tests/=lib/carrot/tests/'
+    'tests/=tests/'
 ]
 
 [profile.production]

@@ -9,7 +9,9 @@
         "lint": "prettier -l src/**/*.sol tests/**/*.sol",
         "build": "forge build",
         "test": "forge test",
-        "prepare": "node ./init.js"
+        "coverage": "forge coverage",
+        "prepare": "node ./init.js",
+        "codegen-chain-specific-contracts": "node ./codegen-chain-specific-contracts.js"
     },
     "devDependencies": {
         "prettier": "^2.7.1",

@@ -163,3 +163,5 @@ broadcast
 cache
 
 .env*
+
+RealityV3Oracle[0-9].sol

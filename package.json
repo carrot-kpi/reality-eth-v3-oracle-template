@@ -12,6 +12,7 @@
     "build:all": "npm run build:frontend && npm run build:contracts",
     "test:frontend": "npm test -w ./packages/frontend",
     "test:contracts": "npm test -w ./packages/contracts",
+    "coverage:contracts": "npm run coverage -w ./packages/contracts",
     "test:all": "npm run test:frontend && npm run test:contracts",
     "start:frontend": "npm start -w ./packages/frontend",
     "lint:commit-message": "commitlint -e",
