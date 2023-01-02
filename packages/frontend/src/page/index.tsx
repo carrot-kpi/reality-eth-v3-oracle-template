@@ -1,9 +1,9 @@
 import { Oracle } from "@carrot-kpi/sdk";
 import { ReactElement } from "react";
-import { TFunction } from "react-i18next";
+import { NamespacedTranslateFunction } from "@carrot-kpi/react";
 
 interface PageProps {
-    t: TFunction;
+    t: NamespacedTranslateFunction;
     oracle: Oracle;
 }
 

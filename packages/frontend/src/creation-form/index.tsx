@@ -1,9 +1,9 @@
 import { ChangeEvent, ReactElement, useCallback, useState } from "react";
 import { ethers } from "ethers";
-import { TFunction } from "react-i18next";
+import { NamespacedTranslateFunction } from "@carrot-kpi/react";
 
 interface CreationFormProps {
-    t: TFunction;
+    t: NamespacedTranslateFunction;
     onDone: (data: string, value: ethers.BigNumber) => void;
 }
 
