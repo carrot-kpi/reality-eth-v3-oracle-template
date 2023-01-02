@@ -304,4 +304,4 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-RealityV3Oracle[0-9]+.sol
+RealityV3Oracle[0-9]*.sol
