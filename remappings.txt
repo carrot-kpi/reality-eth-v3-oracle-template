@@ -1,0 +1,4 @@
+carrot/=packages/contracts/lib/carrot/contracts
+forge-std/=packages/contracts/lib/forge-std/src/
+oz-upgradeable/=packages/contracts/lib/openzeppelin-contracts-upgradeable/contracts/
+tests/=packages/contracts/tests/

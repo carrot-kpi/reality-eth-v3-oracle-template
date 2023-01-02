@@ -1,0 +1,22 @@
+{
+    "$schema": "https://turbo.build/schema.json",
+    "pipeline": {
+        "build": {
+            "dependsOn": ["^build"],
+            "outputs": ["dist/**", "build/**", "out/**"]
+        },
+        "test": {
+            "inputs": [
+                "src/**/*.{ts,tsx}",
+                "tests/**/*.{ts,tsx}",
+                "src/**/*.test.{ts,tsx}",
+                "src/**/*.sol",
+                "tests/**/*.sol",
+                "babel.config.json"
+            ]
+        },
+        "lint": {},
+        "format": {}
+    },
+    "globalEnv": ["NODE_ENV"]
+}

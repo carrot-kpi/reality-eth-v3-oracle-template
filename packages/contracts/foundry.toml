@@ -1,12 +1,12 @@
 [profile.default]
 src = 'src'
-out = 'artifacts'
+out = 'out'
 test = 'tests'
 libs = ['lib']
 remappings = [
-    'carrot/=lib/carrot/contracts/',
-    'ds-test/=lib/ds-test/src/',
+    'carrot/=lib/carrot/contracts',
     'forge-std/=lib/forge-std/src/',
+    'oz-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/',
     'tests/=tests/'
 ]
 

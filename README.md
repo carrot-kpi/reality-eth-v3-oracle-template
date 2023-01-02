@@ -1,3 +1,4 @@
-# Carrot template
+## Reality.eth oracle template
 
-A repo for a Carrot template implementation.
+A Reality.eth oracle implementation for Carrot. Reality.eth is a crowdsourced
+oracle, battle-tested by DXdao through Omen and its prediction markets.

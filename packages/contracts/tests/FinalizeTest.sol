@@ -2,7 +2,6 @@ pragma solidity 0.8.17;
 
 import {BaseTestSetup} from "./commons/BaseTestSetup.sol";
 import {RealityV3Oracle} from "../src/RealityV3Oracle.sol";
-import {ERC20KPIToken} from "carrot/kpi-tokens/ERC20KPIToken.sol";
 import {IOraclesManager1} from "carrot/interfaces/oracles-managers/IOraclesManager1.sol";
 import {Template} from "carrot/interfaces/IBaseTemplatesManager.sol";
 import {InitializeOracleParams} from "carrot/commons/Types.sol";

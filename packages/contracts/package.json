@@ -1,19 +1,21 @@
 {
-    "name": "cct-contracts-oracle-preset-foundry-solidity",
+    "type": "module",
+    "name": "contracts",
     "version": "0.1.0",
     "description": "A preset for developing Carrot oracle templates' smart contracts with Foundry and Solidity.",
     "author": "Federico Luzzi <federico.luzzi@protonmail.com>",
     "license": "GPL-3.0-or-later",
     "private": true,
     "scripts": {
-        "lint": "prettier -l src/**/*.sol tests/**/*.sol",
+        "lint": "./fmt.js lint",
+        "format": "./fmt.js format",
         "build": "forge build",
         "test": "forge test",
         "coverage": "forge coverage",
-        "prepare": "node ./init.js",
-        "codegen-chain-specific-contracts": "node ./codegen-chain-specific-contracts.js"
+        "codegen-chain-specific-contracts": "./codegen-chain-specific-contracts.js"
     },
     "devDependencies": {
+        "ethers": "^5.7.2",
         "prettier": "^2.7.1",
         "prettier-plugin-solidity": "^1.0.0-beta.19",
         "solhint-plugin-prettier": "^0.0.5"

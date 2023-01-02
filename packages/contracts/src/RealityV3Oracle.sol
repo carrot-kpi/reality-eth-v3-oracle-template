@@ -1,6 +1,6 @@
 pragma solidity 0.8.17;
 
-import {Initializable} from "oz/proxy/utils/Initializable.sol";
+import {Initializable} from "oz-upgradeable/proxy/utils/Initializable.sol";
 import {IOracle} from "carrot/interfaces/oracles/IOracle.sol";
 import {IOraclesManager1} from "carrot/interfaces/oracles-managers/IOraclesManager1.sol";
 import {IKPIToken} from "carrot/interfaces/kpi-tokens/IKPIToken.sol";
@@ -60,12 +60,7 @@ contract RealityV3Oracle is IOracle, Initializable {
     ///     - `uint32 _openingTimestamp`: The question opening timestamp as described in the
     ///        Reality.eth docs (linked above).
     ///     - `uint256 minimumBond`: The minimum bond that can be used to answer the question.
-    function initialize(InitializeOracleParams memory _params)
-        external
-        payable
-        override
-        initializer
-    {
+    function initialize(InitializeOracleParams memory _params) external payable override initializer {
         if (_params.kpiToken == address(0)) revert ZeroAddressKpiToken();
 
         (
@@ -75,33 +70,23 @@ contract RealityV3Oracle is IOracle, Initializable {
             uint32 _questionTimeout,
             uint32 _openingTimestamp,
             uint256 _minimumBond
-        ) = abi.decode(
-                _params.data,
-                (address, address, uint256, string, uint32, uint32, uint256)
-            );
+        ) = abi.decode(_params.data, (address, uint256, string, uint32, uint32, uint256));
 
         if (_arbitrator == address(0)) revert ZeroAddressArbitrator();
         if (_realityTemplateId > 4) revert InvalidRealityTemplate();
         if (bytes(_question).length == 0) revert InvalidQuestion();
         if (_questionTimeout == 0) revert InvalidQuestionTimeout();
-        if (_openingTimestamp <= block.timestamp)
+        if (_openingTimestamp <= block.timestamp) {
             revert InvalidOpeningTimestamp();
+        }
 
         oraclesManager = msg.sender;
         templateVersion = _params.templateVersion;
         templateId = _params.templateId;
         kpiToken = _params.kpiToken;
         question = _question;
-        questionId = IRealityV3(_reality()).askQuestionWithMinBond{
-            value: msg.value
-        }(
-            _realityTemplateId,
-            _question,
-            _arbitrator,
-            _questionTimeout,
-            _openingTimestamp,
-            0,
-            _minimumBond
+        questionId = IRealityV3(_reality()).askQuestionWithMinBond{value: msg.value}(
+            _realityTemplateId, _question, _arbitrator, _questionTimeout, _openingTimestamp, 0, _minimumBond
         );
 
         emit Initialize(_params.kpiToken, _params.templateId);
@@ -112,9 +97,7 @@ contract RealityV3Oracle is IOracle, Initializable {
     function finalize() external {
         if (finalized) revert Forbidden();
         finalized = true;
-        uint256 _result = uint256(
-            IRealityV3(_reality()).resultForOnceSettled(questionId)
-        );
+        uint256 _result = uint256(IRealityV3(_reality()).resultForOnceSettled(questionId));
         IKPIToken(kpiToken).finalize(_result);
         emit Finalize(_result);
     }
@@ -124,27 +107,22 @@ contract RealityV3Oracle is IOracle, Initializable {
     /// data and some.
     /// @return The ABI-encoded data.
     function data() external view override returns (bytes memory) {
-        address _reality = _reality(); // gas optimization
+        address _realityAddress = _reality(); // gas optimization
         bytes32 _questionId = questionId; // gas optimization
-        return
-            abi.encode(
-                _reality,
-                _questionId,
-                IRealityV3(_reality).getArbitrator(_questionId),
-                question,
-                IRealityV3(_reality).getTimeout(_questionId),
-                IRealityV3(_reality).getOpeningTS(_questionId)
-            );
+        return abi.encode(
+            _realityAddress,
+            _questionId,
+            IRealityV3(_realityAddress).getArbitrator(_questionId),
+            question,
+            IRealityV3(_realityAddress).getTimeout(_questionId),
+            IRealityV3(_realityAddress).getOpeningTS(_questionId)
+        );
     }
 
     /// @dev View function returning info about the template used to instantiate this oracle.
     /// @return The template struct.
     function template() external view override returns (Template memory) {
-        return
-            IBaseTemplatesManager(oraclesManager).template(
-                templateId,
-                templateVersion
-            );
+        return IBaseTemplatesManager(oraclesManager).template(templateId, templateVersion);
     }
 
     function _reality() internal pure returns (address) {

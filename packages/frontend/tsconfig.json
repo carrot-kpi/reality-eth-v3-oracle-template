@@ -1,25 +1,31 @@
 {
-  "include": ["./src/**/*.tsx", "./src/**/*.ts", "./playground/app.tsx"],
-  "exclude": ["node_modules"],
-  "compilerOptions": {
-    "outDir": "./dist",
-    "module": "ESNext",
-    "lib": ["DOM", "ESNext"],
-    "sourceMap": true,
-    "strict": true,
-    "rootDirs": ["./src"],
-    "alwaysStrict": true,
-    "strictNullChecks": true,
-    "noUnusedLocals": true,
-    "noFallthroughCasesInSwitch": true,
-    "noImplicitAny": true,
-    "noImplicitThis": true,
-    "noImplicitReturns": true,
-    "moduleResolution": "node",
-    "jsx": "react-jsx",
-    "esModuleInterop": true,
-    "skipLibCheck": false,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
-  }
+    "include": [
+        "./src/**/*.tsx",
+        "./src/**/*.ts",
+        "./playground/*.ts",
+        "./playground/*.tsx"
+    ],
+    "exclude": ["node_modules"],
+    "compilerOptions": {
+        "outDir": "./dist",
+        "module": "ESNext",
+        "lib": ["DOM", "ESNext"],
+        "target": "ES6",
+        "sourceMap": true,
+        "strict": true,
+        "rootDirs": ["./src"],
+        "alwaysStrict": true,
+        "strictNullChecks": true,
+        "noUnusedLocals": true,
+        "noFallthroughCasesInSwitch": true,
+        "noImplicitAny": true,
+        "noImplicitThis": true,
+        "noImplicitReturns": true,
+        "moduleResolution": "node",
+        "jsx": "react-jsx",
+        "esModuleInterop": true,
+        "skipLibCheck": false,
+        "forceConsistentCasingInFileNames": true,
+        "resolveJsonModule": true
+    }
 }

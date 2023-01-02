@@ -17,21 +17,12 @@ struct OracleData {
 contract MockKPIToken is IKPIToken {
     address[] internal _oracles;
 
-    function initialize(InitializeKPITokenParams memory _params)
-        external
-        payable
-        override
-    {
-        OracleData[] memory _oracleData = abi.decode(
-            _params.oraclesData,
-            (OracleData[])
-        );
+    function initialize(InitializeKPITokenParams memory _params) external payable override {
+        OracleData[] memory _oracleData = abi.decode(_params.oraclesData, (OracleData[]));
         for (uint8 _i = 0; _i < _oracleData.length; _i++) {
             _oracles.push(
                 IOraclesManager1(_params.oraclesManager).instantiate(
-                    _params.creator,
-                    _oracleData[_i].templateId,
-                    _oracleData[_i].data
+                    _params.creator, _oracleData[_i].templateId, _oracleData[_i].data
                 )
             );
         }
@@ -41,27 +32,21 @@ contract MockKPIToken is IKPIToken {
 
     function redeem(bytes memory _data) external override {}
 
-    function owner() external view override returns (address) {
+    function owner() external pure override returns (address) {
         return address(0);
     }
 
     function transferOwnership(address _newOwner) external override {}
 
-    function template() external view override returns (Template memory) {
-        return
-            Template({
-                id: 1,
-                addrezz: address(0),
-                version: 1,
-                specification: "foo"
-            });
+    function template() external pure override returns (Template memory) {
+        return Template({id: 1, addrezz: address(0), version: 1, specification: "foo"});
     }
 
-    function description() external view override returns (string memory) {
+    function description() external pure override returns (string memory) {
         return "foo";
     }
 
-    function finalized() external view override returns (bool) {
+    function finalized() external pure override returns (bool) {
         return true;
     }
 
@@ -69,7 +54,7 @@ contract MockKPIToken is IKPIToken {
         return block.timestamp;
     }
 
-    function data() external view override returns (bytes memory) {
+    function data() external pure override returns (bytes memory) {
         return abi.encode();
     }
 

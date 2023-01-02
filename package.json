@@ -1,30 +1,24 @@
 {
-  "name": "reality-eth-v3-oracle-template",
-  "version": "0.1.0",
-  "description": "A Carrot template.",
-  "license": "GPL-3.0",
-  "scripts": {
-    "lint:frontend": "npm run lint -w ./packages/frontend",
-    "lint:contracts": "npm run lint -w ./packages/contracts",
-    "lint:all": "npm run lint:frontend && npm run lint:contracts",
-    "build:frontend": "npm run build -w ./packages/frontend",
-    "build:contracts": "npm run build -w ./packages/contracts",
-    "build:all": "npm run build:frontend && npm run build:contracts",
-    "test:frontend": "npm test -w ./packages/frontend",
-    "test:contracts": "npm test -w ./packages/contracts",
-    "coverage:contracts": "npm run coverage -w ./packages/contracts",
-    "test:all": "npm run test:frontend && npm run test:contracts",
-    "start:frontend": "npm start -w ./packages/frontend",
-    "lint:commit-message": "commitlint -e",
-    "prepare": "husky install"
-  },
-  "workspaces": [
-    "packages/contracts",
-    "packages/frontend"
-  ],
-  "devDependencies": {
-    "@commitlint/cli": "^17.1.2",
-    "@commitlint/config-conventional": "^17.1.0",
-    "husky": "^8.0.1"
-  }
+    "name": "@carrot-kpi/reality-eth-v3-oracle-template",
+    "version": "0.1.0",
+    "description": "A Carrot template.",
+    "license": "GPL-3.0",
+    "scripts": {
+        "build": "turbo run build",
+        "build:contracts": "pnpm build --filter contracts",
+        "lint": "turbo run lint",
+        "format": "turbo run format",
+        "start": "carrot-scripts start",
+        "test": "turbo run test",
+        "commitlint": "commitlint -e",
+        "prepare": "husky install"
+    },
+    "devDependencies": {
+        "@commitlint/cli": "^17.1.2",
+        "@commitlint/config-conventional": "^17.1.0",
+        "carrot-scripts": "0.11.0",
+        "husky": "^8.0.1",
+        "prettier": "^2.8.1",
+        "turbo": "^1.6.3"
+    }
 }
