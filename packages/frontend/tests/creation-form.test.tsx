@@ -1,5 +1,5 @@
 import { createRoot } from "react-dom/client";
-import { Component as CreationForm } from "../creation-form";
+import { Component as CreationForm } from "../src/creation-form";
 
 describe("creation form", () => {
     it("renders without crashing", () => {
