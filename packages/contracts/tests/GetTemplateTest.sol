@@ -1,11 +1,11 @@
 pragma solidity 0.8.17;
 
 import {BaseTestSetup} from "./commons/BaseTestSetup.sol";
-import {RealityV3Oracle} from "../src/RealityV3Oracle.sol";
+import {REALITY_V3_ADDRESS, RealityV3Oracle} from "../src/RealityV3Oracle.sol";
 import {IOraclesManager1} from "carrot/interfaces/oracles-managers/IOraclesManager1.sol";
 import {Template} from "carrot/interfaces/IBaseTemplatesManager.sol";
 import {InitializeOracleParams} from "carrot/commons/Types.sol";
-import {Clones} from "oz/proxy/Clones.sol";
+import {ClonesUpgradeable} from "oz-upgradeable/proxy/ClonesUpgradeable.sol";
 
 /// SPDX-License-Identifier: GPL-3.0-or-later
 /// @title Reality oracle get template test
@@ -14,13 +14,12 @@ import {Clones} from "oz/proxy/Clones.sol";
 contract GetTemplateTest is BaseTestSetup {
     function testSuccess() external {
         RealityV3Oracle oracleInstance = RealityV3Oracle(
-            Clones.clone(address(realityV3OracleTemplate))
+            ClonesUpgradeable.clone(address(realityV3OracleTemplate))
         );
         Template memory _template = oraclesManager.template(1);
-        address _realityAddress = address(1234);
         bytes32 _questionId = bytes32("questionId");
         vm.mockCall(
-            _realityAddress,
+            REALITY_V3_ADDRESS,
             abi.encodeWithSignature(
                 "askQuestionWithMinBond(uint256,string,address,uint32,uint32,uint256,uint256)"
             ),
@@ -34,12 +33,12 @@ contract GetTemplateTest is BaseTestSetup {
                 templateId: _template.id,
                 templateVersion: _template.version,
                 data: abi.encode(
-                    _realityAddress,
-                    address(1),
+                    REALITY_V3_ADDRESS,
                     0,
                     "a",
                     60,
-                    block.timestamp + 60
+                    block.timestamp + 60,
+                    0
                 )
             })
         );

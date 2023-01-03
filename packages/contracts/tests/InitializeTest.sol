@@ -1,11 +1,11 @@
 pragma solidity 0.8.17;
 
 import {BaseTestSetup} from "./commons/BaseTestSetup.sol";
-import {RealityV3Oracle} from "../src/RealityV3Oracle.sol";
+import {REALITY_V3_ADDRESS, RealityV3Oracle} from "../src/RealityV3Oracle.sol";
 import {IOraclesManager1} from "carrot/interfaces/oracles-managers/IOraclesManager1.sol";
 import {Template} from "carrot/interfaces/IBaseTemplatesManager.sol";
 import {InitializeOracleParams} from "carrot/commons/Types.sol";
-import {Clones} from "oz/proxy/Clones.sol";
+import {ClonesUpgradeable} from "oz-upgradeable/proxy/ClonesUpgradeable.sol";
 
 /// SPDX-License-Identifier: GPL-3.0-or-later
 /// @title Reality oracle intialize test
@@ -14,7 +14,7 @@ import {Clones} from "oz/proxy/Clones.sol";
 contract InitializeTest is BaseTestSetup {
     function testZeroAddressKpiToken() external {
         RealityV3Oracle oracleInstance = RealityV3Oracle(
-            Clones.clone(address(realityV3OracleTemplate))
+            ClonesUpgradeable.clone(address(realityV3OracleTemplate))
         );
         Template memory _template = oraclesManager.template(1);
         vm.expectRevert(abi.encodeWithSignature("ZeroAddressKpiToken()"));
@@ -30,34 +30,9 @@ contract InitializeTest is BaseTestSetup {
         );
     }
 
-    function testZeroAddressReality() external {
-        RealityV3Oracle oracleInstance = RealityV3Oracle(
-            Clones.clone(address(realityV3OracleTemplate))
-        );
-        Template memory _template = oraclesManager.template(1);
-        vm.expectRevert(abi.encodeWithSignature("ZeroAddressReality()"));
-        vm.prank(address(oraclesManager));
-        oracleInstance.initialize(
-            InitializeOracleParams({
-                creator: address(this),
-                kpiToken: address(1),
-                templateId: _template.id,
-                templateVersion: _template.version,
-                data: abi.encode(
-                    address(0),
-                    address(1),
-                    0,
-                    "a",
-                    60,
-                    block.timestamp + 60
-                )
-            })
-        );
-    }
-
     function testZeroAddressArbitrator() external {
         RealityV3Oracle oracleInstance = RealityV3Oracle(
-            Clones.clone(address(realityV3OracleTemplate))
+            ClonesUpgradeable.clone(address(realityV3OracleTemplate))
         );
         Template memory _template = oraclesManager.template(1);
         vm.expectRevert(abi.encodeWithSignature("ZeroAddressArbitrator()"));
@@ -69,12 +44,12 @@ contract InitializeTest is BaseTestSetup {
                 templateId: _template.id,
                 templateVersion: _template.version,
                 data: abi.encode(
-                    address(1),
                     address(0),
                     0,
                     "a",
                     60,
-                    block.timestamp + 60
+                    block.timestamp + 60,
+                    0
                 )
             })
         );
@@ -82,7 +57,7 @@ contract InitializeTest is BaseTestSetup {
 
     function testEmptyQuestion() external {
         RealityV3Oracle oracleInstance = RealityV3Oracle(
-            Clones.clone(address(realityV3OracleTemplate))
+            ClonesUpgradeable.clone(address(realityV3OracleTemplate))
         );
         Template memory _template = oraclesManager.template(1);
         vm.expectRevert(abi.encodeWithSignature("InvalidQuestion()"));
@@ -93,21 +68,14 @@ contract InitializeTest is BaseTestSetup {
                 kpiToken: address(1),
                 templateId: _template.id,
                 templateVersion: _template.version,
-                data: abi.encode(
-                    address(1),
-                    address(1),
-                    0,
-                    "",
-                    60,
-                    block.timestamp + 60
-                )
+                data: abi.encode(address(1), 0, "", 60, block.timestamp + 60, 0)
             })
         );
     }
 
     function testInvalidTimeout() external {
         RealityV3Oracle oracleInstance = RealityV3Oracle(
-            Clones.clone(address(realityV3OracleTemplate))
+            ClonesUpgradeable.clone(address(realityV3OracleTemplate))
         );
         Template memory _template = oraclesManager.template(1);
         vm.expectRevert(abi.encodeWithSignature("InvalidQuestionTimeout()"));
@@ -118,21 +86,14 @@ contract InitializeTest is BaseTestSetup {
                 kpiToken: address(1),
                 templateId: _template.id,
                 templateVersion: _template.version,
-                data: abi.encode(
-                    address(1),
-                    address(1),
-                    0,
-                    "a",
-                    0,
-                    block.timestamp + 60
-                )
+                data: abi.encode(address(1), 0, "a", 0, block.timestamp + 60, 0)
             })
         );
     }
 
     function testInvalidOpeningTimestamp() external {
         RealityV3Oracle oracleInstance = RealityV3Oracle(
-            Clones.clone(address(realityV3OracleTemplate))
+            ClonesUpgradeable.clone(address(realityV3OracleTemplate))
         );
         Template memory _template = oraclesManager.template(1);
         vm.expectRevert(abi.encodeWithSignature("InvalidOpeningTimestamp()"));
@@ -143,36 +104,23 @@ contract InitializeTest is BaseTestSetup {
                 kpiToken: address(1),
                 templateId: _template.id,
                 templateVersion: _template.version,
-                data: abi.encode(
-                    address(1),
-                    address(1),
-                    0,
-                    "a",
-                    60,
-                    block.timestamp
-                )
+                data: abi.encode(address(1), 0, "a", 60, block.timestamp, 0)
             })
         );
     }
 
     function testSuccess() external {
         RealityV3Oracle oracleInstance = RealityV3Oracle(
-            Clones.clone(address(realityV3OracleTemplate))
+            ClonesUpgradeable.clone(address(realityV3OracleTemplate))
         );
         Template memory _template = oraclesManager.template(1);
-        address _realityAddress = address(1234);
         bytes32 _questionId = bytes32("questionId");
         vm.mockCall(
-            _realityAddress,
+            REALITY_V3_ADDRESS,
             abi.encodeWithSignature(
                 "askQuestionWithMinBond(uint256,string,address,uint32,uint32,uint256,uint256)"
             ),
             abi.encode(_questionId)
-        );
-        vm.mockCall(
-            address(this),
-            abi.encodeWithSignature("template(uint256)"),
-            abi.encode(_template)
         );
         uint256 _openingTs = block.timestamp + 60;
         vm.prank(address(oraclesManager));
@@ -182,31 +130,24 @@ contract InitializeTest is BaseTestSetup {
                 kpiToken: address(1),
                 templateId: _template.id,
                 templateVersion: _template.version,
-                data: abi.encode(
-                    _realityAddress,
-                    address(1),
-                    0,
-                    "a",
-                    60,
-                    _openingTs
-                )
+                data: abi.encode(address(1), 0, "a", 60, _openingTs, 0)
             })
         );
 
         assertEq(oracleInstance.template().id, _template.id);
 
         vm.mockCall(
-            _realityAddress,
+            REALITY_V3_ADDRESS,
             abi.encodeWithSignature("getArbitrator(bytes32)"),
             abi.encode(address(1))
         );
         vm.mockCall(
-            _realityAddress,
+            REALITY_V3_ADDRESS,
             abi.encodeWithSignature("getTimeout(bytes32)"),
             abi.encode(uint32(60))
         );
         vm.mockCall(
-            _realityAddress,
+            REALITY_V3_ADDRESS,
             abi.encodeWithSignature("getOpeningTS(bytes32)"),
             abi.encode(_openingTs)
         );
@@ -222,7 +163,7 @@ contract InitializeTest is BaseTestSetup {
                 _data,
                 (address, bytes32, address, string, uint32, uint32)
             );
-        assertEq(_onChainReality, _realityAddress);
+        assertEq(_onChainReality, REALITY_V3_ADDRESS);
         assertEq(_onChainQuestionId, _questionId);
         assertEq(_onChainArbitrator, address(1));
         assertEq(_onChainQuestion, "a");

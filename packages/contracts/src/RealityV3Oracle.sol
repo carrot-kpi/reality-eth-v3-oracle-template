@@ -8,6 +8,8 @@ import {IRealityV3} from "./interfaces/external/IRealityV3.sol";
 import {IBaseTemplatesManager, Template} from "carrot/interfaces/IBaseTemplatesManager.sol";
 import {InitializeOracleParams} from "carrot/commons/Types.sol";
 
+address constant REALITY_V3_ADDRESS = address(123456789); // will be replaced by codegen-chain-specific-contracts.js
+
 /// SPDX-License-Identifier: GPL-3.0-or-later
 /// @title Reality oracle
 /// @dev An oracle template imlementation leveraging Reality.eth
@@ -85,7 +87,7 @@ contract RealityV3Oracle is IOracle, Initializable {
         templateId = _params.templateId;
         kpiToken = _params.kpiToken;
         question = _question;
-        questionId = IRealityV3(_reality()).askQuestionWithMinBond{value: msg.value}(
+        questionId = IRealityV3(REALITY_V3_ADDRESS).askQuestionWithMinBond{value: msg.value}(
             _realityTemplateId, _question, _arbitrator, _questionTimeout, _openingTimestamp, 0, _minimumBond
         );
 
@@ -97,7 +99,7 @@ contract RealityV3Oracle is IOracle, Initializable {
     function finalize() external {
         if (finalized) revert Forbidden();
         finalized = true;
-        uint256 _result = uint256(IRealityV3(_reality()).resultForOnceSettled(questionId));
+        uint256 _result = uint256(IRealityV3(REALITY_V3_ADDRESS).resultForOnceSettled(questionId));
         IKPIToken(kpiToken).finalize(_result);
         emit Finalize(_result);
     }
@@ -107,15 +109,14 @@ contract RealityV3Oracle is IOracle, Initializable {
     /// data and some.
     /// @return The ABI-encoded data.
     function data() external view override returns (bytes memory) {
-        address _realityAddress = _reality(); // gas optimization
         bytes32 _questionId = questionId; // gas optimization
         return abi.encode(
-            _realityAddress,
+            REALITY_V3_ADDRESS,
             _questionId,
-            IRealityV3(_realityAddress).getArbitrator(_questionId),
+            IRealityV3(REALITY_V3_ADDRESS).getArbitrator(_questionId),
             question,
-            IRealityV3(_realityAddress).getTimeout(_questionId),
-            IRealityV3(_realityAddress).getOpeningTS(_questionId)
+            IRealityV3(REALITY_V3_ADDRESS).getTimeout(_questionId),
+            IRealityV3(REALITY_V3_ADDRESS).getOpeningTS(_questionId)
         );
     }
 
@@ -123,9 +124,5 @@ contract RealityV3Oracle is IOracle, Initializable {
     /// @return The template struct.
     function template() external view override returns (Template memory) {
         return IBaseTemplatesManager(oraclesManager).template(templateId, templateVersion);
-    }
-
-    function _reality() internal pure returns (address) {
-        return address(123456789); // will be replaced by codegen-chain-specific-contracts.js
     }
 }

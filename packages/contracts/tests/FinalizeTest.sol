@@ -1,11 +1,11 @@
 pragma solidity 0.8.17;
 
 import {BaseTestSetup} from "./commons/BaseTestSetup.sol";
-import {RealityV3Oracle} from "../src/RealityV3Oracle.sol";
+import {REALITY_V3_ADDRESS, RealityV3Oracle} from "../src/RealityV3Oracle.sol";
 import {IOraclesManager1} from "carrot/interfaces/oracles-managers/IOraclesManager1.sol";
 import {Template} from "carrot/interfaces/IBaseTemplatesManager.sol";
 import {InitializeOracleParams} from "carrot/commons/Types.sol";
-import {Clones} from "oz/proxy/Clones.sol";
+import {ClonesUpgradeable} from "oz-upgradeable/proxy/ClonesUpgradeable.sol";
 import {MockKPIToken, OracleData} from "./mocks/MockKPIToken.sol";
 
 /// SPDX-License-Identifier: GPL-3.0-or-later
@@ -15,13 +15,12 @@ import {MockKPIToken, OracleData} from "./mocks/MockKPIToken.sol";
 contract FinalizeTest is BaseTestSetup {
     function testRealityQuestionNotFinalized() external {
         RealityV3Oracle oracleInstance = RealityV3Oracle(
-            Clones.clone(address(realityV3OracleTemplate))
+            ClonesUpgradeable.clone(address(realityV3OracleTemplate))
         );
         Template memory _template = oraclesManager.template(1);
-        address _realityAddress = address(1234);
         bytes32 _questionId = bytes32("questionId");
         vm.mockCall(
-            _realityAddress,
+            REALITY_V3_ADDRESS,
             abi.encodeWithSignature(
                 "askQuestionWithMinBond(uint256,string,address,uint32,uint32,uint256,uint256)"
             ),
@@ -35,18 +34,18 @@ contract FinalizeTest is BaseTestSetup {
                 templateId: _template.id,
                 templateVersion: _template.version,
                 data: abi.encode(
-                    _realityAddress,
-                    address(1),
+                    REALITY_V3_ADDRESS,
                     0,
                     "a",
                     60,
-                    block.timestamp + 60
+                    block.timestamp + 60,
+                    0
                 )
             })
         );
 
         vm.mockCall(
-            _realityAddress,
+            REALITY_V3_ADDRESS,
             abi.encodeWithSignature("resultForOnceSettled(bytes32)"),
             abi.encode("")
         );
@@ -58,21 +57,20 @@ contract FinalizeTest is BaseTestSetup {
     }
 
     function testSuccess() external {
-        address _reality = address(42);
         vm.mockCall(
-            _reality,
+            REALITY_V3_ADDRESS,
             abi.encodeWithSignature(
                 "askQuestionWithMinBond(uint256,string,address,uint32,uint32,uint256,uint256)"
             ),
             abi.encode(bytes32("question id"))
         );
         bytes memory realityV3OracleInitializationData = abi.encode(
-            _reality,
-            address(this),
+            REALITY_V3_ADDRESS,
             1,
             "Test?",
             60,
-            block.timestamp + 60
+            block.timestamp + 60,
+            0
         );
         OracleData[] memory _oracleDatas = new OracleData[](1);
         _oracleDatas[0] = OracleData({
@@ -107,7 +105,7 @@ contract FinalizeTest is BaseTestSetup {
         );
 
         vm.mockCall(
-            address(42),
+            REALITY_V3_ADDRESS,
             abi.encodeWithSignature("resultForOnceSettled(bytes32)"),
             abi.encode(bytes32("1234"))
         );
