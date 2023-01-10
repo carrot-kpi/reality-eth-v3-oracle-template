@@ -8,6 +8,4 @@ module.exports = {
         join(__dirname, "./src/**/*.{js,jsx,ts,tsx}"),
     ],
     presets: [require("@carrot-kpi/ui/tailwind-preset")],
-    theme: {},
-    plugins: [require("@tailwindcss/typography")],
 };
