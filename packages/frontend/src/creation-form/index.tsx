@@ -1,6 +1,9 @@
 import { ChangeEvent, ReactElement, useCallback, useState } from "react";
 import { ethers } from "ethers";
 import { NamespacedTranslateFunction } from "@carrot-kpi/react";
+import { TextInput, Button } from "@carrot-kpi/ui";
+
+import "../global.css";
 
 interface CreationFormProps {
     t: NamespacedTranslateFunction;
@@ -25,17 +28,16 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
     }, [onDone, test]);
 
     return (
-        <div>
-            <label htmlFor="test">{t("label.test")}</label>
-            <br />
-            <input
+        <div className="flex flex-col gap-2 w-fit">
+            <TextInput
                 id="test"
+                label={t("label.test")}
                 placeholder="Test"
                 onChange={handleTestChange}
                 value={test}
             />
             <br />
-            <button onClick={handleSubmit}>{t("submit")}</button>
+            <Button onClick={handleSubmit}>{t("submit")}</Button>
         </div>
     );
 };
