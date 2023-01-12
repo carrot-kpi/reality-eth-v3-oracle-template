@@ -137,8 +137,8 @@ const App = (): ReactElement => {
         if (!isConnected) connect({ connector: connectors[0] });
     }, [connect, connectors, isConnected]);
 
-    const handleDone = (to: Address, data: string, value: BigNumber): void => {
-        console.log(to, data, value.toString());
+    const handleDone = (data: string, value: BigNumber): void => {
+        console.log(data, value.toString());
     };
 
     return (
