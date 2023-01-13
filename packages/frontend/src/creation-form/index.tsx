@@ -51,6 +51,7 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
     const [openingTimestamp, setOpeningTimestamp] = useState("");
     const [minimumBond, setMinimumBond] = useState("");
     const [validInput, setValidInput] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!!chain && chain.id in SupportedChain)
@@ -123,7 +124,13 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
             chain.nativeCurrency.decimals
         );
         const uploadToIpfsAndSubmit = async () => {
-            const questionCid = await uploadToIpfs(question);
+            setLoading(true);
+            let questionCid;
+            try {
+                questionCid = await uploadToIpfs(question);
+            } finally {
+                setLoading(false);
+            }
             onDone(
                 ethers.utils.defaultAbiCoder.encode(
                     [
@@ -162,29 +169,25 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
     return (
         <div className="flex flex-col gap-2 w-fit">
             <div className="md:flex md:gap-2">
-                <div className="md:w-1/2">
-                    <Select
-                        id="arbitrator"
-                        className="w-full"
-                        label={t("label.arbitrator")}
-                        placeholder={t("placeholder.pick")}
-                        onChange={setArbitrator}
-                        options={arbitratorsByChain}
-                        renderOption={ArbitratorOption}
-                        value={arbitrator}
-                    />
-                </div>
-                <div className="md:w-1/2">
-                    <Select
-                        id="reality-template"
-                        className="w-full"
-                        label={t("label.reality.template")}
-                        placeholder={t("placeholder.pick")}
-                        onChange={setRealityTemplateId}
-                        options={REALITY_TEMPLATE_OPTIONS}
-                        value={realityTemplateId}
-                    />
-                </div>
+                <Select
+                    id="arbitrator"
+                    className="cuis-[cui-select-input]:w-full cuis-[cui-select-wrapper]:w-full w-full"
+                    label={t("label.arbitrator")}
+                    placeholder={t("placeholder.pick")}
+                    onChange={setArbitrator}
+                    options={arbitratorsByChain}
+                    renderOption={ArbitratorOption}
+                    value={arbitrator}
+                />
+                <Select
+                    id="reality-template"
+                    className="cuis-[cui-select-input]:w-full cuis-[cui-select-wrapper]:w-full w-full"
+                    label={t("label.reality.template")}
+                    placeholder={t("placeholder.pick")}
+                    onChange={setRealityTemplateId}
+                    options={REALITY_TEMPLATE_OPTIONS}
+                    value={realityTemplateId}
+                />
             </div>
             <div className="md:flex md:gap-2">
                 <div className="md:w-1/2">
@@ -228,6 +231,7 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
                 className="mt-2"
                 onClick={handleSubmit}
                 disabled={!validInput}
+                loading={loading}
             >
                 {t("confirm")}
             </Button>
