@@ -21,7 +21,7 @@
     "scripts": {
         "lint": "eslint --ext .ts,.tsx ./ && prettier --check .",
         "format": "eslint --fix --ext .tsx,.ts,.js ./ && prettier --write .",
-        "build": "./scripts/build.js",
+        "build": "NODE_ENV=production node ./scripts/build.js",
         "test": "echo 'Fix issues with pnpm and Jest not resolving modules'"
     },
     "devDependencies": {
@@ -41,6 +41,7 @@
         "carrot-scripts": "0.11.0",
         "chalk": "^5.0.1",
         "css-loader": "^6.7.2",
+        "cssnano": "^5.1.14",
         "dayjs": "^1.11.7",
         "eslint-config-custom": "workspace:*",
         "eslint-plugin-react": "^7.31.11",
