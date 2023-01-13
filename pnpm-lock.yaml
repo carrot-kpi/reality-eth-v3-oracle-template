@@ -4,15 +4,12 @@ importers:
 
   .:
     specifiers:
-      '@carrot-kpi/ui': ^0.8.1
       '@commitlint/cli': ^17.1.2
       '@commitlint/config-conventional': ^17.1.0
       carrot-scripts: 0.11.0
       husky: ^8.0.1
       prettier: ^2.8.1
       turbo: ^1.6.3
-    dependencies:
-      '@carrot-kpi/ui': 0.8.1_vw4w2yebqmo2q3qzachhz5finy
     devDependencies:
       '@commitlint/cli': 17.3.0
       '@commitlint/config-conventional': 17.3.0
@@ -56,9 +53,9 @@ importers:
 
   packages/frontend:
     specifiers:
-      '@carrot-kpi/react': ^0.19.0
+      '@carrot-kpi/react': ^0.21.0
       '@carrot-kpi/sdk': ^1.12.0
-      '@carrot-kpi/ui': ^0.8.4
+      '@carrot-kpi/ui': ^0.9.1
       '@fontsource/ibm-plex-mono': ^4.5.13
       '@svgr/webpack': ^6.5.1
       '@tailwindcss/typography': ^0.5.8
@@ -102,9 +99,9 @@ importers:
       webpack: ^5.74.0
       webpack-dev-server: ^4.11.1
     devDependencies:
-      '@carrot-kpi/react': 0.19.0_la45jg7fdtokkunkflyz2zhj2e
+      '@carrot-kpi/react': 0.21.0_la45jg7fdtokkunkflyz2zhj2e
       '@carrot-kpi/sdk': 1.12.0
-      '@carrot-kpi/ui': 0.8.4_vw4w2yebqmo2q3qzachhz5finy
+      '@carrot-kpi/ui': 0.9.1_vw4w2yebqmo2q3qzachhz5finy
       '@fontsource/ibm-plex-mono': 4.5.13
       '@svgr/webpack': 6.5.1
       '@tailwindcss/typography': 0.5.8_tailwindcss@3.2.4
@@ -1507,8 +1504,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@carrot-kpi/react/0.19.0_la45jg7fdtokkunkflyz2zhj2e:
-    resolution: {integrity: sha512-Aaw7LWzZdDRbHwhuwCZG37uhKNNmM9AuWj8zHQ6ltfEYABgY4zLmB/WyidKa9K+dshn7yirnvUg7jXC206Z3NA==}
+  /@carrot-kpi/react/0.21.0_la45jg7fdtokkunkflyz2zhj2e:
+    resolution: {integrity: sha512-+56LWwnbwxojSO1A1PYqajkDuNVX8UvqxTR6XgNkmB1sShQxyEAa2A4DifDI+KHbCSRMqv0OC6XPTkKCpUomVg==}
     peerDependencies:
       i18next: ^22.0.2
       react: ^18.2.0
@@ -1543,18 +1540,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@carrot-kpi/ui/0.8.1_vw4w2yebqmo2q3qzachhz5finy:
-    resolution: {integrity: sha512-x5/nRWS/d0S2dDNjc9HGaZ/Y+1RuJm08eoM00Ix0tSaXn/x920qAC8ZFDtckwbptSMh/JOH1UcX+orx25QUrwA==}
-    peerDependencies:
-      '@fontsource/ibm-plex-mono': ^4.5.12
-      react: ^18.2.0
-    dependencies:
-      '@fontsource/ibm-plex-mono': 4.5.13
-      react: 18.2.0
-    dev: false
-
-  /@carrot-kpi/ui/0.8.4_vw4w2yebqmo2q3qzachhz5finy:
-    resolution: {integrity: sha512-quQ3CBI6TcgUgAJmsIiMBjzVWIemSt3IbhfD2+wnw6RuiRvLxG0BfGc/xJP++vN2yATF6/i8pshupWeltQDpjA==}
+  /@carrot-kpi/ui/0.9.1_vw4w2yebqmo2q3qzachhz5finy:
+    resolution: {integrity: sha512-SBlU8wtG75L6NzxlMv7ut8xKTm+o5guaDyE71NUmf5/VI3Kl+smen1udiI+OrRblrjnsjkpDy0b3O4hDP5lw3A==}
     peerDependencies:
       '@fontsource/ibm-plex-mono': ^4.5.12
       react: ^18.2.0
@@ -2162,6 +2149,7 @@ packages:
 
   /@fontsource/ibm-plex-mono/4.5.13:
     resolution: {integrity: sha512-KAE7X2LgCV4X6p7vj1h2phRnhPX4YUa8FBAB0Jj9xW7Q+p+k2ce4HEAMJJ2RFHI075ClgQx+KZuDBNuiKgp5yw==}
+    dev: true
 
   /@grpc/grpc-js/1.8.0:
     resolution: {integrity: sha512-ySMTXQuMvvswoobvN+0LsaPf7ITO2JVfJmHxQKI4cGehNrrUms+n81BlHEX7Hl/LExji6XE3fnI9U04GSkRruA==}
@@ -10995,6 +10983,7 @@ packages:
     hasBin: true
     dependencies:
       js-tokens: 4.0.0
+    dev: true
 
   /lower-case/2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
@@ -12533,6 +12522,7 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
+    dev: true
 
   /read-cache/1.0.0:
     resolution: {integrity: sha512-Owdv/Ft7IjOgm/i0xvNDZ1LrRANRfew4b2prF3OWMQLxLfu3bS8FVhCsrSCMK4lR56Y9ya+AThoTpDCTxCmpRA==}

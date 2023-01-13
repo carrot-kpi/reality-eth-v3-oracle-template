@@ -75,9 +75,9 @@ export const startPlayground = async (
             new webpack.container.ModuleFederationPlugin({
                 name: "host",
                 shared: {
-                    "@carrot-kpi/react": "^0.19.0",
+                    "@carrot-kpi/react": "^0.21.0",
                     "@carrot-kpi/sdk": "^1.12.0",
-                    "@carrot-kpi/ui": "^0.8.4",
+                    "@carrot-kpi/ui": "^0.9.1",
                     ethers: "^5.7.1",
                     react: { requiredVersion: "^18.2.0", singleton: true },
                     "react-dom": {
@@ -158,9 +158,9 @@ export const startPlayground = async (
                     ),
                 },
                 shared: {
-                    "@carrot-kpi/react": "^0.19.0",
+                    "@carrot-kpi/react": "^0.21.0",
                     "@carrot-kpi/sdk": "^1.12.0",
-                    "@carrot-kpi/ui": "^0.8.4",
+                    "@carrot-kpi/ui": "^0.9.1",
                     ethers: "^5.7.1",
                     react: { requiredVersion: "^18.2.0", singleton: true },
                     "react-dom": {
@@ -182,9 +182,9 @@ export const startPlayground = async (
                     ),
                 },
                 shared: {
-                    "@carrot-kpi/react": "^0.19.0",
+                    "@carrot-kpi/react": "^0.21.0",
                     "@carrot-kpi/sdk": "^1.12.0",
-                    "@carrot-kpi/ui": "^0.8.4",
+                    "@carrot-kpi/ui": "^0.9.1",
                     ethers: "^5.7.1",
                     react: { requiredVersion: "^18.2.0", singleton: true },
                     "react-dom": {
