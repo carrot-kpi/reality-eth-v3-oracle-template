@@ -54,12 +54,18 @@ export const startPlayground = async (
                             loader: "@svgr/webpack",
                             options: {
                                 prettier: false,
-                                svgo: false,
                                 svgoConfig: {
-                                    plugins: [{ removeViewBox: false }],
+                                    plugins: [
+                                        {
+                                            name: "preset-default",
+                                            params: {
+                                                overrides: {
+                                                    removeViewBox: false,
+                                                },
+                                            },
+                                        },
+                                    ],
                                 },
-                                titleProp: true,
-                                ref: true,
                             },
                         },
                         "url-loader",
@@ -125,12 +131,18 @@ export const startPlayground = async (
                             loader: "@svgr/webpack",
                             options: {
                                 prettier: false,
-                                svgo: false,
                                 svgoConfig: {
-                                    plugins: [{ removeViewBox: false }],
+                                    plugins: [
+                                        {
+                                            name: "preset-default",
+                                            params: {
+                                                overrides: {
+                                                    removeViewBox: false,
+                                                },
+                                            },
+                                        },
+                                    ],
                                 },
-                                titleProp: true,
-                                ref: true,
                             },
                         },
                         "url-loader",
