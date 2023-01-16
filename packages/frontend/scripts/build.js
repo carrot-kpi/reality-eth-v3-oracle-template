@@ -67,8 +67,22 @@ const main = async () => {
                             ],
                         },
                         {
-                            test: /\.svg/,
-                            type: "asset/resource",
+                            test: /\.svg$/,
+                            use: [
+                                {
+                                    loader: "@svgr/webpack",
+                                    options: {
+                                        prettier: false,
+                                        svgo: false,
+                                        svgoConfig: {
+                                            plugins: [{ removeViewBox: false }],
+                                        },
+                                        titleProp: true,
+                                        ref: true,
+                                    },
+                                },
+                                "url-loader",
+                            ],
                         },
                     ],
                 },
