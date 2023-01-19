@@ -1,4 +1,11 @@
 {
-    "label.test": "Test field:",
-    "submit": "Submit"
+    "label.arbitrator": "Arbitrator:",
+    "label.reality.template": "Result type:",
+    "label.question": "Question:",
+    "label.question.timeout": "Question timeout:",
+    "label.opening.timestamp": "Opening timestamp:",
+    "label.minimum.bond": "Minimum bond:",
+    "placeholder.pick": "Pick an option:",
+    "placeholder.number": "10",
+    "confirm": "Confirm"
 }

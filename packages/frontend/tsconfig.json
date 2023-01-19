@@ -1,5 +1,12 @@
 {
-    "include": ["tests/**/*", "src/**/*", "playground/**/*"],
+    "include": [
+        "./src/**/*.tsx",
+        "./src/**/*.ts",
+        "./tests/**/*.ts",
+        "./tests/**/*.tsx",
+        "./playground/*.tsx",
+        "./custom.d.ts"
+    ],
     "exclude": ["node_modules"],
     "compilerOptions": {
         "outDir": "./dist",
@@ -8,7 +15,6 @@
         "target": "ES6",
         "sourceMap": true,
         "strict": true,
-        "rootDirs": ["./src"],
         "alwaysStrict": true,
         "strictNullChecks": true,
         "noUnusedLocals": true,
