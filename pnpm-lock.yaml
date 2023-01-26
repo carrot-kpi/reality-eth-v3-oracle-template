@@ -53,10 +53,11 @@ importers:
 
   packages/frontend:
     specifiers:
-      '@carrot-kpi/react': ^0.22.0
-      '@carrot-kpi/sdk': ^1.12.0
+      '@carrot-kpi/react': ^0.22.1
+      '@carrot-kpi/sdk': ^1.13.2
       '@carrot-kpi/ui': ^0.14.0
       '@fontsource/ibm-plex-mono': ^4.5.13
+      '@fontsource/inter': ^4.5.15
       '@svgr/webpack': ^6.5.1
       '@testing-library/jest-dom': ^5.16.5
       '@testing-library/react': ^13.4.0
@@ -99,10 +100,11 @@ importers:
       webpack: ^5.74.0
       webpack-dev-server: ^4.11.1
     devDependencies:
-      '@carrot-kpi/react': 0.22.0_la45jg7fdtokkunkflyz2zhj2e
-      '@carrot-kpi/sdk': 1.12.0
+      '@carrot-kpi/react': 0.22.1_la45jg7fdtokkunkflyz2zhj2e
+      '@carrot-kpi/sdk': 1.13.2
       '@carrot-kpi/ui': 0.14.0_3fvy73eluhhwbcsr3rzvk5exqe
       '@fontsource/ibm-plex-mono': 4.5.13
+      '@fontsource/inter': 4.5.15
       '@svgr/webpack': 6.5.1
       '@testing-library/jest-dom': 5.16.5
       '@testing-library/react': 13.4.0_biqbaboplfbrettd7655fr4n2y
@@ -1601,15 +1603,15 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@carrot-kpi/react/0.22.0_la45jg7fdtokkunkflyz2zhj2e:
-    resolution: {integrity: sha512-wM0+JJ+2nXhfKXF5en8bpxT4g+3Y0KoynwyyHiCRzQ+RHem20etuNaI4wnm0vzVGOC7FMIHIq+kLAcfloioebQ==}
+  /@carrot-kpi/react/0.22.1_la45jg7fdtokkunkflyz2zhj2e:
+    resolution: {integrity: sha512-KLDPxp1Oh/fagJjirlKB3aO8GIXbydTgTHhSEYtgkpTuwLaZvbKz5+X0/CV5vjn+9ZUKt6pg+3FIsxNYVzI6Ug==}
     peerDependencies:
       i18next: ^22.0.2
       react: ^18.2.0
       react-i18next: ^12.0.0
       wagmi: ^0.9.5
     dependencies:
-      '@carrot-kpi/sdk': 1.12.0
+      '@carrot-kpi/sdk': 1.13.2
       '@ethersproject/bignumber': 5.7.0
       '@uniswap/token-lists': 1.0.0-beta.31
       i18next: 22.4.9
@@ -1623,6 +1625,23 @@ packages:
 
   /@carrot-kpi/sdk/1.12.0:
     resolution: {integrity: sha512-X7xGFXxFDsnia4U4MYgrkqB3bYmrMCSK/xf+vOt658qo2NhCITVJLXWfDpUw8T2iR+6CaplfQjIhOVxCm+iXWw==}
+    dependencies:
+      '@ethersproject/address': 5.7.0
+      '@ethersproject/bignumber': 5.7.0
+      '@ethersproject/contracts': 5.7.0
+      '@ethersproject/providers': 5.7.2
+      '@ethersproject/units': 5.7.0
+      '@ethersproject/wallet': 5.7.0
+      decimal.js-light: 2.5.1
+      ethers: 5.7.2
+      multiformats: 9.9.0
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
+    dev: true
+
+  /@carrot-kpi/sdk/1.13.2:
+    resolution: {integrity: sha512-tOF0hdxQH5MjEHs6Ruiiww0xmdWklsKk+9rtnMJYvz2jjlyR963EhLUkvvr9qr31p91rAYRbZ0U14pjR0paWyg==}
     dependencies:
       '@ethersproject/address': 5.7.0
       '@ethersproject/bignumber': 5.7.0
@@ -2295,6 +2314,10 @@ packages:
 
   /@fontsource/ibm-plex-mono/4.5.13:
     resolution: {integrity: sha512-KAE7X2LgCV4X6p7vj1h2phRnhPX4YUa8FBAB0Jj9xW7Q+p+k2ce4HEAMJJ2RFHI075ClgQx+KZuDBNuiKgp5yw==}
+    dev: true
+
+  /@fontsource/inter/4.5.15:
+    resolution: {integrity: sha512-FzleM9AxZQK2nqsTDtBiY0PMEVWvnKnuu2i09+p6DHvrHsuucoV2j0tmw+kAT3L4hvsLdAIDv6MdGehsPIdT+Q==}
     dev: true
 
   /@grpc/grpc-js/1.8.0:
@@ -6715,7 +6738,7 @@ packages:
     engines: {node: '>=14.8'}
     hasBin: true
     dependencies:
-      '@carrot-kpi/sdk': 1.12.0
+      '@carrot-kpi/sdk': 1.13.2
       chalk: 4.1.2
       ethers: 5.7.2
       ganache: 7.7.2
@@ -9955,7 +9978,7 @@ packages:
       nanoid: 4.0.0
       protobufjs: 7.1.2
       uint8arrays: 4.0.3
-      ws: 8.11.0
+      ws: 8.12.0
     transitivePeerDependencies:
       - bufferutil
       - supports-color
