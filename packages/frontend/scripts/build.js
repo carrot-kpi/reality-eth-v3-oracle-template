@@ -106,10 +106,6 @@ const main = async () => {
                     ],
                 },
                 plugins: [
-                    // TODO: further globals might be passed by carrot-scripts??
-                    new webpack.DefinePlugin({
-                        __DEV__: JSON.stringify(false),
-                    }),
                     new MiniCssExtractPlugin(),
                     new webpack.container.ModuleFederationPlugin({
                         name: `${commitHash}creationForm`,
@@ -132,9 +128,8 @@ const main = async () => {
                             ),
                         },
                         shared: {
-                            "@carrot-kpi/react": "^0.21.0",
+                            "@carrot-kpi/react": "^0.22.0",
                             "@carrot-kpi/sdk": "^1.12.0",
-                            "@carrot-kpi/ui": "^0.9.1",
                             ethers: "^5.7.1",
                             react: {
                                 requiredVersion: "^18.2.0",
@@ -165,9 +160,8 @@ const main = async () => {
                             ),
                         },
                         shared: {
-                            "@carrot-kpi/react": "^0.21.0",
+                            "@carrot-kpi/react": "^0.22.0",
                             "@carrot-kpi/sdk": "^1.12.0",
-                            "@carrot-kpi/ui": "^0.9.1",
                             ethers: "^5.7.1",
                             react: {
                                 requiredVersion: "^18.2.0",
