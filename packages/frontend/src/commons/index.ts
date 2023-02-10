@@ -4,7 +4,7 @@ import { FunctionComponent, SVGProps } from "react";
 import { Address } from "wagmi";
 import { ReactComponent as CarrotIcon } from "../assets/carrot.svg";
 
-export type SupportedChain = Extract<ChainId, ChainId.SEPOLIA>;
+export type SupportedChain = Extract<ChainId, ChainId.SEPOLIA | ChainId.GOERLI>;
 export const SupportedChain = {
     [ChainId.SEPOLIA]: ChainId.SEPOLIA,
 } as const;
@@ -17,6 +17,13 @@ export interface Arbitrator {
 
 export const ARBITRATORS_BY_CHAIN: Record<SupportedChain, Arbitrator[]> = {
     [ChainId.SEPOLIA]: [
+        {
+            address: "0x0000000000000000000000000000000000000001",
+            name: "Carrot guild",
+            icon: CarrotIcon,
+        },
+    ],
+    [ChainId.GOERLI]: [
         {
             address: "0x0000000000000000000000000000000000000001",
             name: "Carrot guild",
