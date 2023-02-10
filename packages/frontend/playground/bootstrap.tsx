@@ -3,7 +3,6 @@ import {
     CreationForm,
     useOracleTemplates,
 } from "@carrot-kpi/react";
-import { CarrotUIProvider } from "@carrot-kpi/ui";
 import { ReactElement, useEffect, useMemo } from "react";
 import { createRoot } from "react-dom/client";
 import { Wallet, providers, Signer, BigNumber } from "ethers";
@@ -152,7 +151,7 @@ const App = (): ReactElement => {
                     i18n={i18next}
                     fallback={<>Loading...</>}
                     template={templates[0]}
-                    customBaseUrl={"http://localhost:9002/"}
+                    customBaseURL={"http://localhost:9002/"}
                     onDone={handleDone}
                 />
             )}
@@ -184,10 +183,8 @@ createRoot(document.getElementById("root")!).render(
         getConnectors={(chains: Chain[]) => [
             new CarrotConnector({ chains, options: {} }) as Connector,
         ]}
-        ipfsGateway={CCT_IPFS_GATEWAY_URL}
+        ipfsGatewayURL={CCT_IPFS_GATEWAY_URL}
     >
-        <CarrotUIProvider>
-            <App />
-        </CarrotUIProvider>
+        <App />
     </CarrotCoreProvider>
 );
