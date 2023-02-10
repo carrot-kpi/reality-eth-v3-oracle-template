@@ -305,3 +305,4 @@ yarn-debug.log*
 yarn-error.log*
 
 RealityV3Oracle[0-9]*.sol
+.env*
