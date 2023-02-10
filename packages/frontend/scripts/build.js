@@ -18,6 +18,7 @@ import { formatWebpackMessages } from "../.cct/utils/format-webpack-messages.js"
 const main = async () => {
     const __dirname = dirname(fileURLToPath(import.meta.url));
     const require = createRequire(import.meta.url);
+    const shared = require("@carrot-kpi/frontend/shared-dependencies.json");
 
     const outDir = join(__dirname, "../dist");
     let spinner = ora();
@@ -117,20 +118,7 @@ const main = async () => {
                                 "../src/creation-form/i18n/index.ts"
                             ),
                         },
-                        shared: {
-                            "@carrot-kpi/react": "^0.22.1",
-                            "@carrot-kpi/sdk": "^1.13.2",
-                            ethers: "^5.7.1",
-                            react: {
-                                requiredVersion: "^18.2.0",
-                                singleton: true,
-                            },
-                            "react-dom": {
-                                requiredVersion: "^18.2.0",
-                                singleton: true,
-                            },
-                            wagmi: "^0.9.5",
-                        },
+                        shared,
                     }),
                     new webpack.container.ModuleFederationPlugin({
                         name: `${commitHash}page`,
@@ -145,20 +133,7 @@ const main = async () => {
                                 "../src/page/i18n/index.ts"
                             ),
                         },
-                        shared: {
-                            "@carrot-kpi/react": "^0.22.1",
-                            "@carrot-kpi/sdk": "^1.13.2",
-                            ethers: "^5.7.1",
-                            react: {
-                                requiredVersion: "^18.2.0",
-                                singleton: true,
-                            },
-                            "react-dom": {
-                                requiredVersion: "^18.2.0",
-                                singleton: true,
-                            },
-                            wagmi: "^0.9.5",
-                        },
+                        shared,
                     }),
                 ],
             },

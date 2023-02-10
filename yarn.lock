@@ -1067,7 +1067,20 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@carrot-kpi/react@^0.25.2":
+"@carrot-kpi/frontend@^1.0.0-rc.26":
+  version "1.0.0-rc.26"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/frontend/-/frontend-1.0.0-rc.26.tgz#7843c8eb1d8f13b886a8d44092391389ed2a989f"
+  integrity sha512-q70tMThyFmLGagsPP8voB1NB0vgWvs/5clnr2+fzJwx0uh2izUIiWs82UwKl0tRUWgJ7kU9i3xaY3NPiqCxd2A==
+  dependencies:
+    "@carrot-kpi/react" "*"
+    "@carrot-kpi/sdk" "*"
+    "@carrot-kpi/ui" "*"
+    class-variance-authority "^0.4.0"
+    ethereum-blockies-base64 "^1.0.2"
+    ethers "^5.7.1"
+    react-router-dom "^6.3.0"
+
+"@carrot-kpi/react@*", "@carrot-kpi/react@^0.25.2":
   version "0.25.2"
   resolved "https://registry.yarnpkg.com/@carrot-kpi/react/-/react-0.25.2.tgz#eaf408910df5b971a577291b53665e8e9c911617"
   integrity sha512-WLK+SaygAXgCiLqV91ldxJTYjIepUITpgpHZhfxZUd3WpBjYZAVeonJvYAfgk4IMIjrmXdrYo/tCaYvT0RiFLw==
@@ -1090,7 +1103,7 @@
     decimal.js-light "^2.5.1"
     multiformats "^9.9.0"
 
-"@carrot-kpi/ui@^0.21.0":
+"@carrot-kpi/ui@*", "@carrot-kpi/ui@^0.21.0":
   version "0.21.0"
   resolved "https://registry.yarnpkg.com/@carrot-kpi/ui/-/ui-0.21.0.tgz#2c52e10e6e8cd3742ff3ec51c22b626f8a1d1042"
   integrity sha512-hrs7uflC3ILTMYa5ncN1urq9dJHDji4LHYER7JtuzPo5juZWQuDlM4Hp4sp7O6QdBi3ntzFqC6JKewek8WojoA==
@@ -3268,6 +3281,11 @@
   integrity sha512-7HQbW7k8VxrAtfzs9FxwO6XSDabn8tSFDi1wwzShOnU+cvaYpfxu0ygyTk3TpXsag1hgFKY3ZIlAfB4WVz2LkQ==
   dependencies:
     type-fest "^2.0.0"
+
+"@remix-run/router@1.3.2":
+  version "1.3.2"
+  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.3.2.tgz#58cd2bd25df2acc16c628e1b6f6150ea6c7455bc"
+  integrity sha512-t54ONhl/h75X94SWsHGQ4G/ZrCEguKSRQr7DrjTciJXW0YU1QhlwYeycvK5JgkzlxmvrK7wq1NB/PLtHxoiDcA==
 
 "@sideway/address@^4.1.3":
   version "4.1.4"
@@ -7465,6 +7483,13 @@ eth-sig-util@^1.4.2:
   dependencies:
     ethereumjs-abi "git+https://github.com/ethereumjs/ethereumjs-abi.git"
     ethereumjs-util "^5.1.1"
+
+ethereum-blockies-base64@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/ethereum-blockies-base64/-/ethereum-blockies-base64-1.0.2.tgz#4aebca52142bf4d16a3144e6e2b59303e39ed2b3"
+  integrity sha512-Vg2HTm7slcWNKaRhCUl/L3b4KrB8ohQXdd5Pu3OI897EcR6tVRvUqdTwAyx+dnmoDzj8e2bwBLDQ50ByFmcz6w==
+  dependencies:
+    pnglib "0.0.1"
 
 ethereum-cryptography@^0.1.3:
   version "0.1.3"
@@ -12112,6 +12137,11 @@ pngjs@^3.3.0:
   resolved "https://registry.yarnpkg.com/pngjs/-/pngjs-3.4.0.tgz#99ca7d725965fb655814eaf65f38f12bbdbf555f"
   integrity sha512-NCrCHhWmnQklfH4MtJMRjZ2a8c80qXeMlQMv2uVp9ISJMTt562SbGd6n2oq0PaPgKm7Z6pL9E2UlLIhC+SHL3w==
 
+pnglib@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/pnglib/-/pnglib-0.0.1.tgz#f9ab6f9c688f4a9d579ad8be28878a716e30c096"
+  integrity sha512-95ChzOoYLOPIyVmL+Y6X+abKGXUJlvOVLkB1QQkyXl7Uczc6FElUy/x01NS7r2GX6GRezloO/ecCX9h4U9KadA==
+
 postcss-calc@^8.2.3:
   version "8.2.4"
   resolved "https://registry.yarnpkg.com/postcss-calc/-/postcss-calc-8.2.4.tgz#77b9c29bfcbe8a07ff6693dc87050828889739a5"
@@ -12952,6 +12982,21 @@ react-popper@^2.3.0:
   dependencies:
     react-fast-compare "^3.0.1"
     warning "^4.0.2"
+
+react-router-dom@^6.3.0:
+  version "6.8.1"
+  resolved "https://registry.yarnpkg.com/react-router-dom/-/react-router-dom-6.8.1.tgz#7e136b67d9866f55999e9a8482c7008e3c575ac9"
+  integrity sha512-67EXNfkQgf34P7+PSb6VlBuaacGhkKn3kpE51+P6zYSG2kiRoumXEL6e27zTa9+PGF2MNXbgIUHTVlleLbIcHQ==
+  dependencies:
+    "@remix-run/router" "1.3.2"
+    react-router "6.8.1"
+
+react-router@6.8.1:
+  version "6.8.1"
+  resolved "https://registry.yarnpkg.com/react-router/-/react-router-6.8.1.tgz#e362caf93958a747c649be1b47cd505cf28ca63e"
+  integrity sha512-Jgi8BzAJQ8MkPt8ipXnR73rnD7EmZ0HFFb7jdQU24TynGW1Ooqin2KVDN9voSC+7xhqbbCd2cjGUepb6RObnyg==
+  dependencies:
+    "@remix-run/router" "1.3.2"
 
 react-shallow-renderer@^16.15.0:
   version "16.15.0"
