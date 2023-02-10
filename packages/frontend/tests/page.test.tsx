@@ -4,7 +4,7 @@ import {
     Template,
     TemplateSpecification,
 } from "@carrot-kpi/sdk";
-import { utils, Wallet } from "ethers";
+import { Wallet } from "ethers";
 import { createRoot } from "react-dom/client";
 import { Component as Page } from "../src/page";
 import baseSpec from "../src/base.json";
@@ -32,33 +32,11 @@ describe("page", () => {
             templateSpecification
         );
 
-        const now = Math.floor(Date.now() / 1000);
-
         oracle = new Oracle(
             ChainId.GOERLI,
             randomAddress(),
             template,
             false,
-            utils.defaultAbiCoder.encode(
-                [
-                    "uint32",
-                    "uint32",
-                    "address",
-                    "bool",
-                    "uint256",
-                    "address",
-                    "address",
-                ],
-                [
-                    now - 86_400,
-                    now,
-                    randomAddress(),
-                    false,
-                    100,
-                    randomAddress(),
-                    randomAddress(),
-                ]
-            )
         );
     });
 
