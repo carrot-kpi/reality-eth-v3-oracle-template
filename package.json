@@ -5,7 +5,7 @@
     "license": "GPL-3.0",
     "scripts": {
         "build": "turbo run build",
-        "build:contracts": "pnpm build --filter contracts",
+        "build:contracts": "yarn build --filter contracts",
         "lint": "turbo run lint",
         "format": "turbo run format",
         "start": "carrot-scripts start",

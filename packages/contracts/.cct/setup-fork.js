@@ -18,7 +18,7 @@ export const setupFork = async (
         `node ./packages/contracts/codegen-chain-specific-contracts.js ${chainId}`,
         { stdio: "inherit" }
     );
-    execSync("pnpm build:contracts", { stdio: "inherit" });
+    execSync("yarn build:contracts", { stdio: "inherit" });
 
     // deploy template
     const {
