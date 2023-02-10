@@ -1,8 +1,10 @@
 {
+    "private": true,
     "name": "@carrot-kpi/reality-eth-v3-oracle-template",
     "version": "0.1.0",
     "description": "A Carrot template.",
     "license": "GPL-3.0",
+    "workspaces": ["packages/*"],
     "scripts": {
         "build": "turbo run build",
         "build:contracts": "yarn build --filter contracts",
