@@ -33,16 +33,7 @@ const main = async () => {
             {
                 mode: "production",
                 devtool: false,
-                entry: {
-                    [`${commitHash}creationForm`]: join(
-                        __dirname,
-                        "../src/set-public-path.ts"
-                    ),
-                    [`${commitHash}page`]: join(
-                        __dirname,
-                        "../src/set-public-path.ts"
-                    ),
-                },
+                entry: join(__dirname,"../src/index.ts"),
                 output: {
                     filename: "[name].js",
                     path: join(__dirname, "../dist"),
@@ -125,10 +116,6 @@ const main = async () => {
                                 __dirname,
                                 "../src/creation-form/i18n/index.ts"
                             ),
-                            "./set-public-path": join(
-                                __dirname,
-                                "../src/set-public-path.ts"
-                            ),
                         },
                         shared: {
                             "@carrot-kpi/react": "^0.22.1",
@@ -156,10 +143,6 @@ const main = async () => {
                             "./i18n": join(
                                 __dirname,
                                 "../src/page/i18n/index.ts"
-                            ),
-                            "./set-public-path": join(
-                                __dirname,
-                                "../src/set-public-path.ts"
                             ),
                         },
                         shared: {

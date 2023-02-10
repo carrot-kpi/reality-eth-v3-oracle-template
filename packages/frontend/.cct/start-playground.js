@@ -4,6 +4,7 @@ import { join } from "path";
 import webpack from "webpack";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
+import { long as longCommitHash } from "git-rev-sync";
 
 import postcssOptions from "../postcss.config.js";
 import { setupCompiler } from "./setup-compiler.js";
@@ -94,15 +95,14 @@ export const startPlayground = async (
             }),
         ],
     });
+
+    const commitHash = longCommitHash(join(__dirname, "../"));
     const templateApplicationCompiler = webpack({
         mode: "development",
         infrastructureLogging: {
             level: "none",
         },
-        entry: {
-            creationForm: join(__dirname, "../src/set-public-path.ts"),
-            page: join(__dirname, "../src/set-public-path.ts"),
-        },
+        entry: join(__dirname, "../src/index.ts"),
         stats: "none",
         resolve: {
             extensions: [".ts", ".tsx", "..."],
@@ -152,8 +152,8 @@ export const startPlayground = async (
         plugins: [
             new webpack.DefinePlugin(globals),
             new webpack.container.ModuleFederationPlugin({
-                name: "creationForm",
-                library: { type: "window", name: `creationForm` },
+                name: `${commitHash}creationForm`,
+                library: { type: "window", name: `${commitHash}creationForm` },
                 exposes: {
                     "./component": join(
                         __dirname,
@@ -162,10 +162,6 @@ export const startPlayground = async (
                     "./i18n": join(
                         __dirname,
                         "../src/creation-form/i18n/index.ts"
-                    ),
-                    "./set-public-path": join(
-                        __dirname,
-                        "../src/set-public-path.ts"
                     ),
                 },
                 shared: {
@@ -181,15 +177,11 @@ export const startPlayground = async (
                 },
             }),
             new webpack.container.ModuleFederationPlugin({
-                name: "page",
-                library: { type: "window", name: `page` },
+                name: `${commitHash}page`,
+                library: { type: "window", name: `${commitHash}page` },
                 exposes: {
                     "./component": join(__dirname, "../src/page/index.tsx"),
                     "./i18n": join(__dirname, "../src/page/i18n/index.ts"),
-                    "./set-public-path": join(
-                        __dirname,
-                        "../src/set-public-path.ts"
-                    ),
                 },
                 shared: {
                     "@carrot-kpi/react": "^0.22.1",
