@@ -7,7 +7,7 @@ import {
     useEffect,
     useState,
 } from "react";
-import { ethers } from "ethers";
+import { BigNumber, ethers } from "ethers";
 import { NamespacedTranslateFunction } from "@carrot-kpi/react";
 import {
     Button,
@@ -150,7 +150,7 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
                         formattedMinimumBond,
                     ]
                 ),
-                formattedMinimumBond
+                BigNumber.from(0)
             );
         };
         void uploadToIpfsAndSubmit();
