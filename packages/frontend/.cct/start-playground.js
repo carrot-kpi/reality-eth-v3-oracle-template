@@ -5,6 +5,7 @@ import webpack from "webpack";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { long as longCommitHash } from "git-rev-sync";
+import { createRequire } from "module";
 
 import postcssOptions from "../postcss.config.js";
 import { setupCompiler } from "./setup-compiler.js";
