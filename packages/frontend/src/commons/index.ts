@@ -7,6 +7,7 @@ import { ReactComponent as CarrotIcon } from "../assets/carrot.svg";
 export type SupportedChain = Extract<ChainId, ChainId.SEPOLIA | ChainId.GOERLI>;
 export const SupportedChain = {
     [ChainId.SEPOLIA]: ChainId.SEPOLIA,
+    [ChainId.GOERLI]: ChainId.GOERLI,
 } as const;
 
 export interface Arbitrator {
