@@ -1,9 +1,16 @@
-import { utils, ContractFactory } from "ethers";
+import { utils, ContractFactory, Contract } from "ethers";
 import { createRequire } from "module";
 import { fileURLToPath } from "url";
 import { execSync } from "child_process";
+import { ChainId } from "@carrot-kpi/sdk";
 
 const require = createRequire(fileURLToPath(import.meta.url));
+
+const wethAbi = require("./abis/weth.json");
+const WETH_ADDRESS = {
+    [ChainId.GOERLI]: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6",
+    [ChainId.SEPOLIA]: "0xa5ba8636a78bbf1910430d0368c0175ef5a1845b",
+};
 
 export const setupFork = async (
     factory,
@@ -53,6 +60,11 @@ export const setupFork = async (
     // mint some test erc20 tokens to signer
     await testToken1Contract.mint(signer.address, utils.parseUnits("100", 18));
     await testToken2Contract.mint(signer.address, utils.parseUnits("100", 18));
+
+    // give us some weth too
+    await new Contract(WETH_ADDRESS[chainId], wethAbi, signer).deposit({
+        value: utils.parseEther("0.01"),
+    });
 
     return {
         templateContract,
