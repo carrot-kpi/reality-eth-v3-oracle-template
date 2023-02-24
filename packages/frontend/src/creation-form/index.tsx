@@ -36,9 +36,7 @@ interface CreationFormProps {
 
 export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
     const { chain } = useNetwork();
-    const uploadToIpfs = useDecentralizedStorageUploader(
-        __DEV__ ? "playground" : "ipfs"
-    );
+    const uploadToIpfs = useDecentralizedStorageUploader("ipfs");
 
     const [arbitratorsByChain, setArbitratorsByChain] = useState<
         OptionWithIcon[]

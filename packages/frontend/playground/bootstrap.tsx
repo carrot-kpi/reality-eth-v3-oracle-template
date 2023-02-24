@@ -1,24 +1,3 @@
-import {
-    CarrotCoreProvider,
-    CreationForm,
-    useOracleTemplates,
-} from "@carrot-kpi/react";
-import { ReactElement, useEffect, useMemo } from "react";
-import { createRoot } from "react-dom/client";
-import { Wallet, providers, Signer, BigNumber } from "ethers";
-import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
-import {
-    Address,
-    Connector,
-    ConnectorData,
-    useAccount,
-    useConnect,
-} from "wagmi";
-import { Chain } from "wagmi/chains";
-import * as chains from "wagmi/chains";
-import i18next from "i18next";
-import { initReactI18next } from "react-i18next";
-
 import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
 import "@fontsource/ibm-plex-mono/700.css";
@@ -26,8 +5,16 @@ import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
 import "@fontsource/inter/700.css";
 import "@carrot-kpi/ui/styles.css";
-
+import "@carrot-kpi/frontend/styles.css";
 import "./global.css";
+
+import { Root } from "@carrot-kpi/frontend";
+import { createRoot } from "react-dom/client";
+import { Wallet, providers, Signer } from "ethers";
+import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
+import { Address, Connector, ConnectorData } from "wagmi";
+import { Chain } from "wagmi/chains";
+import * as chains from "wagmi/chains";
 
 class CarrotConnector extends Connector<
     providers.JsonRpcProvider,
@@ -84,13 +71,7 @@ class CarrotConnector extends Connector<
         return true;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    async watchAsset(asset: {
-        address: string;
-        decimals?: number;
-        image?: string;
-        symbol: string;
-    }): Promise<boolean> {
+    async watchAsset({} = {}): Promise<boolean> {
         return false;
     }
 
@@ -108,14 +89,6 @@ class CarrotConnector extends Connector<
     }
 }
 
-i18next.use(initReactI18next).init({
-    lng: "en",
-    fallbackLng: "en",
-    interpolation: {
-        escapeValue: false,
-    },
-});
-
 const forkedChain = Object.values(chains).find(
     (chain) => chain.id === CCT_CHAIN_ID
 );
@@ -125,53 +98,9 @@ if (!forkedChain) {
 }
 const supportedChains = [forkedChain];
 
-const App = (): ReactElement => {
-    const cctTemplateIds = useMemo(() => [CCT_TEMPLATE_ID], []);
-
-    const { isConnected } = useAccount();
-    const { connect, connectors } = useConnect({
-        chainId: CCT_CHAIN_ID,
-    });
-    const { loading: isLoadingTemplates, templates } =
-        useOracleTemplates(cctTemplateIds);
-    // const { loading: isLoadingKpiTokens, kpiTokens } = useKpiTokens()
-
-    useEffect(() => {
-        if (!isConnected) connect({ connector: connectors[0] });
-    }, [connect, connectors, isConnected]);
-
-    const handleDone = (data: string, value: BigNumber): void => {
-        console.log(data, value.toString());
-    };
-
-    return (
-        <div className="h-screen">
-            {!isLoadingTemplates && (
-                <CreationForm
-                    i18n={i18next}
-                    fallback={<>Loading...</>}
-                    template={templates[0]}
-                    customBaseURL={"http://localhost:9002/"}
-                    onDone={handleDone}
-                />
-            )}
-            {/* <h2>Page</h2>
-      {!isLoadingKpiTokens &&
-        Object.values(kpiTokens).map((kpiToken) => (
-          <div key={kpiToken.address}>
-            <Campaign
-              address={kpiToken.address}
-              customBaseUrl={`${CCT_IPFS_GATEWAY_URL}/${kpiToken.template.specification.cid}`}
-            />
-          </div>
-        ))} */}
-        </div>
-    );
-};
-
 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
 createRoot(document.getElementById("root")!).render(
-    <CarrotCoreProvider
+    <Root
         supportedChains={supportedChains}
         providers={[
             jsonRpcProvider({
@@ -180,11 +109,13 @@ createRoot(document.getElementById("root")!).render(
                 }),
             }),
         ]}
-        getConnectors={(chains: Chain[]) => [
-            new CarrotConnector({ chains, options: {} }) as Connector,
+        connectors={() => [
+            new CarrotConnector({
+                chains: supportedChains,
+                options: {},
+            }) as Connector,
         ]}
         ipfsGatewayURL={CCT_IPFS_GATEWAY_URL}
-    >
-        <App />
-    </CarrotCoreProvider>
+        oracleTemplateBaseURL="http://localhost:9002"
+    />
 );
