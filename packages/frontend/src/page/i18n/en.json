@@ -1,3 +1,10 @@
 {
-    "main": "Page for example oracle template"
+    "label.arbitration.peding.start": "The KPI-related condition is currently awaiting a final answer from",
+    "label.arbitration.peding.end": "after an arbitration request has been submitted by a user.",
+    "label.question.info": "In case an answer cannot be determined/calculated due to how the condition was originally framed or due to missing details, you can also mark the KPI token as invalid altogether.",
+    "label.question.realityReference": "Reality.eth is used as a crowdsourced oracle. You can check out how Reality.eth works by clicking",
+    "label.question.notOpen": "This question is not yet open for answers.",
+    "label.question.openingIn": "Opening in",
+    "label.here": "here",
+    "label.reward": "Reward: {{reward}}"
 }
