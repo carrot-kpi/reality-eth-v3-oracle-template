@@ -1,5 +1,6 @@
 import { ChainId } from "@carrot-kpi/sdk";
 import { SelectOption } from "@carrot-kpi/ui";
+import { BigNumber } from "ethers";
 import { FunctionComponent, SVGProps } from "react";
 import { Address } from "wagmi";
 import { ReactComponent as CarrotIcon } from "../assets/carrot.svg";
@@ -50,3 +51,10 @@ export const REALITY_TEMPLATE_OPTIONS: SelectOption[] = [
 ];
 
 export const MINIMUM_QUESTION_TIMEOUT = 120;
+
+export const INVALID_REALITY_ANSWER = BigNumber.from(
+    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+);
+
+export const BYTES_0 =
+    "0x0000000000000000000000000000000000000000000000000000000000000000";

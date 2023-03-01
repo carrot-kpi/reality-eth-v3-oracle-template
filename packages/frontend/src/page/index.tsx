@@ -6,11 +6,11 @@ import {
     useWatchData,
 } from "@carrot-kpi/react";
 import { defaultAbiCoder, formatUnits } from "ethers/lib/utils.js";
-import { useRealityQuestion } from "../hooks/useRealityQuestion";
+import { useWatchRealityQuestion } from "../hooks/useRealityQuestion";
 import { Loader, Markdown, Timer, Typography } from "@carrot-kpi/ui";
 import { useRealityAnswer } from "../hooks/useRealityAnswer";
-import { INVALID_REALITY_ANSWER } from "./types";
 import { useQuestionContent } from "../hooks/useQuestionContent";
+import { INVALID_REALITY_ANSWER } from "../commons";
 
 interface PageProps {
     t: NamespacedTranslateFunction;
@@ -46,8 +46,8 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
         };
     }, [data]);
 
-    const { loading: loadingRealityQuestion, data: realityQuestion } =
-        useRealityQuestion(questionId);
+    const { loading: loadingRealityQuestion, question: realityQuestion } =
+        useWatchRealityQuestion(questionId, question);
     const { loading: loadingRealityAnswer, data: realityAnswer } =
         useRealityAnswer(questionId);
     const { loading: loadingQuestionContent, data: questionContent } =

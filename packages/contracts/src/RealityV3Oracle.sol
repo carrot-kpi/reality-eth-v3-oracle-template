@@ -109,15 +109,7 @@ contract RealityV3Oracle is IOracle, Initializable {
     /// data and some.
     /// @return The ABI-encoded data.
     function data() external view override returns (bytes memory) {
-        bytes32 _questionId = questionId; // gas optimization
-        return abi.encode(
-            REALITY_V3_ADDRESS,
-            _questionId,
-            IRealityV3(REALITY_V3_ADDRESS).getArbitrator(_questionId),
-            question,
-            IRealityV3(REALITY_V3_ADDRESS).getTimeout(_questionId),
-            IRealityV3(REALITY_V3_ADDRESS).getOpeningTS(_questionId)
-        );
+        return abi.encode(REALITY_V3_ADDRESS, questionId, question);
     }
 
     /// @dev View function returning info about the template used to instantiate this oracle.

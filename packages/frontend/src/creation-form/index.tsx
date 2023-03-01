@@ -142,7 +142,7 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
                     [
                         arbitrator.value,
                         realityTemplateId.value,
-                        questionCid,
+                        `${questionCid}-${realityTemplateId.value}`,
                         questionTimeout,
                         dayjs(openingTimestamp).unix(),
                         formattedMinimumBond,

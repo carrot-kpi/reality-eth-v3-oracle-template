@@ -2,7 +2,7 @@ import { BigNumber, Contract } from "ethers";
 import { useEffect, useState } from "react";
 import { useNetwork, useProvider } from "wagmi";
 import { REALITY_CONTRACT_BY_CHAIN, SupportedChain } from "../commons";
-import REALITY_ETH_V3_ABI from "../abis/reality-eth-v3.json";
+import REALITY_ETH_V3_ABI from "../abis/reality-eth-v3";
 
 export function useRealityAnswer(questionId: string | undefined): {
     loading: boolean;

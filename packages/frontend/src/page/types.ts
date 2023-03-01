@@ -1,5 +1,32 @@
 import { BigNumber } from "ethers";
 
-export const INVALID_REALITY_ANSWER = BigNumber.from(
-    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-);
+export interface OnChainRealityQuestion {
+    content_hash: string;
+    arbitrator: string;
+    opening_ts: number;
+    timeout: number;
+    finalize_ts: number;
+    is_pending_arbitration: boolean;
+    bounty: BigNumber;
+    best_answer: string;
+    history_hash: string;
+    bond: BigNumber;
+    min_bond: BigNumber;
+}
+
+export interface RealityQuestion {
+    id: string;
+    historyHash: string;
+    templateId: number;
+    question: string;
+    contentHash: string;
+    arbitrator: string;
+    timeout: number;
+    openingTimestamp: number;
+    finalizationTimestamp: number;
+    pendingArbitration: boolean;
+    bounty: BigNumber;
+    bestAnswer: string;
+    bond: BigNumber;
+    minBond: BigNumber;
+}
