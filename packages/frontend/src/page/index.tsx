@@ -6,10 +6,10 @@ import {
     useWatchData,
 } from "@carrot-kpi/react";
 import { defaultAbiCoder, formatUnits } from "ethers/lib/utils.js";
-import { useWatchRealityQuestion } from "../hooks/useRealityQuestion";
+import { useWatchRealityQuestion } from "../hooks/useWatchRealityQuestion";
 import { Loader, Markdown, Timer, Typography } from "@carrot-kpi/ui";
 import { useRealityAnswer } from "../hooks/useRealityAnswer";
-import { useQuestionContent } from "../hooks/useQuestionContent";
+import { useDecentralizedStorageContent } from "../hooks/useDecentralizedStorageContent";
 import { INVALID_REALITY_ANSWER } from "../commons";
 
 interface PageProps {
@@ -45,13 +45,18 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
             openingTimestamp,
         };
     }, [data]);
+    // extract the cid from the question, since it's in the format cid-template_id
+    const questionContentCid = useMemo(
+        () => question?.split("-")[0],
+        [question]
+    );
 
     const { loading: loadingRealityQuestion, question: realityQuestion } =
         useWatchRealityQuestion(questionId, question);
     const { loading: loadingRealityAnswer, data: realityAnswer } =
         useRealityAnswer(questionId);
     const { loading: loadingQuestionContent, data: questionContent } =
-        useQuestionContent(question);
+        useDecentralizedStorageContent(questionContentCid);
 
     const currentAnswerInvalid = useMemo(() => {
         if (!realityQuestion) return;
