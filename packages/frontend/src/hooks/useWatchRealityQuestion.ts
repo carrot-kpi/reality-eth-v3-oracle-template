@@ -43,7 +43,7 @@ export function useWatchRealityQuestion(
         provider,
         question,
         questionId,
-        blockNumber, // used to force refetch at each new block
+        blockNumber.data, // used to force refetch at each new block
     ]);
 
     return { loading, question: onChainQuestion };

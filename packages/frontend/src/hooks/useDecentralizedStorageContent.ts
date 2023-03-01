@@ -1,7 +1,8 @@
 import { CoreFetcher } from "@carrot-kpi/sdk";
 import { useEffect, useState } from "react";
 
-export function useQuestionContent(cid: string | undefined): {
+// TODO: move to @carrot-kpi/react package
+export function useDecentralizedStorageContent(cid: string | undefined): {
     loading: boolean;
     data: string | undefined;
 } {
@@ -22,7 +23,7 @@ export function useQuestionContent(cid: string | undefined): {
                 if (!cancelled) setData(questionContent[cid]);
             } catch (error) {
                 console.error(
-                    "error fetching question content from ipfs",
+                    "error fetching content from decentralized storage",
                     error
                 );
             } finally {

@@ -28,14 +28,11 @@ export function useRealityAnswer(questionId: string | undefined): {
                     provider
                 );
 
-                if (!questionId || !realityContract) return;
+                if (!realityContract) return;
 
                 const answer = await realityContract.resultFor(questionId);
 
-                if (!cancelled) {
-                    console.log("ANSWER", { answer });
-                    setData(BigNumber.from(answer));
-                }
+                if (!cancelled) setData(BigNumber.from(answer));
             } catch (error) {
                 console.error("error fetching reality v3 answer", error);
             } finally {

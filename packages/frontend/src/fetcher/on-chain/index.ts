@@ -43,15 +43,12 @@ class Fetcher implements IPartialFetcher {
         );
 
         // in case the question has been reopened, let's directly fetch the latest reopening
+        let finalQuestionId = questionId;
         const reopenedQuestionId = await realityContract.reopened_questions(
             questionId
         );
         if (reopenedQuestionId && reopenedQuestionId !== BYTES_0)
-            return this.fetchQuestion({
-                provider,
-                questionId: reopenedQuestionId,
-                question,
-            });
+            finalQuestionId = reopenedQuestionId;
 
         const {
             content_hash,
@@ -66,11 +63,11 @@ class Fetcher implements IPartialFetcher {
             bond,
             min_bond,
         } = (await realityContract.questions(
-            questionId
+            finalQuestionId
         )) as OnChainRealityQuestion;
 
         return {
-            id: questionId,
+            id: finalQuestionId,
             historyHash: history_hash,
             templateId: parseInt(templateId),
             question,
