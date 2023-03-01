@@ -1,38 +1,38 @@
-import { BigNumber, Contract } from "ethers";
-import { useEffect, useState } from "react";
-import { useNetwork, useProvider } from "wagmi";
-import { REALITY_CONTRACT_BY_CHAIN, SupportedChain } from "../commons";
+import { BigNumber } from "ethers";
+import { Address, useContract, useNetwork, useProvider } from "wagmi";
+import { BYTES_0, REALITY_CONTRACT_BY_CHAIN, SupportedChain } from "../commons";
 import REALITY_ETH_V3_ABI from "../abis/reality-eth-v3";
+import { useEffect, useState } from "react";
 
-export function useRealityAnswer(questionId: string | undefined): {
+export function useRealityAnswer(questionId?: string): {
     loading: boolean;
-    data: BigNumber | undefined;
+    data: BigNumber | null;
 } {
     const { chain } = useNetwork();
     const provider = useProvider();
 
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState<BigNumber>();
+    const [realityAnswer, setRealityAnswer] = useState<BigNumber | null>(null);
+
+    const contract = useContract({
+        address: REALITY_CONTRACT_BY_CHAIN[chain?.id as SupportedChain],
+        abi: REALITY_ETH_V3_ABI,
+        signerOrProvider: provider,
+    });
 
     useEffect(() => {
         let cancelled = false;
         const fetchData = async (): Promise<void> => {
             if (!chain || chain.id in SupportedChain === false) return;
-            if (!questionId) return;
+            if (!questionId || !contract) return;
             if (!cancelled) setLoading(true);
 
             try {
-                const realityContract = new Contract(
-                    REALITY_CONTRACT_BY_CHAIN[chain.id as SupportedChain],
-                    REALITY_ETH_V3_ABI,
-                    provider
-                );
+                if (!questionId) return;
+                const answer = await contract.resultFor(questionId as Address);
 
-                if (!realityContract) return;
-
-                const answer = await realityContract.resultFor(questionId);
-
-                if (!cancelled) setData(BigNumber.from(answer));
+                if (!cancelled && answer !== BYTES_0)
+                    setRealityAnswer(BigNumber.from(answer));
             } catch (error) {
                 console.error("error fetching reality v3 answer", error);
             } finally {
@@ -43,7 +43,10 @@ export function useRealityAnswer(questionId: string | undefined): {
         return () => {
             cancelled = true;
         };
-    }, [chain, provider, questionId]);
+    }, [chain, questionId, contract]);
 
-    return { loading, data };
+    return {
+        data: realityAnswer,
+        loading,
+    };
 }

@@ -2,12 +2,12 @@ import { CoreFetcher } from "@carrot-kpi/sdk";
 import { useEffect, useState } from "react";
 
 // TODO: move to @carrot-kpi/react package
-export function useDecentralizedStorageContent(cid: string | undefined): {
+export function useDecentralizedStorageContent(cid?: string): {
     loading: boolean;
-    data: string | undefined;
+    data: string | null;
 } {
     const [loading, setLoading] = useState(true);
-    const [data, setData] = useState<string>();
+    const [data, setData] = useState<string | null>(null);
 
     useEffect(() => {
         let cancelled = false;

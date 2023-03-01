@@ -14,7 +14,7 @@ export function useWatchRealityQuestion(
     const blockNumber = useBlockNumber();
 
     const [loading, setLoading] = useState(true);
-    const [onChainQuestion, setOnChainQuestion] =
+    const [realityQuestion, setOnChainQuestion] =
         useState<RealityQuestion | null>(null);
 
     useEffect(() => {
@@ -46,5 +46,5 @@ export function useWatchRealityQuestion(
         blockNumber.data, // used to force refetch at each new block
     ]);
 
-    return { loading, question: onChainQuestion };
+    return { loading, question: realityQuestion };
 }
