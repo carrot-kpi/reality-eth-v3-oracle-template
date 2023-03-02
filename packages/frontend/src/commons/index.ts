@@ -17,6 +17,11 @@ export interface Arbitrator {
     icon: FunctionComponent<SVGProps<SVGSVGElement>>;
 }
 
+export const EPLORER_BY_CHAIN: Record<SupportedChain, string> = {
+    [ChainId.SEPOLIA]: "https://sepolia.etherscan.io",
+    [ChainId.GOERLI]: "https://goerli.etherscan.io",
+};
+
 export const REALITY_CONTRACT_BY_CHAIN: Record<SupportedChain, string> = {
     [ChainId.SEPOLIA]: "0x64a0745EF9d3772d9739D9350873eD3703bE45eC",
     [ChainId.GOERLI]: "0x6F80C5cBCF9FbC2dA2F0675E56A5900BB70Df72f",
@@ -38,6 +43,11 @@ export const ARBITRATORS_BY_CHAIN: Record<SupportedChain, Arbitrator[]> = {
         },
     ],
 };
+
+export enum SupportedRealityTemplates {
+    BOOL = 0,
+    UINT = 1,
+}
 
 export const REALITY_TEMPLATE_OPTIONS: SelectOption[] = [
     {

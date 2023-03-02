@@ -1,3 +1,4 @@
+import { useIPFSGatewayURL } from "@carrot-kpi/react";
 import { CoreFetcher } from "@carrot-kpi/sdk";
 import { useEffect, useState } from "react";
 
@@ -6,6 +7,7 @@ export function useDecentralizedStorageContent(cid?: string): {
     loading: boolean;
     data: string | null;
 } {
+    const ipfsGatewayURL = useIPFSGatewayURL();
     const [loading, setLoading] = useState(true);
     const [data, setData] = useState<string | null>(null);
 
@@ -17,6 +19,7 @@ export function useDecentralizedStorageContent(cid?: string): {
 
             try {
                 const questionContent = await CoreFetcher.fetchContentFromIPFS({
+                    ipfsGatewayURL,
                     cids: [cid],
                 });
 
@@ -35,7 +38,7 @@ export function useDecentralizedStorageContent(cid?: string): {
         return () => {
             cancelled = true;
         };
-    }, [cid]);
+    }, [ipfsGatewayURL, cid]);
 
     return { loading, data };
 }

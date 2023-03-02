@@ -1,12 +1,6 @@
 import "../global.css";
 
-import {
-    ChangeEvent,
-    ReactElement,
-    useCallback,
-    useEffect,
-    useState,
-} from "react";
+import { ReactElement, useCallback, useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import { NamespacedTranslateFunction } from "@carrot-kpi/react";
 import {
@@ -27,7 +21,7 @@ import {
 } from "../commons";
 import { OptionWithIcon } from "./types";
 import { ArbitratorOption } from "./components/arbitrator-option";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 
 interface CreationFormProps {
     t: NamespacedTranslateFunction;
@@ -46,7 +40,7 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
         useState<SelectOption | null>(null);
     const [question, setQuestion] = useState("");
     const [questionTimeout, setQuestionTimeout] = useState("");
-    const [openingTimestamp, setOpeningTimestamp] = useState("");
+    const [openingTimestamp, setOpeningTimestamp] = useState<Dayjs>();
     const [minimumBond, setMinimumBond] = useState("");
     const [validInput, setValidInput] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -84,12 +78,9 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
         realityTemplateId,
     ]);
 
-    const handleOpeningTimestampChange = useCallback(
-        (event: ChangeEvent<HTMLInputElement>) => {
-            setOpeningTimestamp(event.target.value);
-        },
-        []
-    );
+    const handleOpeningTimestampChange = useCallback((date: Dayjs) => {
+        setOpeningTimestamp(date);
+    }, []);
 
     const handleQuestionTimeout = useCallback(
         ({ value }: { value: string }) => {
@@ -171,8 +162,8 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
                     id="arbitrator"
                     className={{
                         root: "w-full",
-                        wrapper: "w-full",
                         input: "w-full",
+                        inputWrapper: "w-full",
                     }}
                     label={t("label.arbitrator")}
                     placeholder={t("placeholder.pick")}
@@ -185,8 +176,8 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
                     id="reality-template"
                     className={{
                         root: "w-full",
-                        wrapper: "w-full",
                         input: "w-full",
+                        inputWrapper: "w-full",
                     }}
                     label={t("label.reality.template")}
                     placeholder={t("placeholder.pick")}
@@ -199,7 +190,11 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
                 <div className="md:w-1/2">
                     <NumberInput
                         id="question-timeout"
-                        className={{ root: "w-full", input: "w-full" }}
+                        className={{
+                            root: "w-full",
+                            input: "w-full",
+                            inputWrapper: "w-full",
+                        }}
                         label={t("label.question.timeout")}
                         placeholder={t("placeholder.number")}
                         onValueChange={handleQuestionTimeout}
@@ -209,7 +204,11 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
                 <div className="md:w-1/2">
                     <DateTimeInput
                         id="opening-timestamp"
-                        className={{ root: "w-full", input: "w-full" }}
+                        className={{
+                            root: "w-full",
+                            input: "w-full",
+                            inputWrapper: "w-full",
+                        }}
                         label={t("label.opening.timestamp")}
                         placeholder={t("placeholder.number")}
                         onChange={handleOpeningTimestampChange}
@@ -219,7 +218,11 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
             </div>
             <NumberInput
                 id="minimum-bond"
-                className={{ root: "w-full", input: "w-full" }}
+                className={{
+                    root: "w-full",
+                    input: "w-full",
+                    inputWrapper: "w-full",
+                }}
                 label={t("label.minimum.bond")}
                 placeholder={t("placeholder.number")}
                 onValueChange={handleMinimumBondChange}
@@ -227,14 +230,18 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
             />
             <MarkdownInput
                 id="question"
-                className="w-full"
+                className={{
+                    root: "w-full",
+                    input: "w-full",
+                    inputWrapper: "w-full",
+                }}
                 label={t("label.question")}
                 placeholder={t("placeholder.pick")}
                 onChange={setQuestion}
                 value={question}
             />
             <Button
-                className={{ root: "mt-2 w-full" }}
+                className={{ root: "mt-2 w-full", inputWrapper: "w-full" }}
                 onClick={handleSubmit}
                 disabled={!validInput}
                 loading={loading}

@@ -29,6 +29,12 @@ export function useRealityAnswer(questionId?: string): {
 
             try {
                 if (!questionId) return;
+                const finalized = await contract.isFinalized(
+                    questionId as Address
+                );
+
+                if (!finalized) return;
+
                 const answer = await contract.resultFor(questionId as Address);
 
                 if (!cancelled && answer !== BYTES_0)

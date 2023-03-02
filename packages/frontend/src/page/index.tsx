@@ -1,16 +1,14 @@
-import { Oracle } from "@carrot-kpi/sdk";
+import { enforce, Oracle } from "@carrot-kpi/sdk";
 import { ReactElement, useMemo } from "react";
-import {
-    NamespacedTranslateFunction,
-    useNativeCurrency,
-    useWatchData,
-} from "@carrot-kpi/react";
-import { defaultAbiCoder, formatUnits } from "ethers/lib/utils.js";
+import { NamespacedTranslateFunction, useWatchData } from "@carrot-kpi/react";
+import { defaultAbiCoder } from "ethers/lib/utils.js";
 import { useWatchRealityQuestion } from "../hooks/useWatchRealityQuestion";
-import { Loader, Markdown, Timer, Typography } from "@carrot-kpi/ui";
+import { Loader, Typography } from "@carrot-kpi/ui";
 import { useRealityAnswer } from "../hooks/useRealityAnswer";
 import { useDecentralizedStorageContent } from "../hooks/useDecentralizedStorageContent";
-import { INVALID_REALITY_ANSWER } from "../commons";
+import { INVALID_REALITY_ANSWER, SupportedRealityTemplates } from "../commons";
+import { PendingArbitration } from "./components/pending-arbitration";
+import { AnswerForm } from "./components/answer-form";
 
 interface PageProps {
     t: NamespacedTranslateFunction;
@@ -18,38 +16,37 @@ interface PageProps {
 }
 
 export const Component = ({ t, oracle }: PageProps): ReactElement => {
-    const { /* loading: loadingData, */ data } = useWatchData(oracle.address);
-    const nativeCurrency = useNativeCurrency();
+    const { loading: loadingData, data } = useWatchData(oracle.address);
 
     const { questionId, question } = useMemo(() => {
         if (!data) return {};
 
-        const [
-            realityV3Address,
-            questionId,
-            arbitratorAddress,
-            question,
-            timeout,
-            openingTimestamp,
-        ] = defaultAbiCoder.decode(
-            ["address", "bytes32", "address", "string", "uint32", "uint32"],
+        const [realityV3Address, questionId, question] = defaultAbiCoder.decode(
+            ["address", "bytes32", "string"],
             data
-        ) as [string, string, string, string, number, number];
+        ) as [string, string, string];
 
         return {
             realityV3Address,
             questionId,
-            arbitratorAddress,
             question,
-            timeout,
-            openingTimestamp,
         };
     }, [data]);
-    // extract the cid from the question, since it's in the format cid-template_id
-    const questionContentCid = useMemo(
-        () => question?.split("-")[0],
-        [question]
-    );
+
+    const [questionContentCid, templateType] = useMemo(() => {
+        if (!question) return [undefined, undefined];
+        const [questionContentCid, templateId] = question.split("-");
+        const numericTemplateId = parseInt(
+            templateId
+        ) as SupportedRealityTemplates;
+
+        enforce(
+            numericTemplateId in SupportedRealityTemplates,
+            "reality template id not supported"
+        );
+
+        return [questionContentCid, numericTemplateId];
+    }, [question]);
 
     const { loading: loadingRealityQuestion, question: realityQuestion } =
         useWatchRealityQuestion(questionId, question);
@@ -68,27 +65,20 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
         );
     }, [realityQuestion, realityAnswer]);
 
+    const realityQuestionOpen = useMemo(() => {
+        if (!realityQuestion) return;
+        return realityQuestion.openingTimestamp < new Date().getTime() / 1000;
+    }, [realityQuestion]);
+
     if (
-        loadingRealityQuestion ||
+        loadingData ||
         loadingRealityAnswer ||
         loadingQuestionContent ||
-        !realityQuestion ||
         !questionContent
     ) {
-        return <Loader />;
-    }
-
-    if (realityQuestion.pendingArbitration) {
         return (
-            <div className="flex flex-col gap-3 p-3 rounded-xxl border border-black dark:border-white bg-white dark:bg-black">
-                <Typography>
-                    {t("label.arbitration.peding.start")}{" "}
-                    {/* TODO: add link to explorer based on chain */}
-                    <a className="font-mono text-orange">
-                        {realityQuestion.arbitrator}
-                    </a>{" "}
-                    {t("label.arbitration.peding.end")}
-                </Typography>
+            <div className="flex justify-center content-center">
+                <Loader />
             </div>
         );
     }
@@ -110,39 +100,21 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
             </div>
 
             <div className="flex flex-col gap-3 p-3 rounded-xxl border border-black dark:border-white bg-white dark:bg-black">
-                {realityQuestion.openingTimestamp >
-                new Date().getTime() / 1000 ? (
-                    <>
-                        <Typography>{t("label.question.notOpen")}</Typography>
-                        <div className="flex gap-2">
-                            <Typography>
-                                {t("label.question.openingIn")}
-                            </Typography>
-                            <Timer
-                                to={realityQuestion.openingTimestamp * 1000}
-                                countdown
-                            />
-                        </div>
-                    </>
+                <PendingArbitration t={t} realityQuestion={realityQuestion} />
+
+                {loadingRealityQuestion || !realityQuestion ? (
+                    <div className="flex justify-center content-center">
+                        <Loader />
+                    </div>
                 ) : (
-                    <>
-                        <Markdown>{questionContent}</Markdown>
-                        <Typography weight="medium">
-                            {t("label.reward", {
-                                reward: realityQuestion.bounty.toString(),
-                            })}
-                        </Typography>
-                        <Typography>
-                            {realityQuestion.bond.isZero()
-                                ? "No answer submitted yet"
-                                : !!currentAnswerInvalid
-                                ? `Goal currently market as invalid with ${formatUnits(
-                                      realityQuestion.bond,
-                                      nativeCurrency.decimals
-                                  )} ${nativeCurrency.symbol} bonded`
-                                : ""}
-                        </Typography>
-                    </>
+                    <AnswerForm
+                        t={t}
+                        currentAnswerInvalid={currentAnswerInvalid}
+                        realityQuestionOpen={realityQuestionOpen}
+                        realityTemplateType={templateType}
+                        realityQuestion={realityQuestion}
+                        questionContent={questionContent}
+                    />
                 )}
             </div>
         </div>

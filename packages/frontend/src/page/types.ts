@@ -1,5 +1,10 @@
 import { BigNumber } from "ethers";
 
+export interface NumberFormatValue {
+    formattedValue: string;
+    value: string;
+}
+
 export interface OnChainRealityQuestion {
     content_hash: string;
     arbitrator: string;
