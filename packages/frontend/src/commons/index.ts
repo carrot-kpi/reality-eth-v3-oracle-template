@@ -66,5 +66,9 @@ export const INVALID_REALITY_ANSWER = BigNumber.from(
     "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 );
 
+export const TOO_SOON_REALITY_ANSWER = BigNumber.from(
+    "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe"
+);
+
 export const BYTES_0 =
     "0x0000000000000000000000000000000000000000000000000000000000000000";
