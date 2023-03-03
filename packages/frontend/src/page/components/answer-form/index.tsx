@@ -13,14 +13,12 @@ import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
 import { useNetwork } from "wagmi";
 import { SupportedRealityTemplates } from "../../../commons";
 import { usePostRealityAnswer } from "../../../hooks/usePostRealityAnswer";
-import { numberToByte32 } from "../../../utils";
+import { isInThePast, numberToByte32 } from "../../../utils";
 import { NumberFormatValue, RealityQuestion } from "../../types";
 import { Answer } from "../answer";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
-    currentAnswerInvalid?: boolean;
-    realityQuestionOpen?: boolean;
     realityTemplateType?: SupportedRealityTemplates;
     realityQuestion: RealityQuestion;
     questionContent: string;
@@ -28,8 +26,6 @@ interface AnswerFormProps {
 
 export const AnswerForm = ({
     t,
-    currentAnswerInvalid,
-    realityQuestionOpen,
     realityTemplateType,
     realityQuestion,
     questionContent,
@@ -95,6 +91,20 @@ export const AnswerForm = ({
         minimumBond,
         chain,
     ]);
+
+    const currentAnswerInvalid = useMemo(() => {
+        if (!realityQuestion) return;
+
+        // TODO: handle case of invalid reality answer
+        // return !realityQuestion.bond.isZero();
+        // realityQuestion.bestAnswer.eq(INVALID_REALITY_ANSWER)
+        return false;
+    }, [realityQuestion]);
+
+    const realityQuestionOpen = useMemo(() => {
+        if (!realityQuestion) return;
+        return isInThePast(new Date(realityQuestion.openingTimestamp * 1_000));
+    }, [realityQuestion]);
 
     useEffect(() => {
         if (realityQuestion.bond) setMinimumBond(realityQuestion.bond.mul(2));

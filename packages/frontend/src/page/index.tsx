@@ -8,7 +8,6 @@ import { useDecentralizedStorageContent } from "../hooks/useDecentralizedStorage
 import { SupportedRealityTemplates } from "../commons";
 import { PendingArbitration } from "./components/pending-arbitration";
 import { AnswerForm } from "./components/answer-form";
-import { isInThePast } from "../utils";
 
 interface PageProps {
     t: NamespacedTranslateFunction;
@@ -53,20 +52,6 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
     const { loading: loadingQuestionContent, data: questionContent } =
         useDecentralizedStorageContent(questionContentCid);
 
-    const currentAnswerInvalid = useMemo(() => {
-        if (!realityQuestion) return;
-
-        // TODO: handle case of invalid reality answer
-        // return !realityQuestion.bond.isZero();
-        // realityQuestion.bestAnswer.eq(INVALID_REALITY_ANSWER)
-        return false;
-    }, [realityQuestion]);
-
-    const realityQuestionOpen = useMemo(() => {
-        if (!realityQuestion) return;
-        return isInThePast(new Date(realityQuestion.openingTimestamp * 1_000));
-    }, [realityQuestion]);
-
     if (
         loadingData ||
         loadingQuestionContent ||
@@ -108,8 +93,6 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
                 ) : (
                     <AnswerForm
                         t={t}
-                        currentAnswerInvalid={currentAnswerInvalid}
-                        realityQuestionOpen={realityQuestionOpen}
                         realityTemplateType={templateType}
                         realityQuestion={realityQuestion}
                         questionContent={questionContent}
