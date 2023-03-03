@@ -9,16 +9,8 @@ import {
     Typography,
 } from "@carrot-kpi/ui";
 import { BigNumber, utils } from "ethers";
-import { parseUnits } from "ethers/lib/utils.js";
-import {
-    ChangeEvent,
-    ReactElement,
-    useCallback,
-    useEffect,
-    useMemo,
-    useState,
-} from "react";
-import { Address } from "wagmi";
+import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
+import { useNetwork } from "wagmi";
 import { SupportedRealityTemplates } from "../../../commons";
 import { usePostRealityAnswer } from "../../../hooks/usePostRealityAnswer";
 import { numberToByte32 } from "../../../utils";
@@ -43,14 +35,24 @@ export const AnswerForm = ({
     questionContent,
 }: AnswerFormProps): ReactElement => {
     const [booleanValue, setBooleanValue] = useState<SelectOption | null>(null);
-    const [numberValue, setNumberValue] = useState("");
+    const [numberValue, setNumberValue] = useState<NumberFormatValue>({
+        formattedValue: "",
+        value: "",
+    });
     const [finalAnswer, setFinalAnswer] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
+    const { chain } = useNetwork();
     const { defaultBondValue, defaultFormatteBondValue } = useMemo(() => {
         const defaultValue = realityQuestion.bond.isZero()
-            ? utils.formatUnits(realityQuestion.minBond.toString(), 18)
-            : utils.formatUnits(realityQuestion.bond.toString(), 18);
+            ? utils.formatUnits(
+                  realityQuestion.minBond.toString(),
+                  chain?.nativeCurrency.decimals
+              )
+            : utils.formatUnits(
+                  realityQuestion.bond.toString(),
+                  chain?.nativeCurrency.decimals
+              );
         const defaultFormattedValue = !!defaultValue
             ? utils.commify(defaultValue)
             : "";
@@ -58,7 +60,11 @@ export const AnswerForm = ({
             defaultBondValue: defaultValue,
             defaultFormatteBondValue: defaultFormattedValue,
         };
-    }, [realityQuestion.bond, realityQuestion.minBond]);
+    }, [
+        realityQuestion.bond,
+        realityQuestion.minBond,
+        chain?.nativeCurrency.decimals,
+    ]);
 
     const [bond, setBond] = useState<NumberFormatValue>({
         value: defaultBondValue,
@@ -66,48 +72,47 @@ export const AnswerForm = ({
     });
 
     const { postAnswerAsync } = usePostRealityAnswer(
-        bond.value,
+        utils.parseUnits(bond.value || "0"),
         finalAnswer,
         realityQuestion.id
     );
-
-    const submitEnabled = useMemo(() => {
-        if (realityTemplateType === SupportedRealityTemplates.BOOL)
-            return !!booleanValue;
-        if (realityTemplateType === SupportedRealityTemplates.UINT)
-            return !!numberValue;
-        return false;
-    }, [realityTemplateType, booleanValue, numberValue]);
 
     const minimumBond = useMemo(() => {
         if (realityQuestion.bond) return realityQuestion.bond.mul(2);
         return realityQuestion.minBond;
     }, [realityQuestion.bond, realityQuestion.minBond]);
 
+    const submitEnabled = useMemo(() => {
+        if (!chain || !bond.value) return false;
+        if (
+            utils
+                .parseUnits(bond.value, chain.nativeCurrency.decimals)
+                .lt(minimumBond)
+        )
+            return false;
+        if (realityTemplateType === SupportedRealityTemplates.BOOL)
+            return !!booleanValue;
+        if (realityTemplateType === SupportedRealityTemplates.UINT)
+            return !!numberValue;
+        return false;
+    }, [
+        realityTemplateType,
+        booleanValue,
+        numberValue,
+        bond.value,
+        minimumBond,
+        chain,
+    ]);
+
     useEffect(() => {
-        if (booleanValue)
+        if (booleanValue) setFinalAnswer(numberToByte32(booleanValue.value));
+        if (!isNaN(parseFloat(numberValue.value)))
             setFinalAnswer(
-                numberToByte32(booleanValue.value.toString()) as Address
+                numberToByte32(
+                    utils.parseUnits(numberValue.value, 18).toString()
+                )
             );
-        if (numberValue) setFinalAnswer(parseUnits(numberValue, 18).toString());
-    }, [booleanValue, numberValue]);
-
-    const handleNumberValueChange = useCallback(
-        (event: ChangeEvent<HTMLInputElement>) => {
-            setNumberValue(event.target.value);
-        },
-        []
-    );
-
-    const handleBondChange = useCallback(
-        (value: NumberFormatValue) => {
-            if (!!value.value && BigNumber.from(value.value).lt(minimumBond))
-                return;
-
-            setBond(value);
-        },
-        [minimumBond]
-    );
+    }, [booleanValue, numberValue, chain?.nativeCurrency.decimals]);
 
     const handleSubmit = useCallback(() => {
         if (!postAnswerAsync) return;
@@ -137,11 +142,6 @@ export const AnswerForm = ({
             {!!realityQuestionOpen ? (
                 <>
                     <Markdown>{questionContent}</Markdown>
-                    <Typography weight="medium">
-                        {t("label.reward", {
-                            reward: realityQuestion.bounty.toString(),
-                        })}
-                    </Typography>
                     {realityTemplateType === SupportedRealityTemplates.BOOL && (
                         <Select
                             id="bool-template"
@@ -157,17 +157,22 @@ export const AnswerForm = ({
                     {realityTemplateType === SupportedRealityTemplates.UINT && (
                         <NumberInput
                             id="uint-template"
+                            placeholder={"0.0"}
+                            allowNegative={false}
+                            min={0}
                             label={t("label.question.form.answer")}
-                            value={numberValue}
-                            onChange={handleNumberValueChange}
+                            value={numberValue.formattedValue}
+                            onValueChange={setNumberValue}
                         />
                     )}
                     <NumberInput
                         id="bond"
                         placeholder={"0.0"}
+                        allowNegative={false}
+                        min={0}
                         label={t("label.question.form.bond")}
                         value={bond.formattedValue}
-                        onValueChange={handleBondChange}
+                        onValueChange={setBond}
                     />
                     <Answer
                         t={t}

@@ -9,6 +9,10 @@
     "label.question.form.bond": "Bond:",
     "label.question.form.confirm": "Confirm",
     "label.answer.missing": "No answer submitted yet",
+    "label.answer.answer": "Current answer: {{answer}} ($ {{bond}} {{symbol}} bonded)",
+    "label.answer.yes": "YES",
+    "label.answer.no": "NO",
+    "label.answer.bonded": "bonded",
     "label.answer.invalid": "Goal currently market as invalid with $ {{bond}} {{symbol}} bonded",
     "label.here": "here",
     "label.reward": "Reward: {{reward}}"

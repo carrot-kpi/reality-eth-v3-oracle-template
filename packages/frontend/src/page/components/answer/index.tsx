@@ -45,15 +45,37 @@ export const Answer = ({
         );
     }
 
-    return (
-        <Typography variant="lg">
-            {realityTemplateType !== SupportedRealityTemplates.BOOL
-                ? formatUnits(BigNumber.from(realityAnswer), 18)
-                : BigNumber.from(realityAnswer).eq("1")
-                ? "YES"
-                : "NO"}{" "}
-            (${formatUnits(realityQuestionBond, nativeCurrency.decimals)} $
-            {nativeCurrency.symbol} bonded)
-        </Typography>
-    );
+    if (realityTemplateType === SupportedRealityTemplates.BOOL) {
+        return (
+            <Typography variant="lg">
+                {t("label.answer.answer", {
+                    answer: realityAnswer.eq("1")
+                        ? t("label.answer.yes")
+                        : t("label.answer.no"),
+                    bond: formatUnits(
+                        realityQuestionBond,
+                        nativeCurrency.decimals
+                    ),
+                    symbol: nativeCurrency.symbol,
+                })}
+            </Typography>
+        );
+    }
+
+    if (realityTemplateType === SupportedRealityTemplates.UINT) {
+        return (
+            <Typography variant="lg">
+                {t("label.answer.answer", {
+                    answer: formatUnits(BigNumber.from(realityAnswer), 18),
+                    bond: formatUnits(
+                        realityQuestionBond,
+                        nativeCurrency.decimals
+                    ),
+                    symbol: nativeCurrency.symbol,
+                })}
+            </Typography>
+        );
+    }
+
+    return <></>;
 };

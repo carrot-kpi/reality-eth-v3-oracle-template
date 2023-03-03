@@ -4,11 +4,11 @@ import { NamespacedTranslateFunction, useWatchData } from "@carrot-kpi/react";
 import { defaultAbiCoder } from "ethers/lib/utils.js";
 import { useWatchRealityQuestion } from "../hooks/useWatchRealityQuestion";
 import { Loader, Typography } from "@carrot-kpi/ui";
-import { useRealityAnswer } from "../hooks/useRealityAnswer";
 import { useDecentralizedStorageContent } from "../hooks/useDecentralizedStorageContent";
-import { INVALID_REALITY_ANSWER, SupportedRealityTemplates } from "../commons";
+import { SupportedRealityTemplates } from "../commons";
 import { PendingArbitration } from "./components/pending-arbitration";
 import { AnswerForm } from "./components/answer-form";
+import { isInThePast } from "../utils";
 
 interface PageProps {
     t: NamespacedTranslateFunction;
@@ -50,30 +50,27 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
 
     const { loading: loadingRealityQuestion, question: realityQuestion } =
         useWatchRealityQuestion(questionId, question);
-    const { loading: loadingRealityAnswer, data: realityAnswer } =
-        useRealityAnswer(questionId);
     const { loading: loadingQuestionContent, data: questionContent } =
         useDecentralizedStorageContent(questionContentCid);
 
     const currentAnswerInvalid = useMemo(() => {
         if (!realityQuestion) return;
-        if (!realityAnswer) return;
 
-        return (
-            !realityQuestion.bond.isZero() &&
-            realityAnswer.eq(INVALID_REALITY_ANSWER)
-        );
-    }, [realityQuestion, realityAnswer]);
+        // TODO: handle case of invalid reality answer
+        // return !realityQuestion.bond.isZero();
+        // realityQuestion.bestAnswer.eq(INVALID_REALITY_ANSWER)
+        return false;
+    }, [realityQuestion]);
 
     const realityQuestionOpen = useMemo(() => {
         if (!realityQuestion) return;
-        return realityQuestion.openingTimestamp < new Date().getTime() / 1000;
+        return isInThePast(new Date(realityQuestion.openingTimestamp * 1_000));
     }, [realityQuestion]);
 
     if (
         loadingData ||
-        loadingRealityAnswer ||
         loadingQuestionContent ||
+        !realityQuestion ||
         !questionContent
     ) {
         return (
@@ -91,6 +88,8 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
                     {t("label.question.realityReference")}{" "}
                     <a
                         href="https://reality.eth.limo/app/docs/html/index.html"
+                        target="_blank"
+                        rel="noopener noreferrer"
                         className="font-mono text-orange"
                     >
                         {t("label.here")}
@@ -102,7 +101,7 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
             <div className="flex flex-col gap-3 p-3 rounded-xxl border border-black dark:border-white bg-white dark:bg-black">
                 <PendingArbitration t={t} realityQuestion={realityQuestion} />
 
-                {loadingRealityQuestion || !realityQuestion ? (
+                {loadingRealityQuestion ? (
                     <div className="flex justify-center content-center">
                         <Loader />
                     </div>
