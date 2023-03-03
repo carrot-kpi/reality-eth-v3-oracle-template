@@ -20,8 +20,7 @@ import {
 } from "../commons";
 import { OptionWithIcon, State } from "./types";
 import { ArbitratorOption } from "./components/arbitrator-option";
-import dayjs from "dayjs";
-import { isInThePast } from "../utils/dates";
+import dayjs, { Dayjs } from "dayjs";
 
 const stripHtml = (value: string) => value.replace(/(<([^>]+)>)/gi, "");
 
@@ -64,8 +63,8 @@ export const Component = ({
     const [questionTimeout, setQuestionTimeout] = useState(
         state.questionTimeout || ""
     );
-    const [openingTimestamp, setOpeningTimestamp] = useState<Date | null>(
-        state.openingTimestamp ? new Date(state.openingTimestamp) : null
+    const [openingTimestamp, setOpeningTimestamp] = useState<Dayjs | null>(
+        state.openingTimestamp ? dayjs.unix(state.openingTimestamp) : null
     );
     const [minimumBond, setMinimumBond] = useState(state.minimumBond || "");
 
@@ -81,7 +80,7 @@ export const Component = ({
                 : undefined,
             question,
             questionTimeout,
-            openingTimestamp: openingTimestamp?.toISOString(),
+            openingTimestamp: openingTimestamp?.unix(),
             minimumBond,
         };
         let initializationDataGetter = undefined;
@@ -93,7 +92,7 @@ export const Component = ({
             questionTimeout &&
             parseInt(questionTimeout) >= MINIMUM_QUESTION_TIMEOUT &&
             openingTimestamp &&
-            !isInThePast(openingTimestamp)
+            openingTimestamp.isAfter(dayjs())
         ) {
             const formattedMinimumBond = ethers.utils.parseUnits(
                 (minimumBond || 0).toString(),
@@ -115,7 +114,7 @@ export const Component = ({
                         realityTemplateId.value,
                         `${questionCid}-${realityTemplateId.value}`,
                         questionTimeout,
-                        dayjs(openingTimestamp).unix(),
+                        openingTimestamp.unix(),
                         formattedMinimumBond,
                     ]
                 );
@@ -137,7 +136,7 @@ export const Component = ({
     ]);
 
     const handleOpeningTimestampChange = useCallback((value: Date) => {
-        setOpeningTimestamp(value);
+        setOpeningTimestamp(dayjs(value));
     }, []);
 
     const handleQuestionTimeout = useCallback(
@@ -211,7 +210,7 @@ export const Component = ({
                         label={t("label.opening.timestamp")}
                         placeholder={t("placeholder.number")}
                         onChange={handleOpeningTimestampChange}
-                        value={openingTimestamp}
+                        value={openingTimestamp?.toDate()}
                     />
                 </div>
             </div>
