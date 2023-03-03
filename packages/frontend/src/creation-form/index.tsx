@@ -161,8 +161,8 @@ export const Component = ({
                     id="arbitrator"
                     className={{
                         root: "w-full",
-                        wrapper: "w-full",
                         input: "w-full",
+                        inputWrapper: "w-full",
                     }}
                     label={t("label.arbitrator")}
                     placeholder={t("placeholder.pick")}
@@ -175,8 +175,8 @@ export const Component = ({
                     id="reality-template"
                     className={{
                         root: "w-full",
-                        wrapper: "w-full",
                         input: "w-full",
+                        inputWrapper: "w-full",
                     }}
                     label={t("label.reality.template")}
                     placeholder={t("placeholder.pick")}
@@ -189,7 +189,11 @@ export const Component = ({
                 <div className="md:w-1/2">
                     <NumberInput
                         id="question-timeout"
-                        className={{ root: "w-full", input: "w-full" }}
+                        className={{
+                            root: "w-full",
+                            input: "w-full",
+                            inputWrapper: "w-full",
+                        }}
                         label={t("label.question.timeout")}
                         placeholder={t("placeholder.number")}
                         onValueChange={handleQuestionTimeout}
@@ -199,7 +203,11 @@ export const Component = ({
                 <div className="md:w-1/2">
                     <DateTimeInput
                         id="opening-timestamp"
-                        className={{ root: "w-full", input: "w-full" }}
+                        className={{
+                            root: "w-full",
+                            input: "w-full",
+                            inputWrapper: "w-full",
+                        }}
                         label={t("label.opening.timestamp")}
                         placeholder={t("placeholder.number")}
                         onChange={handleOpeningTimestampChange}
@@ -209,7 +217,11 @@ export const Component = ({
             </div>
             <NumberInput
                 id="minimum-bond"
-                className={{ root: "w-full", input: "w-full" }}
+                className={{
+                    root: "w-full",
+                    input: "w-full",
+                    inputWrapper: "w-full",
+                }}
                 label={t("label.minimum.bond")}
                 placeholder={t("placeholder.number")}
                 onValueChange={handleMinimumBondChange}
@@ -221,6 +233,11 @@ export const Component = ({
                 placeholder={t("placeholder.pick")}
                 onChange={setQuestion}
                 value={question}
+                className={{
+                    root: "w-full",
+                    input: "w-full",
+                    inputWrapper: "w-full",
+                }}
             />
         </div>
     );
