@@ -1,10 +1,9 @@
 import "../global.css";
 
-import { ReactElement, useCallback, useEffect, useState } from "react";
+import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { NamespacedTranslateFunction } from "@carrot-kpi/react";
+import { OracleCreationFormProps } from "@carrot-kpi/react";
 import {
-    Button,
     Select,
     SelectOption,
     NumberInput,
@@ -19,109 +18,90 @@ import {
     REALITY_TEMPLATE_OPTIONS,
     MINIMUM_QUESTION_TIMEOUT,
 } from "../commons";
-import { OptionWithIcon } from "./types";
+import { OptionWithIcon, State } from "./types";
 import { ArbitratorOption } from "./components/arbitrator-option";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
+import { isInThePast } from "../utils/dates";
 
-interface CreationFormProps {
-    t: NamespacedTranslateFunction;
-    onDone: (data: string, value: ethers.BigNumber) => void;
-}
+const stripHtml = (value: string) => value.replace(/(<([^>]+)>)/gi, "");
 
-export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
+export const Component = ({
+    t,
+    state,
+    onChange,
+}: OracleCreationFormProps<State>): ReactElement => {
     const { chain } = useNetwork();
     const uploadToIpfs = useDecentralizedStorageUploader("ipfs");
 
-    const [arbitratorsByChain, setArbitratorsByChain] = useState<
-        OptionWithIcon[]
-    >([]);
-    const [arbitrator, setArbitrator] = useState<OptionWithIcon | null>(null);
-    const [realityTemplateId, setRealityTemplateId] =
-        useState<SelectOption | null>(null);
-    const [question, setQuestion] = useState("");
-    const [questionTimeout, setQuestionTimeout] = useState("");
-    const [openingTimestamp, setOpeningTimestamp] = useState<Dayjs>();
-    const [minimumBond, setMinimumBond] = useState("");
-    const [validInput, setValidInput] = useState(false);
-    const [loading, setLoading] = useState(false);
-
-    useEffect(() => {
-        if (!!chain && chain.id in SupportedChain)
-            setArbitratorsByChain(
-                ARBITRATORS_BY_CHAIN[chain.id as SupportedChain].map(
-                    (arbitrator) => {
-                        return {
-                            label: arbitrator.name,
-                            value: arbitrator.address,
-                            icon: arbitrator.icon,
-                        };
-                    }
-                )
-            );
-    }, [chain]);
-
-    useEffect(() => {
-        setValidInput(
-            !!arbitrator &&
-                !!realityTemplateId &&
-                !!question &&
-                !!questionTimeout &&
-                parseInt(questionTimeout) >= MINIMUM_QUESTION_TIMEOUT &&
-                !!openingTimestamp &&
-                dayjs(openingTimestamp).unix() > dayjs().unix()
-        );
-    }, [
-        arbitrator,
-        openingTimestamp,
-        question,
-        questionTimeout,
-        realityTemplateId,
-    ]);
-
-    const handleOpeningTimestampChange = useCallback((date: Dayjs) => {
-        setOpeningTimestamp(date);
-    }, []);
-
-    const handleQuestionTimeout = useCallback(
-        ({ value }: { value: string }) => {
-            setQuestionTimeout(value);
-        },
-        []
-    );
-
-    const handleMinimumBondChange = useCallback(
-        ({ value }: { value: string }) => {
-            setMinimumBond(value);
-        },
-        []
-    );
-
-    const handleSubmit = useCallback(() => {
-        if (
-            !chain ||
-            !arbitrator ||
-            !realityTemplateId ||
-            !question ||
-            !questionTimeout ||
-            parseInt(questionTimeout) < MINIMUM_QUESTION_TIMEOUT ||
-            !openingTimestamp ||
-            dayjs(openingTimestamp).unix() < dayjs().unix()
-        )
-            return;
-        const formattedMinimumBond = ethers.utils.parseUnits(
-            (minimumBond || 0).toString(),
-            chain.nativeCurrency.decimals
-        );
-        const uploadToIpfsAndSubmit = async () => {
-            setLoading(true);
-            let questionCid;
-            try {
-                questionCid = await uploadToIpfs(question);
-            } finally {
-                setLoading(false);
+    const arbitratorsByChain = useMemo<OptionWithIcon[]>(() => {
+        if (!chain || !(chain.id in SupportedChain)) return [];
+        return ARBITRATORS_BY_CHAIN[chain.id as SupportedChain].map(
+            (arbitrator) => {
+                return {
+                    label: arbitrator.name,
+                    value: arbitrator.address,
+                    icon: arbitrator.icon,
+                };
             }
-            onDone(
-                ethers.utils.defaultAbiCoder.encode(
+        );
+    }, [chain]);
+    const [arbitrator, setArbitrator] = useState<OptionWithIcon | null>(
+        state.arbitrator
+            ? arbitratorsByChain.find(
+                  (option) => option.value === state.arbitrator
+              ) || null
+            : null
+    );
+    const [realityTemplateId, setRealityTemplateId] =
+        useState<SelectOption | null>(
+            state.realityTemplateId
+                ? REALITY_TEMPLATE_OPTIONS.find(
+                      (option) => option.value === state.realityTemplateId
+                  ) || null
+                : null
+        );
+    const [question, setQuestion] = useState(state.question || "");
+    const [questionTimeout, setQuestionTimeout] = useState(
+        state.questionTimeout || ""
+    );
+    const [openingTimestamp, setOpeningTimestamp] = useState<Date | null>(
+        state.openingTimestamp ? new Date(state.openingTimestamp) : null
+    );
+    const [minimumBond, setMinimumBond] = useState(state.minimumBond || "");
+
+    // the effect reacts to any change in internal state, firing an
+    // onChange event to the creation for user when necessary.
+    // onChange will also receive an initialization bundle getter function
+    // when data is valid.
+    useEffect(() => {
+        const newState = {
+            arbitrator: arbitrator ? (arbitrator.value as string) : undefined,
+            realityTemplateId: realityTemplateId
+                ? (realityTemplateId.value as string)
+                : undefined,
+            question,
+            questionTimeout,
+            openingTimestamp: openingTimestamp?.toISOString(),
+            minimumBond,
+        };
+        let initializationDataGetter = undefined;
+        if (
+            chain &&
+            arbitrator &&
+            realityTemplateId &&
+            stripHtml(question).trim() &&
+            questionTimeout &&
+            parseInt(questionTimeout) >= MINIMUM_QUESTION_TIMEOUT &&
+            openingTimestamp &&
+            !isInThePast(openingTimestamp)
+        ) {
+            const formattedMinimumBond = ethers.utils.parseUnits(
+                (minimumBond || 0).toString(),
+                chain.nativeCurrency.decimals
+            );
+            initializationDataGetter = async () => {
+                const questionCid = await uploadToIpfs(question);
+                const initializationData = ethers.utils.defaultAbiCoder.encode(
                     [
                         "address",
                         "uint256",
@@ -138,22 +118,41 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
                         dayjs(openingTimestamp).unix(),
                         formattedMinimumBond,
                     ]
-                ),
-                BigNumber.from(0)
-            );
-        };
-        void uploadToIpfsAndSubmit();
+                );
+                const value = BigNumber.from(0);
+                return { data: initializationData, value };
+            };
+        }
+        onChange(newState, initializationDataGetter);
     }, [
         arbitrator,
         chain,
         minimumBond,
-        onDone,
+        onChange,
         openingTimestamp,
         question,
         questionTimeout,
         realityTemplateId,
         uploadToIpfs,
     ]);
+
+    const handleOpeningTimestampChange = useCallback((value: Date) => {
+        setOpeningTimestamp(value);
+    }, []);
+
+    const handleQuestionTimeout = useCallback(
+        ({ value }: { value: string }) => {
+            setQuestionTimeout(value);
+        },
+        []
+    );
+
+    const handleMinimumBondChange = useCallback(
+        ({ value }: { value: string }) => {
+            setMinimumBond(value);
+        },
+        []
+    );
 
     return (
         <div className="flex flex-col gap-2 w-full">
@@ -230,24 +229,16 @@ export const Component = ({ t, onDone }: CreationFormProps): ReactElement => {
             />
             <MarkdownInput
                 id="question"
+                label={t("label.question")}
+                placeholder={t("placeholder.pick")}
+                onChange={setQuestion}
+                value={question}
                 className={{
                     root: "w-full",
                     input: "w-full",
                     inputWrapper: "w-full",
                 }}
-                label={t("label.question")}
-                placeholder={t("placeholder.pick")}
-                onChange={setQuestion}
-                value={question}
             />
-            <Button
-                className={{ root: "mt-2 w-full", inputWrapper: "w-full" }}
-                onClick={handleSubmit}
-                disabled={!validInput}
-                loading={loading}
-            >
-                {t("confirm")}
-            </Button>
         </div>
     );
 };
