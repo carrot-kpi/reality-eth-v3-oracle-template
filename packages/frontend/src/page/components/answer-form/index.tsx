@@ -1,6 +1,7 @@
 import { NamespacedTranslateFunction } from "@carrot-kpi/react";
 import {
     Button,
+    Checkbox,
     Markdown,
     NumberInput,
     Select,
@@ -11,7 +12,10 @@ import {
 import { BigNumber, utils } from "ethers";
 import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
 import { useNetwork } from "wagmi";
-import { SupportedRealityTemplates } from "../../../commons";
+import {
+    INVALID_REALITY_ANSWER,
+    SupportedRealityTemplates,
+} from "../../../commons";
 import { usePostRealityAnswer } from "../../../hooks/usePostRealityAnswer";
 import { isInThePast, numberToByte32 } from "../../../utils";
 import { NumberFormatValue, RealityQuestion } from "../../types";
@@ -40,6 +44,10 @@ export const AnswerForm = ({
     const [minimumBond, setMinimumBond] = useState<BigNumber>(
         realityQuestion.minBond
     );
+    const [finalized, setFinalized] = useState(
+        realityQuestion.finalizationTimestamp !== 0
+    );
+    const [invalid, setInvalid] = useState(false);
 
     const { chain } = useNetwork();
     const { defaultBondValue, defaultFormatteBondValue } = useMemo(() => {
@@ -70,7 +78,14 @@ export const AnswerForm = ({
         formattedValue: defaultFormatteBondValue,
     });
 
+    const { postAnswerAsync } = usePostRealityAnswer(
+        utils.parseUnits(bond.value || "0"),
+        finalAnswer,
+        realityQuestion.id
+    );
+
     const submitEnabled = useMemo(() => {
+        if (!postAnswerAsync) return false;
         if (!chain || !bond.value) return false;
         if (
             utils
@@ -84,6 +99,7 @@ export const AnswerForm = ({
             return !!numberValue;
         return false;
     }, [
+        postAnswerAsync,
         realityTemplateType,
         booleanValue,
         numberValue,
@@ -92,19 +108,19 @@ export const AnswerForm = ({
         chain,
     ]);
 
-    const currentAnswerInvalid = useMemo(() => {
-        if (!realityQuestion) return;
-
-        // TODO: handle case of invalid reality answer
-        // return !realityQuestion.bond.isZero();
-        // realityQuestion.bestAnswer.eq(INVALID_REALITY_ANSWER)
-        return false;
+    const answerInvalid = useMemo(() => {
+        if (!realityQuestion) return false;
+        return (
+            !realityQuestion.bond.isZero() &&
+            utils
+                .parseUnits(realityQuestion.bestAnswer)
+                .eq(INVALID_REALITY_ANSWER)
+        );
     }, [realityQuestion]);
 
-    const realityQuestionOpen = useMemo(() => {
-        if (!realityQuestion) return;
-        return isInThePast(new Date(realityQuestion.openingTimestamp * 1_000));
-    }, [realityQuestion]);
+    useEffect(() => {
+        setFinalized(realityQuestion.finalizationTimestamp !== 0);
+    }, [realityQuestion.finalizationTimestamp]);
 
     useEffect(() => {
         if (realityQuestion.bond) setMinimumBond(realityQuestion.bond.mul(2));
@@ -121,11 +137,9 @@ export const AnswerForm = ({
             );
     }, [booleanValue, numberValue, chain?.nativeCurrency.decimals]);
 
-    const { postAnswerAsync } = usePostRealityAnswer(
-        utils.parseUnits(bond.value || "0"),
-        finalAnswer,
-        realityQuestion.id
-    );
+    const handleInvalidChange = useCallback(() => {
+        setInvalid(!invalid);
+    }, [invalid]);
 
     const handleSubmit = useCallback(() => {
         if (!postAnswerAsync) return;
@@ -152,14 +166,18 @@ export const AnswerForm = ({
 
     return (
         <div className="flex flex-col gap-6">
-            {!!realityQuestionOpen ? (
+            {!!isInThePast(
+                new Date(realityQuestion.openingTimestamp * 1_000)
+            ) ? (
                 <>
                     <Markdown>{questionContent}</Markdown>
                     {realityTemplateType === SupportedRealityTemplates.BOOL && (
                         <Select
                             id="bool-template"
                             label={t("label.question.form.answer")}
+                            placeholder={t("label.question.form.answer.select")}
                             value={booleanValue}
+                            disabled={finalized || invalid}
                             onChange={setBooleanValue}
                             options={[
                                 { label: "Yes", value: 1 },
@@ -170,26 +188,35 @@ export const AnswerForm = ({
                     {realityTemplateType === SupportedRealityTemplates.UINT && (
                         <NumberInput
                             id="uint-template"
+                            label={t("label.question.form.answer")}
                             placeholder={"0.0"}
                             allowNegative={false}
                             min={0}
-                            label={t("label.question.form.answer")}
                             value={numberValue.formattedValue}
+                            disabled={finalized || invalid}
                             onValueChange={setNumberValue}
                         />
                     )}
                     <NumberInput
                         id="bond"
+                        label={t("label.question.form.bond")}
                         placeholder={"0.0"}
                         allowNegative={false}
                         min={0}
-                        label={t("label.question.form.bond")}
                         value={bond.formattedValue}
+                        disabled={finalized}
                         onValueChange={setBond}
+                    />
+                    <Checkbox
+                        id="invalid"
+                        label={t("label.question.form.invalid")}
+                        checked={invalid}
+                        onChange={handleInvalidChange}
                     />
                     <Answer
                         t={t}
-                        currentAnswerInvalid={!!currentAnswerInvalid}
+                        finalized={finalized}
+                        answerInvalid={answerInvalid}
                         realityQuestionBond={realityQuestion.bond}
                         realityTemplateType={realityTemplateType}
                         realityAnswer={BigNumber.from(
@@ -210,13 +237,15 @@ export const AnswerForm = ({
                     </div>
                 </>
             )}
-            <Button
-                onClick={handleSubmit}
-                disabled={!submitEnabled}
-                loading={submitting}
-            >
-                {t("label.question.form.confirm")}
-            </Button>
+            {!finalized && (
+                <Button
+                    onClick={handleSubmit}
+                    disabled={!submitEnabled}
+                    loading={submitting}
+                >
+                    {t("label.question.form.confirm")}
+                </Button>
+            )}
         </div>
     );
 };
