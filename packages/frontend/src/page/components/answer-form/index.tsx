@@ -41,6 +41,9 @@ export const AnswerForm = ({
     });
     const [finalAnswer, setFinalAnswer] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const [minimumBond, setMinimumBond] = useState<BigNumber>(
+        realityQuestion.minBond
+    );
 
     const { chain } = useNetwork();
     const { defaultBondValue, defaultFormatteBondValue } = useMemo(() => {
@@ -71,17 +74,6 @@ export const AnswerForm = ({
         formattedValue: defaultFormatteBondValue,
     });
 
-    const { postAnswerAsync } = usePostRealityAnswer(
-        utils.parseUnits(bond.value || "0"),
-        finalAnswer,
-        realityQuestion.id
-    );
-
-    const minimumBond = useMemo(() => {
-        if (realityQuestion.bond) return realityQuestion.bond.mul(2);
-        return realityQuestion.minBond;
-    }, [realityQuestion.bond, realityQuestion.minBond]);
-
     const submitEnabled = useMemo(() => {
         if (!chain || !bond.value) return false;
         if (
@@ -105,6 +97,11 @@ export const AnswerForm = ({
     ]);
 
     useEffect(() => {
+        if (realityQuestion.bond) setMinimumBond(realityQuestion.bond.mul(2));
+        setMinimumBond(realityQuestion.minBond);
+    }, [realityQuestion.bond, realityQuestion.minBond]);
+
+    useEffect(() => {
         if (booleanValue) setFinalAnswer(numberToByte32(booleanValue.value));
         if (!isNaN(parseFloat(numberValue.value)))
             setFinalAnswer(
@@ -113,6 +110,12 @@ export const AnswerForm = ({
                 )
             );
     }, [booleanValue, numberValue, chain?.nativeCurrency.decimals]);
+
+    const { postAnswerAsync } = usePostRealityAnswer(
+        utils.parseUnits(bond.value || "0"),
+        finalAnswer,
+        realityQuestion.id
+    );
 
     const handleSubmit = useCallback(() => {
         if (!postAnswerAsync) return;
