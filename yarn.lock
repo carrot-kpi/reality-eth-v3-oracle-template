@@ -1082,6 +1082,26 @@
     react-router-dom "^6.3.0"
     sanitize-html "^2.9.0"
 
+"@carrot-kpi/ganache@^0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/ganache/-/ganache-0.1.0.tgz#7daeb5b2e59fac18ce3ec8bab875cc9a383d701f"
+  integrity sha512-/1MxHwXd+jAhWppRwxLd/kDNI3eZXgg9OGjvWofCyKSvO+MDyu7EyV3L+dxwUtGHSq7ZhZnS7QZJkXsh+iXx8A==
+  dependencies:
+    "@trufflesuite/bigint-buffer" "1.1.10"
+    "@types/bn.js" "^5.1.0"
+    "@types/lru-cache" "5.1.1"
+    "@types/seedrandom" "3.0.1"
+    abstract-level "1.0.3"
+    abstract-leveldown "7.2.0"
+    async-eventemitter "0.2.4"
+    emittery "0.10.0"
+    keccak "3.0.2"
+    leveldown "6.1.0"
+    secp256k1 "4.0.3"
+  optionalDependencies:
+    bufferutil "4.0.5"
+    utf-8-validate "5.0.7"
+
 "@carrot-kpi/react@*":
   version "0.28.0"
   resolved "https://registry.yarnpkg.com/@carrot-kpi/react/-/react-0.28.0.tgz#a9b509cdaecf009a3faf6329359125fa9f9d2555"
@@ -5827,15 +5847,15 @@ capital-case@^1.0.4:
     tslib "^2.0.3"
     upper-case-first "^2.0.2"
 
-carrot-scripts@0.15.0:
-  version "0.15.0"
-  resolved "https://registry.yarnpkg.com/carrot-scripts/-/carrot-scripts-0.15.0.tgz#56c32649543bf5f75be3ea4ecd6d3dff18ba2a01"
-  integrity sha512-5cbNq1vfNiekNz45+jpsjtJ226CEPV+5ozNa7M/seTlFVGl6Mz/EH5dDlq3mOW7AG6hbH5XLbh1lc9ukwgyncg==
+carrot-scripts@0.15.2:
+  version "0.15.2"
+  resolved "https://registry.yarnpkg.com/carrot-scripts/-/carrot-scripts-0.15.2.tgz#9154e0c4ac9c741e172a21164efd0a986d7dae0b"
+  integrity sha512-M76I1ARtn6etHvbUpfnr/Q+wDgfz1gyvo8r1Gt1I4YYMBTwZXfaRsWgaZDBPywQDTd9nNJo6nPjrhXeuBSJTew==
   dependencies:
+    "@carrot-kpi/ganache" "^0.1.0"
     "@carrot-kpi/sdk" "^1.16.5"
     chalk "^4.1.2"
     ethers "^5.7.1"
-    ganache "^7.4.4"
     git-rev-sync "^3.0.2"
     ipfs "^0.66.0"
     ipfs-http-gateway "^0.13.0"
@@ -8106,26 +8126,6 @@ functions-have-names@^1.2.2:
   version "1.2.3"
   resolved "https://registry.yarnpkg.com/functions-have-names/-/functions-have-names-1.2.3.tgz#0404fe4ee2ba2f607f0e0ec3c80bae994133b834"
   integrity sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==
-
-ganache@^7.4.4:
-  version "7.7.5"
-  resolved "https://registry.yarnpkg.com/ganache/-/ganache-7.7.5.tgz#e95f205c9d5d5483764cc1667a583d88d2c29ead"
-  integrity sha512-H8ybC7l9hhvor61uS4wvQ7UOYpgc4OcqZvFb3XGutPwbxQL4yYDoNjOumfUcq4JalYZF9ojzy95ss7lOvrw76w==
-  dependencies:
-    "@trufflesuite/bigint-buffer" "1.1.10"
-    "@types/bn.js" "^5.1.0"
-    "@types/lru-cache" "5.1.1"
-    "@types/seedrandom" "3.0.1"
-    abstract-level "1.0.3"
-    abstract-leveldown "7.2.0"
-    async-eventemitter "0.2.4"
-    emittery "0.10.0"
-    keccak "3.0.2"
-    leveldown "6.1.0"
-    secp256k1 "4.0.3"
-  optionalDependencies:
-    bufferutil "4.0.5"
-    utf-8-validate "5.0.7"
 
 gar@^1.0.4:
   version "1.0.4"
