@@ -68,7 +68,6 @@ export const Component = ({
 
     useEffect(() => {
         const interval = setInterval(() => {
-            console.log("date");
             setMinimumDate(new Date());
         }, 1_000);
         return () => {
