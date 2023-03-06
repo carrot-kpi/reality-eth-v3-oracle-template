@@ -1,14 +1,13 @@
 import WebpackDevServer from "webpack-dev-server";
 import HtmlWebpackPlugin from "html-webpack-plugin";
-import { join } from "path";
+import { join, dirname } from "path";
 import webpack from "webpack";
-import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { long as longCommitHash } from "git-rev-sync";
-import { createRequire } from "module";
 
 import postcssOptions from "../postcss.config.js";
 import { setupCompiler } from "./setup-compiler.js";
+import { createRequire } from "module";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
@@ -21,8 +20,8 @@ export const startPlayground = async (
     globals,
     writableStream
 ) => {
-    let coreFirstCompilation = true;
-    let templateFirstCompilation = true;
+    const coreFirstCompilation = true;
+    const templateFirstCompilation = true;
 
     // initialize the applications compiler
     const coreApplicationCompiler = webpack({
@@ -33,6 +32,9 @@ export const startPlayground = async (
         stats: "none",
         entry: join(__dirname, "../playground/index.tsx"),
         resolve: {
+            fallback: {
+                buffer: join(__dirname, "./utils/buffer.js"),
+            },
             extensions: [".ts", ".tsx", "..."],
         },
         module: {
@@ -52,7 +54,7 @@ export const startPlayground = async (
                     ],
                 },
                 {
-                    test: /\.svg$/,
+                    test: /\.svg/,
                     use: [
                         {
                             loader: "@svgr/webpack",
@@ -95,9 +97,12 @@ export const startPlayground = async (
         infrastructureLogging: {
             level: "none",
         },
-        entry: join(__dirname, "../src/index.ts"),
         stats: "none",
+        entry: join(__dirname, "../src"),
         resolve: {
+            fallback: {
+                buffer: join(__dirname, "./utils/buffer.js"),
+            },
             extensions: [".ts", ".tsx", "..."],
         },
         module: {
@@ -117,7 +122,7 @@ export const startPlayground = async (
                     ],
                 },
                 {
-                    test: /\.svg$/,
+                    test: /\.svg/,
                     use: [
                         {
                             loader: "@svgr/webpack",

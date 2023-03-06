@@ -1,6 +1,6 @@
 import "../global.css";
 
-import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
+import { ReactElement, useCallback, useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import { OracleCreationFormProps } from "@carrot-kpi/react";
 import {
@@ -32,18 +32,10 @@ export const Component = ({
     const { chain } = useNetwork();
     const uploadToIpfs = useDecentralizedStorageUploader("ipfs");
 
-    const arbitratorsByChain = useMemo<OptionWithIcon[]>(() => {
-        if (!chain || !(chain.id in SupportedChain)) return [];
-        return ARBITRATORS_BY_CHAIN[chain.id as SupportedChain].map(
-            (arbitrator) => {
-                return {
-                    label: arbitrator.name,
-                    value: arbitrator.address,
-                    icon: arbitrator.icon,
-                };
-            }
-        );
-    }, [chain]);
+    const arbitratorsByChain =
+        !chain || !(chain.id in SupportedChain)
+            ? []
+            : ARBITRATORS_BY_CHAIN[chain.id as SupportedChain];
     const [arbitrator, setArbitrator] = useState<OptionWithIcon | null>(
         state.arbitrator
             ? arbitratorsByChain.find(
@@ -67,6 +59,22 @@ export const Component = ({
         state.openingTimestamp ? dayjs.unix(state.openingTimestamp) : null
     );
     const [minimumBond, setMinimumBond] = useState(state.minimumBond || "");
+    const [questionErrorText, setQuestionErrorText] = useState("");
+    const [questionTimeoutErrorText, setQuestionTimeoutErrorText] =
+        useState("");
+    const [minimumBondErrorText, setMinimumBondErrorText] = useState("");
+
+    const [minimumDate, setMinimumDate] = useState(new Date());
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            console.log("date");
+            setMinimumDate(new Date());
+        }, 1_000);
+        return () => {
+            clearInterval(interval);
+        };
+    }, []);
 
     // the effect reacts to any change in internal state, firing an
     // onChange event to the creation for user when necessary.
@@ -135,22 +143,44 @@ export const Component = ({
         uploadToIpfs,
     ]);
 
+    const handleQuestionChange = useCallback(
+        (value: string) => {
+            const trimmedValue = stripHtml(value).trim();
+            setQuestion(value);
+            setQuestionErrorText(
+                !trimmedValue ? t("error.question.empty") : ""
+            );
+        },
+        [t]
+    );
+
     const handleOpeningTimestampChange = useCallback((value: Date) => {
         setOpeningTimestamp(dayjs(value));
     }, []);
 
     const handleQuestionTimeout = useCallback(
         ({ value }: { value: string }) => {
+            const parsedValue = parseFloat(value);
             setQuestionTimeout(value);
+            setQuestionTimeoutErrorText(
+                isNaN(parsedValue) || parsedValue < MINIMUM_QUESTION_TIMEOUT
+                    ? t("error.question.timeout.empty", {
+                          minimum: MINIMUM_QUESTION_TIMEOUT,
+                      })
+                    : ""
+            );
         },
-        []
+        [t]
     );
 
     const handleMinimumBondChange = useCallback(
         ({ value }: { value: string }) => {
             setMinimumBond(value);
+            setMinimumBondErrorText(
+                !value ? t("error.minimum.bond.empty") : ""
+            );
         },
-        []
+        [t]
     );
 
     return (
@@ -197,6 +227,8 @@ export const Component = ({
                         placeholder={t("placeholder.number")}
                         onValueChange={handleQuestionTimeout}
                         value={questionTimeout}
+                        error={!!questionTimeoutErrorText}
+                        helperText={questionTimeoutErrorText}
                     />
                 </div>
                 <div className="md:w-1/2">
@@ -209,6 +241,7 @@ export const Component = ({
                         }}
                         label={t("label.opening.timestamp")}
                         placeholder={t("placeholder.number")}
+                        min={minimumDate}
                         onChange={handleOpeningTimestampChange}
                         value={openingTimestamp?.toDate()}
                     />
@@ -225,13 +258,17 @@ export const Component = ({
                 placeholder={t("placeholder.number")}
                 onValueChange={handleMinimumBondChange}
                 value={minimumBond}
+                error={!!minimumBondErrorText}
+                helperText={minimumBondErrorText}
             />
             <MarkdownInput
                 id="question"
                 label={t("label.question")}
                 placeholder={t("placeholder.pick")}
-                onChange={setQuestion}
+                onChange={handleQuestionChange}
                 value={question}
+                error={!!questionErrorText}
+                helperText={questionErrorText}
                 className={{
                     root: "w-full",
                     input: "w-full",

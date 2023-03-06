@@ -2,10 +2,13 @@
     "label.arbitrator": "Arbitrator:",
     "label.reality.template": "Result type:",
     "label.question": "Question:",
-    "label.question.timeout": "Question timeout:",
+    "label.question.timeout": "Question timeout (seconds):",
     "label.opening.timestamp": "Opening timestamp:",
     "label.minimum.bond": "Minimum bond:",
     "placeholder.pick": "Pick an option:",
     "placeholder.number": "10",
-    "confirm": "Confirm"
+    "confirm": "Confirm",
+    "error.question.empty": "A question is required",
+    "error.question.timeout.empty": "The minimum question timeout is {{minimum}} seconds",
+    "error.minimum.bond.empty": "A minimum bond is required"
 }
