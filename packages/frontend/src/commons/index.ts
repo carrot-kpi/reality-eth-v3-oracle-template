@@ -1,6 +1,5 @@
 import { ChainId } from "@carrot-kpi/sdk";
 import { SelectOption } from "@carrot-kpi/ui";
-import { BigNumber } from "ethers";
 import { FunctionComponent, SVGProps } from "react";
 import { Address } from "wagmi";
 import { ReactComponent as CarrotIcon } from "../assets/carrot.svg";
@@ -52,23 +51,21 @@ export enum SupportedRealityTemplates {
 export const REALITY_TEMPLATE_OPTIONS: SelectOption[] = [
     {
         label: "Yes/no",
-        value: "0",
+        value: SupportedRealityTemplates.BOOL,
     },
     {
         label: "Number",
-        value: "1",
+        value: SupportedRealityTemplates.UINT,
     },
 ];
 
 export const MINIMUM_QUESTION_TIMEOUT = 120;
 
-export const INVALID_REALITY_ANSWER = BigNumber.from(
-    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-);
+export const INVALID_REALITY_ANSWER =
+    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
 
-export const ANSWERED_TOO_SOON_REALITY_ANSWER = BigNumber.from(
-    "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe"
-);
+export const ANSWERED_TOO_SOON_REALITY_ANSWER =
+    "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe";
 
-export const BYTES_0 =
+export const BYTES32_ZERO =
     "0x0000000000000000000000000000000000000000000000000000000000000000";

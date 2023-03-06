@@ -8,8 +8,10 @@ export interface SupportedInChainParams {
 
 export interface FetchQuestionParams {
     provider: Provider;
+    realityV3Address?: string;
     question?: string;
     questionId?: string;
+    ipfsGatewayURL?: string;
 }
 
 export interface IPartialFetcher {

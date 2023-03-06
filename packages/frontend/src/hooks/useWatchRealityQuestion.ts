@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
+import { useIPFSGatewayURL } from "@carrot-kpi/react";
 import { useBlockNumber, useProvider } from "wagmi";
 import { Fetcher } from "../fetcher";
 import { RealityQuestion } from "../page/types";
 
 export function useWatchRealityQuestion(
+    realityV3Address?: string,
     questionId?: string,
     question?: string
 ): {
@@ -12,6 +14,7 @@ export function useWatchRealityQuestion(
 } {
     const provider = useProvider();
     const blockNumber = useBlockNumber();
+    const ipfsGatewayURL = useIPFSGatewayURL();
 
     const [loading, setLoading] = useState(true);
     const [realityQuestion, setOnChainQuestion] =
@@ -20,13 +23,21 @@ export function useWatchRealityQuestion(
     useEffect(() => {
         let cancelled = false;
         const fetchData = async (): Promise<void> => {
-            if (!questionId) return;
+            if (
+                !realityV3Address ||
+                !question ||
+                !questionId ||
+                !ipfsGatewayURL
+            )
+                return;
             if (!cancelled) setLoading(true);
             try {
                 const fetched = await Fetcher.fetchQuestion({
                     provider,
+                    realityV3Address,
                     question,
                     questionId,
+                    ipfsGatewayURL,
                 });
                 if (!cancelled) setOnChainQuestion(fetched);
             } catch (error) {
@@ -43,7 +54,9 @@ export function useWatchRealityQuestion(
         provider,
         question,
         questionId,
-        blockNumber.data, // used to force refetch at each new block
+        blockNumber.data,
+        ipfsGatewayURL,
+        realityV3Address,
     ]);
 
     return { loading, question: realityQuestion };

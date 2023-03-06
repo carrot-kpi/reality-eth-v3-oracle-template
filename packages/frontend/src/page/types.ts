@@ -23,7 +23,7 @@ export interface RealityQuestion {
     id: string;
     historyHash: string;
     templateId: number;
-    question: string;
+    content: string;
     contentHash: string;
     arbitrator: string;
     timeout: number;

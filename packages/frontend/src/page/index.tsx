@@ -1,13 +1,11 @@
-import { enforce, Oracle } from "@carrot-kpi/sdk";
-import { ReactElement, useMemo } from "react";
+import { Oracle } from "@carrot-kpi/sdk";
+import { ReactElement, useEffect, useState } from "react";
 import { NamespacedTranslateFunction, useWatchData } from "@carrot-kpi/react";
-import { defaultAbiCoder } from "ethers/lib/utils.js";
 import { useWatchRealityQuestion } from "../hooks/useWatchRealityQuestion";
 import { Loader, Typography } from "@carrot-kpi/ui";
-import { useDecentralizedStorageContent } from "../hooks/useDecentralizedStorageContent";
-import { SupportedRealityTemplates } from "../commons";
 import { PendingArbitration } from "./components/pending-arbitration";
 import { AnswerForm } from "./components/answer-form";
+import { decodeOracleData } from "../utils/data-decoding";
 
 interface PageProps {
     t: NamespacedTranslateFunction;
@@ -17,54 +15,29 @@ interface PageProps {
 export const Component = ({ t, oracle }: PageProps): ReactElement => {
     const { loading: loadingData, data } = useWatchData(oracle.address);
 
-    const { questionId, question } = useMemo(() => {
-        if (!data) return {};
+    const [realityV3Address, setRealityV3Address] = useState("");
+    const [questionId, setQuestionId] = useState("");
+    const [question, setQuestion] = useState("");
 
-        const [realityV3Address, questionId, question] = defaultAbiCoder.decode(
-            ["address", "bytes32", "string"],
-            data
-        ) as [string, string, string];
-
-        return {
-            realityV3Address,
-            questionId,
-            question,
-        };
+    useEffect(() => {
+        if (!data) return;
+        const decoded = decodeOracleData(data);
+        if (!decoded) return;
+        setRealityV3Address(decoded.realityV3Address);
+        setQuestionId(decoded.questionId);
+        setQuestion(decoded.question);
     }, [data]);
 
-    const [questionContentCid, templateType] = useMemo(() => {
-        if (!question) return [undefined, undefined];
-        const [questionContentCid, templateId] = question.split("-");
-        const numericTemplateId = parseInt(
-            templateId
-        ) as SupportedRealityTemplates;
-
-        enforce(
-            numericTemplateId in SupportedRealityTemplates,
-            "reality template id not supported"
-        );
-
-        return [questionContentCid, numericTemplateId];
-    }, [question]);
-
     const { loading: loadingRealityQuestion, question: realityQuestion } =
-        useWatchRealityQuestion(questionId, question);
-    const { loading: loadingQuestionContent, data: questionContent } =
-        useDecentralizedStorageContent(questionContentCid);
+        useWatchRealityQuestion(realityV3Address, questionId, question);
 
-    if (
-        loadingData ||
-        loadingQuestionContent ||
-        !realityQuestion ||
-        !questionContent
-    ) {
+    if (loadingData || !realityQuestion) {
         return (
             <div className="flex justify-center content-center">
                 <Loader />
             </div>
         );
     }
-
     return (
         <div className="flex flex-col gap-3">
             <div className="flex flex-col gap-3 p-3 rounded-xxl border border-black dark:border-white bg-white dark:bg-black">
@@ -98,9 +71,8 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
                         ) : (
                             <AnswerForm
                                 t={t}
-                                realityTemplateType={templateType}
-                                realityQuestion={realityQuestion}
-                                questionContent={questionContent}
+                                realityAddress={realityV3Address}
+                                question={realityQuestion}
                             />
                         )}
                     </>

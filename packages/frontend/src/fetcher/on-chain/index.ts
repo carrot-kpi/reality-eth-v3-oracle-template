@@ -1,13 +1,12 @@
 import { Contract } from "@ethersproject/contracts";
 import { FetchQuestionParams, IPartialFetcher } from "../abstraction";
 import {
-    BYTES_0,
-    REALITY_CONTRACT_BY_CHAIN,
+    BYTES32_ZERO,
     REALITY_TEMPLATE_OPTIONS,
     SupportedChain,
 } from "../../commons";
-import REALITY_ETH_V3_ABI from "../../abis/reality-eth-v3";
-import { enforce, isCID } from "@carrot-kpi/sdk";
+import REALITY_ETH_V3_ABI from "../../abis/reality-eth-v3.json";
+import { enforce, isCID, CoreFetcher } from "@carrot-kpi/sdk";
 import { OnChainRealityQuestion, RealityQuestion } from "../../page/types";
 
 class Fetcher implements IPartialFetcher {
@@ -17,16 +16,19 @@ class Fetcher implements IPartialFetcher {
 
     public async fetchQuestion({
         provider,
+        realityV3Address,
         questionId,
         question,
+        ipfsGatewayURL,
     }: FetchQuestionParams): Promise<RealityQuestion | null> {
-        if (!question || !questionId) return null;
-        const [cid, templateId] = question?.split("-");
+        if (!realityV3Address || !question || !questionId || !ipfsGatewayURL)
+            return null;
+        const [cid, templateId] = question.split("-");
         if (
             !isCID(cid) ||
             !templateId ||
             !REALITY_TEMPLATE_OPTIONS.find((validTemplate) => {
-                return validTemplate.value === templateId;
+                return validTemplate.value === parseInt(templateId);
             })
         )
             return null;
@@ -37,7 +39,7 @@ class Fetcher implements IPartialFetcher {
             `unsupported chain with id ${chainId}`
         );
         const realityContract = new Contract(
-            REALITY_CONTRACT_BY_CHAIN[chainId as SupportedChain],
+            realityV3Address,
             REALITY_ETH_V3_ABI,
             provider
         );
@@ -47,7 +49,7 @@ class Fetcher implements IPartialFetcher {
         const reopenedQuestionId = await realityContract.reopened_questions(
             questionId
         );
-        if (reopenedQuestionId && reopenedQuestionId !== BYTES_0)
+        if (reopenedQuestionId && reopenedQuestionId !== BYTES32_ZERO)
             finalQuestionId = reopenedQuestionId;
 
         const {
@@ -70,7 +72,12 @@ class Fetcher implements IPartialFetcher {
             id: finalQuestionId,
             historyHash: history_hash,
             templateId: parseInt(templateId),
-            question,
+            content: (
+                await CoreFetcher.fetchContentFromIPFS({
+                    cids: [cid],
+                    ipfsGatewayURL,
+                })
+            )[cid],
             contentHash: content_hash,
             arbitrator,
             timeout,

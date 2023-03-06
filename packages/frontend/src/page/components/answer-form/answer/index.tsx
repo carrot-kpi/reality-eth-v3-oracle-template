@@ -6,69 +6,60 @@ import { Chip, Typography } from "@carrot-kpi/ui";
 import { BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils.js";
 import { ReactElement } from "react";
-import { SupportedRealityTemplates } from "../../../commons";
+import { BYTES32_ZERO, SupportedRealityTemplates } from "../../../../commons";
+import {
+    isQuestionAnswerInvalid,
+    isQuestionAnswerMissing,
+    isQuestionFinalized,
+} from "../../../../utils";
+import { RealityQuestion } from "../../../types";
 
 interface AnswerProps {
     t: NamespacedTranslateFunction;
-    finalized: boolean;
-    answerInvalid: boolean;
-    realityQuestionBond: BigNumber;
-    realityTemplateType?: SupportedRealityTemplates;
-    realityAnswer: BigNumber | null;
+    question: RealityQuestion;
 }
 
-export const Answer = ({
-    t,
-    finalized,
-    answerInvalid,
-    realityQuestionBond,
-    realityTemplateType,
-    realityAnswer,
-}: AnswerProps): ReactElement => {
+export const Answer = ({ t, question }: AnswerProps): ReactElement => {
     const nativeCurrency = useNativeCurrency();
 
-    if (realityQuestionBond.isZero() || !realityAnswer) {
+    if (isQuestionAnswerMissing(question))
         return (
             <Typography variant="lg">{t("label.answer.missing")}</Typography>
         );
-    }
 
+    const finalized = isQuestionFinalized(question);
+    const formattedBond = formatUnits(question.bond, nativeCurrency.decimals);
     return (
         <div>
-            {realityTemplateType === SupportedRealityTemplates.BOOL && (
+            {question.templateId === SupportedRealityTemplates.BOOL && (
                 <Typography variant="lg">
                     {t("label.answer.answer", {
-                        answer: realityAnswer.eq("1")
-                            ? t("label.answer.yes")
-                            : t("label.answer.no"),
-                        bond: formatUnits(
-                            realityQuestionBond,
-                            nativeCurrency.decimals
-                        ),
+                        answer:
+                            question.bestAnswer === BYTES32_ZERO
+                                ? t("label.answer.no")
+                                : t("label.answer.yes"),
+                        bond: formattedBond,
                         symbol: nativeCurrency.symbol,
                     })}
                 </Typography>
             )}
-            {realityTemplateType === SupportedRealityTemplates.UINT && (
+            {question.templateId === SupportedRealityTemplates.UINT && (
                 <Typography variant="lg">
                     {t("label.answer.answer", {
-                        answer: formatUnits(BigNumber.from(realityAnswer), 18),
-                        bond: formatUnits(
-                            realityQuestionBond,
-                            nativeCurrency.decimals
+                        answer: formatUnits(
+                            BigNumber.from(question.bestAnswer),
+                            18
                         ),
+                        bond: formattedBond,
                         symbol: nativeCurrency.symbol,
                     })}
                 </Typography>
             )}
-            {answerInvalid && (
+            {isQuestionAnswerInvalid(question) && (
                 <Chip className={{ root: "bg-red/70" }}>
                     <Typography variant="lg" uppercase={true}>
                         {t("label.answer.invalid", {
-                            bond: formatUnits(
-                                realityQuestionBond,
-                                nativeCurrency.decimals
-                            ),
+                            bond: formattedBond,
                             symbol: nativeCurrency.symbol,
                         })}
                     </Typography>
