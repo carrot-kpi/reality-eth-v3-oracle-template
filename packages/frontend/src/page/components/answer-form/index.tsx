@@ -72,29 +72,22 @@ export const AnswerForm = ({
     const { writeAsync: postAnswerAsync } =
         useContractWrite(submitAnswerConfig);
 
+    const finalized = isQuestionFinalized(question);
     const { config: reopenQuestionConfig } = usePrepareContractWrite({
         address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "reopenQuestion",
         args: [
             question.templateId,
-            question.contentHash,
+            question.content,
             question.arbitrator,
             question.timeout,
             question.openingTimestamp,
-            utils.keccak256("0x" + dayjs().unix().toString(16)),
-            question.minBond,
             question.id,
+            question.minBond,
+            question.reopenedId || question.id,
         ],
-        overrides: {
-            value: bond || BigNumber.from(0),
-        },
-        enabled:
-            !!question &&
-            !!bond &&
-            bond.gt(
-                question.bond.isZero() ? question.minBond : question.bond.mul(2)
-            ),
+        enabled: finalized && isQuestionAnsweredTooSoon(question),
     });
     const { writeAsync: reopenAnswerAsync } =
         useContractWrite(reopenQuestionConfig);
@@ -179,7 +172,6 @@ export const AnswerForm = ({
     if (question.pendingArbitration) return <></>;
 
     const open = question.openingTimestamp < dayjs().unix();
-    const finalized = isQuestionFinalized(question);
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
 
@@ -187,7 +179,7 @@ export const AnswerForm = ({
         <div className="flex flex-col gap-6">
             {open ? (
                 <>
-                    <Markdown>{question.content}</Markdown>
+                    <Markdown>{question.resolvedContent}</Markdown>
                     <div className="h-[1px] bg-black dark:bg-white w-full" />
                     <div className="flex gap-6 justify-between">
                         {question.templateId ===
