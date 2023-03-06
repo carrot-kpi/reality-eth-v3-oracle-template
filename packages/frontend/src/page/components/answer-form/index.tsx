@@ -40,6 +40,7 @@ export const AnswerForm = ({
     realityAddress,
     question,
 }: AnswerFormProps): ReactElement => {
+    const [open, setOpen] = useState(false);
     const [booleanValue, setBooleanValue] = useState<SelectOption | null>(null);
     const [numberValue, setNumberValue] = useState<NumberFormatValue>({
         formattedValue: "",
@@ -98,6 +99,21 @@ export const AnswerForm = ({
     });
     const { writeAsync: reopenAnswerAsync } =
         useContractWrite(reopenQuestionConfig);
+
+    useEffect(() => {
+        if (question.openingTimestamp < dayjs().unix()) {
+            setOpen(true);
+            return;
+        }
+
+        const interval = setInterval(() => {
+            setOpen(question.openingTimestamp < dayjs().unix());
+        }, 1000);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, [open, question.openingTimestamp]);
 
     useEffect(() => {
         if (moreOptionValue.anweredTooSoon)
@@ -178,7 +194,6 @@ export const AnswerForm = ({
 
     if (question.pendingArbitration) return <></>;
 
-    const open = question.openingTimestamp < dayjs().unix();
     const finalized = isQuestionFinalized(question);
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
