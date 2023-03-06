@@ -11,6 +11,7 @@
     "label.question.form.invalid": "Invalid",
     "label.question.form.tooSoon": "Answered too soon",
     "label.question.form.confirm": "Confirm",
+    "label.question.form.reopen": "Reopen",
     "label.answer.missing": "No answer submitted yet",
     "label.answer.answer": "Current answer: {{answer}} ($ {{bond}} {{symbol}} bonded)",
     "label.answer.yes": "YES",

@@ -57,3 +57,13 @@ export const isQuestionNumerical = (question: RealityQuestion) => {
         question.templateId === SupportedRealityTemplates.UINT
     );
 };
+
+export const isQuestionReopenable = (question: RealityQuestion) => {
+    if (!isQuestionFinalized(question)) {
+        return false;
+    }
+    if (!isQuestionAnsweredTooSoon(question)) {
+        return false;
+    }
+    return true;
+};

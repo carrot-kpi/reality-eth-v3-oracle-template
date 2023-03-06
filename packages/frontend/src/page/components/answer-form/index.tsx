@@ -17,7 +17,11 @@ import {
     INVALID_REALITY_ANSWER,
     SupportedRealityTemplates,
 } from "../../../commons";
-import { isQuestionFinalized, numberToByte32 } from "../../../utils";
+import {
+    isQuestionAnsweredTooSoon,
+    isQuestionFinalized,
+    numberToByte32,
+} from "../../../utils";
 import { NumberFormatValue, RealityQuestion } from "../../types";
 import { Answer } from "./answer";
 import REALITY_ETH_V3_ABI from "../../../abis/reality-eth-v3.json";
@@ -50,7 +54,7 @@ export const AnswerForm = ({
 
     const [bond, setBond] = useState<BigNumber | null>(null);
 
-    const { config } = usePrepareContractWrite({
+    const { config: submitAnswerConfig } = usePrepareContractWrite({
         address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "submitAnswer",
@@ -65,7 +69,35 @@ export const AnswerForm = ({
                 question.bond.isZero() ? question.minBond : question.bond.mul(2)
             ),
     });
-    const { writeAsync: postAnswerAsync } = useContractWrite(config);
+    const { writeAsync: postAnswerAsync } =
+        useContractWrite(submitAnswerConfig);
+
+    const { config: reopenQuestionConfig } = usePrepareContractWrite({
+        address: realityAddress,
+        abi: REALITY_ETH_V3_ABI,
+        functionName: "reopenQuestion",
+        args: [
+            question.templateId,
+            question.contentHash,
+            question.arbitrator,
+            question.timeout,
+            question.openingTimestamp,
+            utils.keccak256("0x" + dayjs().unix().toString(16)),
+            question.minBond,
+            question.id,
+        ],
+        overrides: {
+            value: bond || BigNumber.from(0),
+        },
+        enabled:
+            !!question &&
+            !!bond &&
+            bond.gt(
+                question.bond.isZero() ? question.minBond : question.bond.mul(2)
+            ),
+    });
+    const { writeAsync: reopenAnswerAsync } =
+        useContractWrite(reopenQuestionConfig);
 
     useEffect(() => {
         if (moreOptionValue.anweredTooSoon)
@@ -119,6 +151,30 @@ export const AnswerForm = ({
             cancelled = true;
         };
     }, [postAnswerAsync]);
+
+    const handleReopenSubmit = useCallback(() => {
+        if (!reopenAnswerAsync) return;
+        let cancelled = false;
+        const submitReopen = async () => {
+            if (!cancelled) setSubmitting(true);
+            try {
+                const tx = await reopenAnswerAsync();
+                await tx.wait();
+                if (cancelled) return;
+            } catch (error) {
+                console.error(
+                    "error submitting answer reopening to reality v3",
+                    error
+                );
+            } finally {
+                if (!cancelled) setSubmitting(false);
+            }
+        };
+        void submitReopen();
+        return () => {
+            cancelled = true;
+        };
+    }, [reopenAnswerAsync]);
 
     if (question.pendingArbitration) return <></>;
 
@@ -182,7 +238,10 @@ export const AnswerForm = ({
                             t={t}
                             value={bond}
                             onChange={setBond}
-                            disabled={finalized}
+                            disabled={
+                                finalized &&
+                                !isQuestionAnsweredTooSoon(question)
+                            }
                         />
                     </div>
                     <Checkbox
@@ -230,6 +289,15 @@ export const AnswerForm = ({
                     loading={submitting}
                 >
                     {t("label.question.form.confirm")}
+                </Button>
+            )}
+            {finalized && isQuestionAnsweredTooSoon(question) && (
+                <Button
+                    onClick={handleReopenSubmit}
+                    disabled={!reopenAnswerAsync}
+                    loading={submitting}
+                >
+                    {t("label.question.form.reopen")}
                 </Button>
             )}
         </div>
