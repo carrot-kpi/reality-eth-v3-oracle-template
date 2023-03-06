@@ -283,7 +283,7 @@ export const AnswerForm = ({
                         <Typography>{t("label.question.openingIn")}</Typography>
                         <Timer
                             icon={true}
-                            to={question.openingTimestamp * 1_000}
+                            to={question.openingTimestamp}
                             countdown={true}
                         />
                     </div>
