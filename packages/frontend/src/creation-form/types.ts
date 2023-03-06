@@ -6,7 +6,7 @@ export interface State {
     realityTemplateId: string;
     question: string;
     questionTimeout: string;
-    openingTimestamp: string;
+    openingTimestamp: number;
     minimumBond: string;
 }
 

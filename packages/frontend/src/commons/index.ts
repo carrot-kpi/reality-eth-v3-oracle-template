@@ -16,6 +16,16 @@ export interface Arbitrator {
     icon: FunctionComponent<SVGProps<SVGSVGElement>>;
 }
 
+export const EPLORER_BY_CHAIN: Record<SupportedChain, string> = {
+    [ChainId.SEPOLIA]: "https://sepolia.etherscan.io",
+    [ChainId.GOERLI]: "https://goerli.etherscan.io",
+};
+
+export const REALITY_CONTRACT_BY_CHAIN: Record<SupportedChain, string> = {
+    [ChainId.SEPOLIA]: "0x64a0745EF9d3772d9739D9350873eD3703bE45eC",
+    [ChainId.GOERLI]: "0x6F80C5cBCF9FbC2dA2F0675E56A5900BB70Df72f",
+};
+
 export const ARBITRATORS_BY_CHAIN: Record<SupportedChain, Arbitrator[]> = {
     [ChainId.SEPOLIA]: [
         {
@@ -33,15 +43,29 @@ export const ARBITRATORS_BY_CHAIN: Record<SupportedChain, Arbitrator[]> = {
     ],
 };
 
+export enum SupportedRealityTemplates {
+    BOOL = 0,
+    UINT = 1,
+}
+
 export const REALITY_TEMPLATE_OPTIONS: SelectOption[] = [
     {
         label: "Yes/no",
-        value: "0",
+        value: SupportedRealityTemplates.BOOL,
     },
     {
         label: "Number",
-        value: "1",
+        value: SupportedRealityTemplates.UINT,
     },
 ];
 
 export const MINIMUM_QUESTION_TIMEOUT = 120;
+
+export const INVALID_REALITY_ANSWER =
+    "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+
+export const ANSWERED_TOO_SOON_REALITY_ANSWER =
+    "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe";
+
+export const BYTES32_ZERO =
+    "0x0000000000000000000000000000000000000000000000000000000000000000";
