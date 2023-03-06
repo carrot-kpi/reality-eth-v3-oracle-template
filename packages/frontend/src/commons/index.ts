@@ -66,7 +66,7 @@ export const INVALID_REALITY_ANSWER = BigNumber.from(
     "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
 );
 
-export const TOO_SOON_REALITY_ANSWER = BigNumber.from(
+export const ANSWERED_TOO_SOON_REALITY_ANSWER = BigNumber.from(
     "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe"
 );
 

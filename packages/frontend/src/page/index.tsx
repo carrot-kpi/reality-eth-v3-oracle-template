@@ -84,19 +84,26 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
             </div>
 
             <div className="flex flex-col gap-3 p-3 rounded-xxl border border-black dark:border-white bg-white dark:bg-black">
-                <PendingArbitration t={t} realityQuestion={realityQuestion} />
-
                 {loadingRealityQuestion ? (
                     <div className="flex justify-center content-center">
                         <Loader />
                     </div>
                 ) : (
-                    <AnswerForm
-                        t={t}
-                        realityTemplateType={templateType}
-                        realityQuestion={realityQuestion}
-                        questionContent={questionContent}
-                    />
+                    <>
+                        {realityQuestion.pendingArbitration ? (
+                            <PendingArbitration
+                                t={t}
+                                realityQuestion={realityQuestion}
+                            />
+                        ) : (
+                            <AnswerForm
+                                t={t}
+                                realityTemplateType={templateType}
+                                realityQuestion={realityQuestion}
+                                questionContent={questionContent}
+                            />
+                        )}
+                    </>
                 )}
             </div>
         </div>

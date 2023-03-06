@@ -14,7 +14,3 @@ export const shortenAddress = (address?: string) => {
         ? `${address.slice(0, 6)}...${address.substring(38)}`
         : undefined;
 };
-
-export const isInThePast = (date: Date) => {
-    return date.getTime() < Date.now();
-};

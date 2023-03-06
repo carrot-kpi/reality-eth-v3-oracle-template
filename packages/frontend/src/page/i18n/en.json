@@ -9,6 +9,7 @@
     "label.question.form.answer.select": "Pick an answer",
     "label.question.form.bond": "Bond:",
     "label.question.form.invalid": "Invalid",
+    "label.question.form.tooSoon": "Answered too soon",
     "label.question.form.confirm": "Confirm",
     "label.answer.missing": "No answer submitted yet",
     "label.answer.answer": "Current answer: {{answer}} ($ {{bond}} {{symbol}} bonded)",

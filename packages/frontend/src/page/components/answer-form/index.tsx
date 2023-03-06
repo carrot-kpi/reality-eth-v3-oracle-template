@@ -13,13 +13,16 @@ import { BigNumber, utils } from "ethers";
 import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
 import { useNetwork } from "wagmi";
 import {
+    ANSWERED_TOO_SOON_REALITY_ANSWER,
     INVALID_REALITY_ANSWER,
     SupportedRealityTemplates,
 } from "../../../commons";
 import { usePostRealityAnswer } from "../../../hooks/usePostRealityAnswer";
-import { isInThePast, numberToByte32 } from "../../../utils";
+import { numberToByte32 } from "../../../utils";
 import { NumberFormatValue, RealityQuestion } from "../../types";
 import { Answer } from "../answer";
+import { cva } from "class-variance-authority";
+import dayjs from "dayjs";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -27,6 +30,25 @@ interface AnswerFormProps {
     realityQuestion: RealityQuestion;
     questionContent: string;
 }
+
+const answerInputWrapperStyles = cva(
+    ["flex gap-4 opacity-100 transition-opacity"],
+    {
+        variants: {
+            disabled: {
+                true: ["opacity-20", "pointer-events-none", "cursor-no-drop"],
+            },
+        },
+    }
+);
+
+const checkBoxStyles = cva(["opacity-100 transition-opacity"], {
+    variants: {
+        disabled: {
+            true: ["opacity-20", "pointer-events-none", "cursor-no-drop"],
+        },
+    },
+});
 
 export const AnswerForm = ({
     t,
@@ -47,7 +69,14 @@ export const AnswerForm = ({
     const [finalized, setFinalized] = useState(
         realityQuestion.finalizationTimestamp !== 0
     );
-    const [invalid, setInvalid] = useState(false);
+    const [moreOptionValue, setMoreOptionValue] = useState({
+        invalid: false,
+        anweredTooSoon: false,
+    });
+    const [answerInputDisabled, setAnswerInputDisabled] = useState(false);
+
+    const moreOptionSelected =
+        moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
 
     const { chain } = useNetwork();
     const { defaultBondValue, defaultFormatteBondValue } = useMemo(() => {
@@ -93,13 +122,20 @@ export const AnswerForm = ({
                 .lt(minimumBond)
         )
             return false;
-        if (realityTemplateType === SupportedRealityTemplates.BOOL)
+        if (
+            !moreOptionSelected &&
+            realityTemplateType === SupportedRealityTemplates.BOOL
+        )
             return !!booleanValue;
-        if (realityTemplateType === SupportedRealityTemplates.UINT)
+        if (
+            !moreOptionSelected &&
+            realityTemplateType === SupportedRealityTemplates.UINT
+        )
             return !!numberValue;
-        return false;
+        return true;
     }, [
         postAnswerAsync,
+        moreOptionSelected,
         realityTemplateType,
         booleanValue,
         numberValue,
@@ -110,10 +146,12 @@ export const AnswerForm = ({
 
     const answerInvalid = useMemo(() => {
         if (!realityQuestion) return false;
+        console.log("ANSWER", realityQuestion.bestAnswer);
         return (
             !realityQuestion.bond.isZero() &&
+            // FIXME: error when parsing units of ANSWERED_TOO_SOON
             utils
-                .parseUnits(realityQuestion.bestAnswer)
+                .parseUnits(realityQuestion.bestAnswer, 18)
                 .eq(INVALID_REALITY_ANSWER)
         );
     }, [realityQuestion]);
@@ -128,18 +166,47 @@ export const AnswerForm = ({
     }, [realityQuestion.bond, realityQuestion.minBond]);
 
     useEffect(() => {
-        if (booleanValue) setFinalAnswer(numberToByte32(booleanValue.value));
+        if (moreOptionValue.anweredTooSoon)
+            return setFinalAnswer(
+                ANSWERED_TOO_SOON_REALITY_ANSWER.toHexString()
+            );
+        if (moreOptionValue.invalid)
+            return setFinalAnswer(INVALID_REALITY_ANSWER.toHexString());
+        if (booleanValue)
+            return setFinalAnswer(numberToByte32(booleanValue.value));
         if (!isNaN(parseFloat(numberValue.value)))
-            setFinalAnswer(
+            return setFinalAnswer(
                 numberToByte32(
                     utils.parseUnits(numberValue.value, 18).toString()
                 )
             );
-    }, [booleanValue, numberValue, chain?.nativeCurrency.decimals]);
+    }, [
+        moreOptionValue,
+        booleanValue,
+        numberValue,
+        chain?.nativeCurrency.decimals,
+    ]);
+
+    useEffect(() => {
+        if (finalized) return setAnswerInputDisabled(true);
+        if (moreOptionValue.invalid || moreOptionValue.anweredTooSoon)
+            return setAnswerInputDisabled(true);
+
+        setAnswerInputDisabled(false);
+    }, [finalized, moreOptionValue]);
 
     const handleInvalidChange = useCallback(() => {
-        setInvalid(!invalid);
-    }, [invalid]);
+        setMoreOptionValue((previous) => ({
+            ...previous,
+            invalid: !previous.invalid,
+        }));
+    }, []);
+    const handleAnsweredTooSoonChange = useCallback(() => {
+        setMoreOptionValue((previous) => ({
+            ...previous,
+            anweredTooSoon: !previous.anweredTooSoon,
+        }));
+    }, []);
 
     const handleSubmit = useCallback(() => {
         if (!postAnswerAsync) return;
@@ -162,41 +229,49 @@ export const AnswerForm = ({
         };
     }, [postAnswerAsync]);
 
-    if (realityQuestion.pendingArbitration) return <></>;
-
     return (
         <div className="flex flex-col gap-6">
-            {!!isInThePast(
-                new Date(realityQuestion.openingTimestamp * 1_000)
+            {dayjs(dayjs.unix(realityQuestion.openingTimestamp)).isBefore(
+                dayjs()
             ) ? (
                 <>
                     <Markdown>{questionContent}</Markdown>
-                    {realityTemplateType === SupportedRealityTemplates.BOOL && (
-                        <Select
-                            id="bool-template"
-                            label={t("label.question.form.answer")}
-                            placeholder={t("label.question.form.answer.select")}
-                            value={booleanValue}
-                            disabled={finalized || invalid}
-                            onChange={setBooleanValue}
-                            options={[
-                                { label: "Yes", value: 1 },
-                                { label: "No", value: 0 },
-                            ]}
-                        />
-                    )}
-                    {realityTemplateType === SupportedRealityTemplates.UINT && (
-                        <NumberInput
-                            id="uint-template"
-                            label={t("label.question.form.answer")}
-                            placeholder={"0.0"}
-                            allowNegative={false}
-                            min={0}
-                            value={numberValue.formattedValue}
-                            disabled={finalized || invalid}
-                            onValueChange={setNumberValue}
-                        />
-                    )}
+                    <div
+                        className={answerInputWrapperStyles({
+                            disabled: answerInputDisabled,
+                        })}
+                    >
+                        {realityTemplateType ===
+                            SupportedRealityTemplates.BOOL && (
+                            <Select
+                                id="bool-template"
+                                label={t("label.question.form.answer")}
+                                placeholder={t(
+                                    "label.question.form.answer.select"
+                                )}
+                                value={booleanValue}
+                                disabled={answerInputDisabled}
+                                onChange={setBooleanValue}
+                                options={[
+                                    { label: "Yes", value: 1 },
+                                    { label: "No", value: 0 },
+                                ]}
+                            />
+                        )}
+                        {realityTemplateType ===
+                            SupportedRealityTemplates.UINT && (
+                            <NumberInput
+                                id="uint-template"
+                                label={t("label.question.form.answer")}
+                                placeholder={"0.0"}
+                                allowNegative={false}
+                                min={0}
+                                value={numberValue.formattedValue}
+                                disabled={answerInputDisabled}
+                                onValueChange={setNumberValue}
+                            />
+                        )}
+                    </div>
                     <NumberInput
                         id="bond"
                         label={t("label.question.form.bond")}
@@ -210,8 +285,24 @@ export const AnswerForm = ({
                     <Checkbox
                         id="invalid"
                         label={t("label.question.form.invalid")}
-                        checked={invalid}
+                        checked={moreOptionValue.invalid}
                         onChange={handleInvalidChange}
+                        className={{
+                            root: checkBoxStyles({
+                                disabled: moreOptionValue.anweredTooSoon,
+                            }),
+                        }}
+                    />
+                    <Checkbox
+                        id="too-soon"
+                        label={t("label.question.form.tooSoon")}
+                        checked={moreOptionValue.anweredTooSoon}
+                        onChange={handleAnsweredTooSoonChange}
+                        className={{
+                            root: checkBoxStyles({
+                                disabled: moreOptionValue.invalid,
+                            }),
+                        }}
                     />
                     <Answer
                         t={t}
