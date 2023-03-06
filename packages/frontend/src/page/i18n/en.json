@@ -11,6 +11,7 @@
     "label.question.form.invalid": "Invalid",
     "label.question.form.tooSoon": "Answered too soon",
     "label.question.form.confirm": "Confirm",
+    "label.question.form.reopen": "Reopen",
     "label.answer.missing": "No answer submitted yet",
     "label.answer.answer": "Current answer: {{answer}} ($ {{bond}} {{symbol}} bonded)",
     "label.answer.yes": "YES",
@@ -18,6 +19,7 @@
     "label.answer.bonded": "bonded",
     "label.answer.finalized": "Finalized",
     "label.answer.invalid": "Goal currently market as invalid with $ {{bond}} {{symbol}} bonded",
+    "label.answer.tooSoon": "Goal currently market as answered too soon with $ {{bond}} {{symbol}} bonded",
     "label.here": "here",
     "label.reward": "Reward: {{reward}}"
 }

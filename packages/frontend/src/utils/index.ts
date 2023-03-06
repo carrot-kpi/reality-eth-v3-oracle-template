@@ -1,5 +1,10 @@
 import { BigNumber } from "ethers";
-import { BYTES32_ZERO, INVALID_REALITY_ANSWER } from "../commons";
+import {
+    ANSWERED_TOO_SOON_REALITY_ANSWER,
+    BYTES32_ZERO,
+    INVALID_REALITY_ANSWER,
+    SupportedRealityTemplates,
+} from "../commons";
 import { RealityQuestion } from "../page/types";
 import dayjs from "dayjs";
 
@@ -19,7 +24,10 @@ export const shortenAddress = (address?: string) => {
 };
 
 export const isQuestionFinalized = (question: RealityQuestion) => {
-    return question.finalizationTimestamp < dayjs().unix();
+    return (
+        question.finalizationTimestamp !== 0 &&
+        question.finalizationTimestamp < dayjs().unix()
+    );
 };
 
 export const isQuestionAnswerMissing = (question: RealityQuestion) => {
@@ -28,4 +36,34 @@ export const isQuestionAnswerMissing = (question: RealityQuestion) => {
 
 export const isQuestionAnswerInvalid = (question: RealityQuestion) => {
     return question.bestAnswer === INVALID_REALITY_ANSWER;
+};
+
+export const isQuestionAnsweredTooSoon = (question: RealityQuestion) => {
+    return question.bestAnswer === ANSWERED_TOO_SOON_REALITY_ANSWER;
+};
+
+export const isQuestionBoolean = (question: RealityQuestion) => {
+    return (
+        !isQuestionAnswerInvalid(question) &&
+        !isQuestionAnsweredTooSoon(question) &&
+        question.templateId === SupportedRealityTemplates.BOOL
+    );
+};
+
+export const isQuestionNumerical = (question: RealityQuestion) => {
+    return (
+        !isQuestionAnswerInvalid(question) &&
+        !isQuestionAnsweredTooSoon(question) &&
+        question.templateId === SupportedRealityTemplates.UINT
+    );
+};
+
+export const isQuestionReopenable = (question: RealityQuestion) => {
+    if (!isQuestionFinalized(question)) {
+        return false;
+    }
+    if (!isQuestionAnsweredTooSoon(question)) {
+        return false;
+    }
+    return true;
 };

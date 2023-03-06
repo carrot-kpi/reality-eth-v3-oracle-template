@@ -70,9 +70,11 @@ class Fetcher implements IPartialFetcher {
 
         return {
             id: finalQuestionId,
+            reopenedId: questionId === finalQuestionId ? undefined : questionId,
             historyHash: history_hash,
             templateId: parseInt(templateId),
-            content: (
+            content: question,
+            resolvedContent: (
                 await CoreFetcher.fetchContentFromIPFS({
                     cids: [cid],
                     ipfsGatewayURL,

@@ -17,13 +17,17 @@ import {
     INVALID_REALITY_ANSWER,
     SupportedRealityTemplates,
 } from "../../../commons";
-import { isQuestionFinalized, numberToByte32 } from "../../../utils";
+import {
+    isQuestionAnsweredTooSoon,
+    isQuestionFinalized,
+    numberToByte32,
+} from "../../../utils";
 import { NumberFormatValue, RealityQuestion } from "../../types";
 import { Answer } from "./answer";
-import { cva } from "class-variance-authority";
 import REALITY_ETH_V3_ABI from "../../../abis/reality-eth-v3.json";
 import { BondInput } from "./bond-input";
 import dayjs from "dayjs";
+import { inputStyles } from "./common/styles";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -31,19 +35,12 @@ interface AnswerFormProps {
     question: RealityQuestion;
 }
 
-const checkBoxStyles = cva(["opacity-100 transition-opacity"], {
-    variants: {
-        disabled: {
-            true: ["opacity-20", "pointer-events-none", "cursor-no-drop"],
-        },
-    },
-});
-
 export const AnswerForm = ({
     t,
     realityAddress,
     question,
 }: AnswerFormProps): ReactElement => {
+    const [open, setOpen] = useState(false);
     const [booleanValue, setBooleanValue] = useState<SelectOption | null>(null);
     const [numberValue, setNumberValue] = useState<NumberFormatValue>({
         formattedValue: "",
@@ -58,7 +55,7 @@ export const AnswerForm = ({
 
     const [bond, setBond] = useState<BigNumber | null>(null);
 
-    const { config } = usePrepareContractWrite({
+    const { config: submitAnswerConfig } = usePrepareContractWrite({
         address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "submitAnswer",
@@ -73,7 +70,43 @@ export const AnswerForm = ({
                 question.bond.isZero() ? question.minBond : question.bond.mul(2)
             ),
     });
-    const { writeAsync: postAnswerAsync } = useContractWrite(config);
+    const { writeAsync: postAnswerAsync } =
+        useContractWrite(submitAnswerConfig);
+
+    const finalized = isQuestionFinalized(question);
+    const { config: reopenQuestionConfig } = usePrepareContractWrite({
+        address: realityAddress,
+        abi: REALITY_ETH_V3_ABI,
+        functionName: "reopenQuestion",
+        args: [
+            question.templateId,
+            question.content,
+            question.arbitrator,
+            question.timeout,
+            question.openingTimestamp,
+            question.id,
+            question.minBond,
+            question.reopenedId || question.id,
+        ],
+        enabled: finalized && isQuestionAnsweredTooSoon(question),
+    });
+    const { writeAsync: reopenAnswerAsync } =
+        useContractWrite(reopenQuestionConfig);
+
+    useEffect(() => {
+        if (question.openingTimestamp < dayjs().unix()) {
+            setOpen(true);
+            return;
+        }
+
+        const interval = setInterval(() => {
+            setOpen(question.openingTimestamp < dayjs().unix());
+        }, 1000);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, [open, question.openingTimestamp]);
 
     useEffect(() => {
         if (moreOptionValue.anweredTooSoon)
@@ -128,57 +161,105 @@ export const AnswerForm = ({
         };
     }, [postAnswerAsync]);
 
+    const handleReopenSubmit = useCallback(() => {
+        if (!reopenAnswerAsync) return;
+        let cancelled = false;
+        const submitReopen = async () => {
+            if (!cancelled) setSubmitting(true);
+            try {
+                const tx = await reopenAnswerAsync();
+                await tx.wait();
+                if (cancelled) return;
+            } catch (error) {
+                console.error(
+                    "error submitting answer reopening to reality v3",
+                    error
+                );
+            } finally {
+                if (!cancelled) setSubmitting(false);
+            }
+        };
+        void submitReopen();
+        return () => {
+            cancelled = true;
+        };
+    }, [reopenAnswerAsync]);
+
     if (question.pendingArbitration) return <></>;
 
-    const open = question.openingTimestamp < dayjs().unix();
-    const finalized = isQuestionFinalized(question);
+    const minimumBond = question.bond.isZero()
+        ? BigNumber.from(0)
+        : question.bond.mul(2);
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
+
     return (
         <div className="flex flex-col gap-6">
             {open ? (
                 <>
-                    <Markdown>{question.content}</Markdown>
-                    {question.templateId === SupportedRealityTemplates.BOOL && (
-                        <Select
-                            id="bool-template"
-                            label={t("label.question.form.answer")}
-                            placeholder={t("label.question.form.answer.select")}
-                            value={booleanValue}
-                            disabled={answerInputDisabled}
-                            onChange={setBooleanValue}
-                            options={[
-                                { label: "Yes", value: 1 },
-                                { label: "No", value: 0 },
-                            ]}
+                    <Markdown>{question.resolvedContent}</Markdown>
+                    <div className="h-[1px] bg-black dark:bg-white w-full" />
+                    <div className="flex gap-6 justify-between">
+                        {question.templateId ===
+                            SupportedRealityTemplates.BOOL && (
+                            <Select
+                                id="bool-template"
+                                label={t("label.question.form.answer")}
+                                placeholder={t(
+                                    "label.question.form.answer.select"
+                                )}
+                                value={booleanValue}
+                                disabled={answerInputDisabled}
+                                onChange={setBooleanValue}
+                                options={[
+                                    { label: "Yes", value: 1 },
+                                    { label: "No", value: 0 },
+                                ]}
+                                className={{
+                                    root: "w-full",
+                                    input: "w-full",
+                                    inputWrapper: inputStyles({
+                                        disabled: answerInputDisabled,
+                                    }),
+                                }}
+                            />
+                        )}
+                        {question.templateId ===
+                            SupportedRealityTemplates.UINT && (
+                            <NumberInput
+                                id="uint-template"
+                                label={t("label.question.form.answer")}
+                                placeholder={"0.0"}
+                                allowNegative={false}
+                                min={0}
+                                value={numberValue.formattedValue}
+                                disabled={answerInputDisabled}
+                                onValueChange={setNumberValue}
+                                className={{
+                                    root: "w-full",
+                                    input: "w-full",
+                                    inputWrapper: inputStyles({
+                                        disabled: answerInputDisabled,
+                                    }),
+                                }}
+                            />
+                        )}
+                        <BondInput
+                            t={t}
+                            value={minimumBond || bond}
+                            onChange={setBond}
+                            disabled={finalized}
                         />
-                    )}
-                    {question.templateId === SupportedRealityTemplates.UINT && (
-                        <NumberInput
-                            id="uint-template"
-                            label={t("label.question.form.answer")}
-                            placeholder={"0.0"}
-                            allowNegative={false}
-                            min={0}
-                            value={numberValue.formattedValue}
-                            disabled={answerInputDisabled}
-                            onValueChange={setNumberValue}
-                        />
-                    )}
-                    <BondInput
-                        t={t}
-                        value={bond}
-                        onChange={setBond}
-                        disabled={finalized}
-                    />
+                    </div>
                     <Checkbox
                         id="invalid"
                         label={t("label.question.form.invalid")}
                         checked={moreOptionValue.invalid}
                         onChange={handleInvalidChange}
                         className={{
-                            root: checkBoxStyles({
-                                disabled: moreOptionValue.anweredTooSoon,
+                            root: inputStyles({
+                                disabled:
+                                    finalized || moreOptionValue.anweredTooSoon,
                             }),
                         }}
                     />
@@ -188,8 +269,8 @@ export const AnswerForm = ({
                         checked={moreOptionValue.anweredTooSoon}
                         onChange={handleAnsweredTooSoonChange}
                         className={{
-                            root: checkBoxStyles({
-                                disabled: moreOptionValue.invalid,
+                            root: inputStyles({
+                                disabled: finalized || moreOptionValue.invalid,
                             }),
                         }}
                     />
@@ -202,7 +283,7 @@ export const AnswerForm = ({
                         <Typography>{t("label.question.openingIn")}</Typography>
                         <Timer
                             icon={true}
-                            to={question.openingTimestamp * 1_000}
+                            to={question.openingTimestamp}
                             countdown={true}
                         />
                     </div>
@@ -215,6 +296,15 @@ export const AnswerForm = ({
                     loading={submitting}
                 >
                     {t("label.question.form.confirm")}
+                </Button>
+            )}
+            {finalized && isQuestionAnsweredTooSoon(question) && (
+                <Button
+                    onClick={handleReopenSubmit}
+                    disabled={!reopenAnswerAsync}
+                    loading={submitting}
+                >
+                    {t("label.question.form.reopen")}
                 </Button>
             )}
         </div>

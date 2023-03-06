@@ -21,9 +21,11 @@ export interface OnChainRealityQuestion {
 
 export interface RealityQuestion {
     id: string;
+    reopenedId?: string;
     historyHash: string;
     templateId: number;
     content: string;
+    resolvedContent: string;
     contentHash: string;
     arbitrator: string;
     timeout: number;
