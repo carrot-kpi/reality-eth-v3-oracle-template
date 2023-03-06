@@ -6,6 +6,7 @@ import {
     useNativeCurrency,
 } from "@carrot-kpi/react";
 import { BigNumber, utils } from "ethers";
+import { inputStyles } from "../common/styles";
 
 interface BondInputProps {
     t: NamespacedTranslateFunction;
@@ -36,6 +37,13 @@ export const BondInput = ({ t, disabled, value, onChange }: BondInputProps) => {
             }
             disabled={disabled}
             onValueChange={handleChange}
+            className={{
+                root: "w-full",
+                input: "w-full",
+                inputWrapper: inputStyles({
+                    disabled,
+                }),
+            }}
         />
     );
 };

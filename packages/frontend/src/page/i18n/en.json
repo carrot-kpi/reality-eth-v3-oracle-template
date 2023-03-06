@@ -18,6 +18,7 @@
     "label.answer.bonded": "bonded",
     "label.answer.finalized": "Finalized",
     "label.answer.invalid": "Goal currently market as invalid with $ {{bond}} {{symbol}} bonded",
+    "label.answer.tooSoon": "Goal currently market as answered too soon with $ {{bond}} {{symbol}} bonded",
     "label.here": "here",
     "label.reward": "Reward: {{reward}}"
 }

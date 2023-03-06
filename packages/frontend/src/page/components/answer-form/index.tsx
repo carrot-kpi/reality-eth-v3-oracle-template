@@ -20,24 +20,16 @@ import {
 import { isQuestionFinalized, numberToByte32 } from "../../../utils";
 import { NumberFormatValue, RealityQuestion } from "../../types";
 import { Answer } from "./answer";
-import { cva } from "class-variance-authority";
 import REALITY_ETH_V3_ABI from "../../../abis/reality-eth-v3.json";
 import { BondInput } from "./bond-input";
 import dayjs from "dayjs";
+import { inputStyles } from "./common/styles";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
     realityAddress: string;
     question: RealityQuestion;
 }
-
-const checkBoxStyles = cva(["opacity-100 transition-opacity"], {
-    variants: {
-        disabled: {
-            true: ["opacity-20", "pointer-events-none", "cursor-no-drop"],
-        },
-    },
-});
 
 export const AnswerForm = ({
     t,
@@ -134,51 +126,74 @@ export const AnswerForm = ({
     const finalized = isQuestionFinalized(question);
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
+
     return (
         <div className="flex flex-col gap-6">
             {open ? (
                 <>
                     <Markdown>{question.content}</Markdown>
-                    {question.templateId === SupportedRealityTemplates.BOOL && (
-                        <Select
-                            id="bool-template"
-                            label={t("label.question.form.answer")}
-                            placeholder={t("label.question.form.answer.select")}
-                            value={booleanValue}
-                            disabled={answerInputDisabled}
-                            onChange={setBooleanValue}
-                            options={[
-                                { label: "Yes", value: 1 },
-                                { label: "No", value: 0 },
-                            ]}
+                    <div className="h-[1px] bg-black dark:bg-white w-full" />
+                    <div className="flex gap-6 justify-between">
+                        {question.templateId ===
+                            SupportedRealityTemplates.BOOL && (
+                            <Select
+                                id="bool-template"
+                                label={t("label.question.form.answer")}
+                                placeholder={t(
+                                    "label.question.form.answer.select"
+                                )}
+                                value={booleanValue}
+                                disabled={answerInputDisabled}
+                                onChange={setBooleanValue}
+                                options={[
+                                    { label: "Yes", value: 1 },
+                                    { label: "No", value: 0 },
+                                ]}
+                                className={{
+                                    root: "w-full",
+                                    input: "w-full",
+                                    inputWrapper: inputStyles({
+                                        disabled: answerInputDisabled,
+                                    }),
+                                }}
+                            />
+                        )}
+                        {question.templateId ===
+                            SupportedRealityTemplates.UINT && (
+                            <NumberInput
+                                id="uint-template"
+                                label={t("label.question.form.answer")}
+                                placeholder={"0.0"}
+                                allowNegative={false}
+                                min={0}
+                                value={numberValue.formattedValue}
+                                disabled={answerInputDisabled}
+                                onValueChange={setNumberValue}
+                                className={{
+                                    root: "w-full",
+                                    input: "w-full",
+                                    inputWrapper: inputStyles({
+                                        disabled: answerInputDisabled,
+                                    }),
+                                }}
+                            />
+                        )}
+                        <BondInput
+                            t={t}
+                            value={bond}
+                            onChange={setBond}
+                            disabled={finalized}
                         />
-                    )}
-                    {question.templateId === SupportedRealityTemplates.UINT && (
-                        <NumberInput
-                            id="uint-template"
-                            label={t("label.question.form.answer")}
-                            placeholder={"0.0"}
-                            allowNegative={false}
-                            min={0}
-                            value={numberValue.formattedValue}
-                            disabled={answerInputDisabled}
-                            onValueChange={setNumberValue}
-                        />
-                    )}
-                    <BondInput
-                        t={t}
-                        value={bond}
-                        onChange={setBond}
-                        disabled={finalized}
-                    />
+                    </div>
                     <Checkbox
                         id="invalid"
                         label={t("label.question.form.invalid")}
                         checked={moreOptionValue.invalid}
                         onChange={handleInvalidChange}
                         className={{
-                            root: checkBoxStyles({
-                                disabled: moreOptionValue.anweredTooSoon,
+                            root: inputStyles({
+                                disabled:
+                                    finalized || moreOptionValue.anweredTooSoon,
                             }),
                         }}
                     />
@@ -188,8 +203,8 @@ export const AnswerForm = ({
                         checked={moreOptionValue.anweredTooSoon}
                         onChange={handleAnsweredTooSoonChange}
                         className={{
-                            root: checkBoxStyles({
-                                disabled: moreOptionValue.invalid,
+                            root: inputStyles({
+                                disabled: finalized || moreOptionValue.invalid,
                             }),
                         }}
                     />
