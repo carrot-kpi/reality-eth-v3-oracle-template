@@ -194,6 +194,9 @@ export const AnswerForm = ({
 
     if (question.pendingArbitration) return <></>;
 
+    const minimumBond = question.bond.isZero()
+        ? BigNumber.from(0)
+        : question.bond.mul(2);
     const finalized = isQuestionFinalized(question);
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
@@ -251,12 +254,9 @@ export const AnswerForm = ({
                         )}
                         <BondInput
                             t={t}
-                            value={bond}
+                            value={minimumBond || bond}
                             onChange={setBond}
-                            disabled={
-                                finalized &&
-                                !isQuestionAnsweredTooSoon(question)
-                            }
+                            disabled={finalized}
                         />
                     </div>
                     <Checkbox
