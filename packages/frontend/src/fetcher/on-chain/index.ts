@@ -52,7 +52,6 @@ class Fetcher implements IPartialFetcher {
         if (reopenedQuestionId && reopenedQuestionId !== BYTES32_ZERO)
             finalQuestionId = reopenedQuestionId;
 
-        // TODO: have the function return both the original and the latest reopened question (if any)
         const {
             content_hash,
             arbitrator,
