@@ -17,6 +17,8 @@ export interface TimerProps {
     };
 }
 
+// TODO: we should investigate into rewriting the Timer component
+// of the UI lib to work wth this style
 export const OpeningCountdown = ({
     t,
     to,
