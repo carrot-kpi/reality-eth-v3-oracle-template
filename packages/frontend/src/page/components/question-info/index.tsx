@@ -23,7 +23,7 @@ export const QuestionInfo = ({
 }: QuestionInfoProps): ReactElement => {
     return (
         <div className={rootStyles({ bordered })}>
-            <Typography uppercase={true} variant="lg">
+            <Typography uppercase variant="lg">
                 {label}
             </Typography>
             <div>{children}</div>
