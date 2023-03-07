@@ -1,8 +1,10 @@
+import "../global.css";
+
 import { Oracle } from "@carrot-kpi/sdk";
 import { ReactElement, useEffect, useState } from "react";
 import { NamespacedTranslateFunction, useWatchData } from "@carrot-kpi/react";
 import { useWatchRealityQuestion } from "../hooks/useWatchRealityQuestion";
-import { Loader, Typography } from "@carrot-kpi/ui";
+import { Loader } from "@carrot-kpi/ui";
 import { PendingArbitration } from "./components/pending-arbitration";
 import { AnswerForm } from "./components/answer-form";
 import { decodeOracleData } from "../utils/data-decoding";
@@ -39,45 +41,27 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
         );
     }
     return (
-        <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-3 p-3 rounded-xxl border border-black dark:border-white bg-white dark:bg-black">
-                <Typography>{t("label.question.info")}</Typography>
-                <Typography>
-                    {t("label.question.realityReference")}{" "}
-                    <a
-                        href="https://reality.eth.limo/app/docs/html/index.html"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-mono text-orange"
-                    >
-                        {t("label.here")}
-                    </a>
-                    .
-                </Typography>
-            </div>
-
-            <div className="flex flex-col gap-3 p-3 rounded-xxl border border-black dark:border-white bg-white dark:bg-black">
-                {loadingRealityQuestion ? (
-                    <div className="flex justify-center content-center">
-                        <Loader />
-                    </div>
-                ) : (
-                    <>
-                        {realityQuestion.pendingArbitration ? (
-                            <PendingArbitration
-                                t={t}
-                                realityQuestion={realityQuestion}
-                            />
-                        ) : (
-                            <AnswerForm
-                                t={t}
-                                realityAddress={realityV3Address}
-                                question={realityQuestion}
-                            />
-                        )}
-                    </>
-                )}
-            </div>
+        <div className="flex flex-col gap-3 px-6 py-12">
+            {loadingRealityQuestion ? (
+                <div className="flex justify-center content-center">
+                    <Loader />
+                </div>
+            ) : (
+                <>
+                    {realityQuestion.pendingArbitration ? (
+                        <PendingArbitration
+                            t={t}
+                            realityQuestion={realityQuestion}
+                        />
+                    ) : (
+                        <AnswerForm
+                            t={t}
+                            realityAddress={realityV3Address}
+                            question={realityQuestion}
+                        />
+                    )}
+                </>
+            )}
         </div>
     );
 };

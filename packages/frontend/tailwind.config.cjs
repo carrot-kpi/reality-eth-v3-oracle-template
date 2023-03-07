@@ -1,5 +1,6 @@
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const { join } = require("path");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { long: longCommitHash } = require("git-rev-sync");
 
 /** @type {import('tailwindcss').Config} */

@@ -6,21 +6,23 @@ import {
     NumberInput,
     Select,
     SelectOption,
-    Timer,
     Typography,
 } from "@carrot-kpi/ui";
 import { BigNumber, utils } from "ethers";
 import { ReactElement, useCallback, useEffect, useState } from "react";
-import { usePrepareContractWrite, useContractWrite } from "wagmi";
+import { usePrepareContractWrite, useContractWrite, useNetwork } from "wagmi";
 import {
     ANSWERED_TOO_SOON_REALITY_ANSWER,
     INVALID_REALITY_ANSWER,
     SupportedRealityTemplates,
 } from "../../../commons";
 import {
+    formatCountDownString,
+    formatRealityEthQuestionLink,
     isQuestionAnsweredTooSoon,
     isQuestionFinalized,
     numberToByte32,
+    shortenAddress,
 } from "../../../utils";
 import { NumberFormatValue, RealityQuestion } from "../../types";
 import { Answer } from "./answer";
@@ -28,6 +30,9 @@ import REALITY_ETH_V3_ABI from "../../../abis/reality-eth-v3.json";
 import { BondInput } from "./bond-input";
 import dayjs from "dayjs";
 import { inputStyles } from "./common/styles";
+import { QuestionInfo } from "../question-info";
+import { ReactComponent as ExternalSvg } from "../../../assets/external.svg";
+import { OpeningCountdown } from "../opening-countdown";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -55,6 +60,7 @@ export const AnswerForm = ({
 
     const [bond, setBond] = useState<BigNumber | null>(null);
 
+    const { chain } = useNetwork();
     const { config: submitAnswerConfig } = usePrepareContractWrite({
         address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
@@ -194,11 +200,45 @@ export const AnswerForm = ({
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
 
     return (
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-10">
+            <Markdown>{question.resolvedContent}</Markdown>
+            <div className="flex justify-between gap-3">
+                <QuestionInfo label={t("label.question.arbitrator")}>
+                    {shortenAddress(question.arbitrator)}
+                </QuestionInfo>
+                <QuestionInfo label={t("label.question.rewards")}>
+                    {!question.bounty.isZero() && chain?.id ? (
+                        <>{/* TODO: add rewards when implemented */}</>
+                    ) : (
+                        "-"
+                    )}
+                </QuestionInfo>
+                <QuestionInfo label={t("label.question.timeout")}>
+                    {formatCountDownString(question.timeout)}
+                </QuestionInfo>
+                <QuestionInfo
+                    label={t("label.question.oracleLink")}
+                    bordered={false}
+                >
+                    <a
+                        className="flex gap-1 items-center"
+                        href={formatRealityEthQuestionLink(
+                            question.id,
+                            realityAddress
+                        )}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        Reality.eth
+                        <ExternalSvg className="w-6 h-6 cursor-pointer" />
+                    </a>
+                </QuestionInfo>
+            </div>
+            <Typography variant="h5" weight="bold">
+                {t("label.question.subtitle")}
+            </Typography>
             {open ? (
                 <>
-                    <Markdown>{question.resolvedContent}</Markdown>
-                    <div className="h-[1px] bg-black dark:bg-white w-full" />
                     <div className="flex gap-6 justify-between">
                         {question.templateId ===
                             SupportedRealityTemplates.BOOL && (
@@ -278,15 +318,12 @@ export const AnswerForm = ({
                 </>
             ) : (
                 <>
-                    <Typography>{t("label.question.notOpen")}</Typography>
-                    <div className="flex gap-2">
-                        <Typography>{t("label.question.openingIn")}</Typography>
-                        <Timer
-                            icon={true}
-                            to={question.openingTimestamp}
-                            countdown={true}
-                        />
-                    </div>
+                    <Typography>{t("label.question.timeLeft")}</Typography>
+                    <OpeningCountdown
+                        t={t}
+                        to={question.openingTimestamp}
+                        countdown={true}
+                    />
                 </>
             )}
             {!finalized && (
@@ -294,6 +331,7 @@ export const AnswerForm = ({
                     onClick={handleSubmit}
                     disabled={!postAnswerAsync}
                     loading={submitting}
+                    size="small"
                 >
                     {t("label.question.form.confirm")}
                 </Button>
@@ -303,6 +341,7 @@ export const AnswerForm = ({
                     onClick={handleReopenSubmit}
                     disabled={!reopenAnswerAsync}
                     loading={submitting}
+                    size="small"
                 >
                     {t("label.question.form.reopen")}
                 </Button>
