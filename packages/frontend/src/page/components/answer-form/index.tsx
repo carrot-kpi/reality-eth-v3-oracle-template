@@ -6,6 +6,7 @@ import {
     NumberInput,
     Typography,
     Radio,
+    Skeleton,
 } from "@carrot-kpi/ui";
 import { BigNumber, utils } from "ethers";
 import {
@@ -44,12 +45,14 @@ interface AnswerFormProps {
     t: NamespacedTranslateFunction;
     realityAddress: string;
     question: RealityQuestion;
+    loadingQuestion: boolean;
 }
 
 export const AnswerForm = ({
     t,
     realityAddress,
     question,
+    loadingQuestion,
 }: AnswerFormProps): ReactElement => {
     const [open, setOpen] = useState(false);
     const [booleanValue, setBooleanValue] = useState<BooleanAnswer | null>(
@@ -69,21 +72,24 @@ export const AnswerForm = ({
     const [bond, setBond] = useState<BigNumber | null>(null);
 
     const { chain } = useNetwork();
-    const { config: submitAnswerConfig } = usePrepareContractWrite({
-        address: realityAddress,
-        abi: REALITY_ETH_V3_ABI,
-        functionName: "submitAnswer",
-        args: [question.id, answer, BigNumber.from(0)],
-        overrides: {
-            value: bond || BigNumber.from(0),
-        },
-        enabled:
-            !!answer &&
-            !!bond &&
-            bond.gt(
-                question.bond.isZero() ? question.minBond : question.bond.mul(2)
-            ),
-    });
+    const { config: submitAnswerConfig, isFetching: isFetchingSubmitAnswer } =
+        usePrepareContractWrite({
+            address: realityAddress,
+            abi: REALITY_ETH_V3_ABI,
+            functionName: "submitAnswer",
+            args: [question.id, answer, BigNumber.from(0)],
+            overrides: {
+                value: bond || BigNumber.from(0),
+            },
+            enabled:
+                !!answer &&
+                !!bond &&
+                bond.gt(
+                    question.bond.isZero()
+                        ? question.minBond
+                        : question.bond.mul(2)
+                ),
+        });
     const { writeAsync: postAnswerAsync } =
         useContractWrite(submitAnswerConfig);
 
@@ -215,9 +221,9 @@ export const AnswerForm = ({
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
 
     return (
-        <div className="flex flex-col gap-10">
+        <div className="flex flex-col">
             <Markdown>{question.resolvedContent}</Markdown>
-            <div className="flex justify-between gap-3">
+            <div className="flex justify-between gap-3 mt-10">
                 <QuestionInfo
                     label={t("label.question.arbitrator")}
                     className={{ root: "hidden md:flex" }}
@@ -253,128 +259,125 @@ export const AnswerForm = ({
                 </QuestionInfo>
             </div>
             {open && !finalized && (
-                <>
-                    <div className="flex flex-col gap-6">
-                        <Typography variant="h5" weight="bold">
-                            {t("label.question.subtitle")}
-                        </Typography>
-                        {question.templateId ===
-                            SupportedRealityTemplates.BOOL && (
-                            <div className="flex flex-col md:flex-row gap-8">
-                                <Radio
-                                    id="bool-template-yes"
-                                    name="bool-answer"
-                                    label="Yes"
-                                    value={BooleanAnswer.YES}
-                                    checked={booleanValue === BooleanAnswer.YES}
-                                    disabled={answerInputDisabled}
-                                    onChange={handleBooleanRadioChange}
-                                    className={{
-                                        inputWrapper: inputStyles({
-                                            disabled: answerInputDisabled,
-                                        }),
-                                    }}
-                                />
-                                <Radio
-                                    id="bool-template-no"
-                                    name="bool-answer"
-                                    label="No"
-                                    value={BooleanAnswer.NO}
-                                    checked={booleanValue === BooleanAnswer.NO}
-                                    disabled={answerInputDisabled}
-                                    onChange={handleBooleanRadioChange}
-                                    className={{
-                                        inputWrapper: inputStyles({
-                                            disabled: answerInputDisabled,
-                                        }),
-                                    }}
-                                />
-                                <Radio
-                                    id="bool-template-invalid"
-                                    name="bool-answer"
-                                    label="Invalid question"
-                                    value={BooleanAnswer.INVALID_REALITY_ANSWER}
-                                    checked={
-                                        booleanValue ===
-                                        BooleanAnswer.INVALID_REALITY_ANSWER
-                                    }
-                                    disabled={answerInputDisabled}
-                                    onChange={handleBooleanRadioChange}
-                                    className={{
-                                        inputWrapper: inputStyles({
-                                            disabled: answerInputDisabled,
-                                        }),
-                                    }}
-                                />
-                                <Radio
-                                    id="bool-template-too-soon"
-                                    name="bool-answer"
-                                    label="Answered too soon"
-                                    value={
-                                        BooleanAnswer.ANSWERED_TOO_SOON_REALITY_ANSWER
-                                    }
-                                    checked={
-                                        booleanValue ===
-                                        BooleanAnswer.ANSWERED_TOO_SOON_REALITY_ANSWER
-                                    }
-                                    disabled={answerInputDisabled}
-                                    onChange={handleBooleanRadioChange}
-                                    className={{
-                                        inputWrapper: inputStyles({
-                                            disabled: answerInputDisabled,
-                                        }),
-                                    }}
-                                />
-                            </div>
-                        )}
-                        {question.templateId ===
-                            SupportedRealityTemplates.UINT && (
-                            <div>
-                                <NumberInput
-                                    id="uint-template"
-                                    label={t("label.question.form.answer")}
-                                    placeholder={"0.0"}
-                                    allowNegative={false}
-                                    min={0}
-                                    value={numberValue.formattedValue}
-                                    disabled={answerInputDisabled}
-                                    onValueChange={setNumberValue}
-                                    className={{
-                                        root: "w-full",
-                                        input: "w-full",
-                                        inputWrapper: inputStyles({
-                                            disabled: answerInputDisabled,
-                                        }),
-                                    }}
-                                />
-                                <Checkbox
-                                    id="invalid"
-                                    label={t("label.question.form.invalid")}
-                                    checked={moreOptionValue.invalid}
-                                    onChange={handleInvalidChange}
-                                    className={{
-                                        root: inputStyles({
-                                            disabled:
-                                                finalized ||
-                                                moreOptionValue.anweredTooSoon,
-                                        }),
-                                    }}
-                                />
-                                <Checkbox
-                                    id="too-soon"
-                                    label={t("label.question.form.tooSoon")}
-                                    checked={moreOptionValue.anweredTooSoon}
-                                    onChange={handleAnsweredTooSoonChange}
-                                    className={{
-                                        root: inputStyles({
-                                            disabled:
-                                                finalized ||
-                                                moreOptionValue.invalid,
-                                        }),
-                                    }}
-                                />
-                            </div>
-                        )}
+                <div className="flex flex-col gap-6 mt-10">
+                    <Typography variant="h5" weight="bold">
+                        {t("label.question.subtitle")}
+                    </Typography>
+                    {question.templateId === SupportedRealityTemplates.BOOL && (
+                        <div className="flex flex-col md:flex-row gap-8">
+                            <Radio
+                                id="bool-template-yes"
+                                name="bool-answer"
+                                label="Yes"
+                                value={BooleanAnswer.YES}
+                                checked={booleanValue === BooleanAnswer.YES}
+                                disabled={answerInputDisabled}
+                                onChange={handleBooleanRadioChange}
+                                className={{
+                                    inputWrapper: inputStyles({
+                                        disabled: answerInputDisabled,
+                                    }),
+                                }}
+                            />
+                            <Radio
+                                id="bool-template-no"
+                                name="bool-answer"
+                                label="No"
+                                value={BooleanAnswer.NO}
+                                checked={booleanValue === BooleanAnswer.NO}
+                                disabled={answerInputDisabled}
+                                onChange={handleBooleanRadioChange}
+                                className={{
+                                    inputWrapper: inputStyles({
+                                        disabled: answerInputDisabled,
+                                    }),
+                                }}
+                            />
+                            <Radio
+                                id="bool-template-invalid"
+                                name="bool-answer"
+                                label="Invalid question"
+                                value={BooleanAnswer.INVALID_REALITY_ANSWER}
+                                checked={
+                                    booleanValue ===
+                                    BooleanAnswer.INVALID_REALITY_ANSWER
+                                }
+                                disabled={answerInputDisabled}
+                                onChange={handleBooleanRadioChange}
+                                className={{
+                                    inputWrapper: inputStyles({
+                                        disabled: answerInputDisabled,
+                                    }),
+                                }}
+                            />
+                            <Radio
+                                id="bool-template-too-soon"
+                                name="bool-answer"
+                                label="Answered too soon"
+                                value={
+                                    BooleanAnswer.ANSWERED_TOO_SOON_REALITY_ANSWER
+                                }
+                                checked={
+                                    booleanValue ===
+                                    BooleanAnswer.ANSWERED_TOO_SOON_REALITY_ANSWER
+                                }
+                                disabled={answerInputDisabled}
+                                onChange={handleBooleanRadioChange}
+                                className={{
+                                    inputWrapper: inputStyles({
+                                        disabled: answerInputDisabled,
+                                    }),
+                                }}
+                            />
+                        </div>
+                    )}
+                    {question.templateId === SupportedRealityTemplates.UINT && (
+                        <div className="flex flex-col md:items-center md:flex-row gap-8">
+                            <NumberInput
+                                id="uint-template"
+                                placeholder={"0.0"}
+                                allowNegative={false}
+                                min={0}
+                                value={numberValue.formattedValue}
+                                disabled={answerInputDisabled}
+                                onValueChange={setNumberValue}
+                                className={{
+                                    inputWrapper: inputStyles({
+                                        disabled: answerInputDisabled,
+                                    }),
+                                }}
+                            />
+                            <Checkbox
+                                id="invalid"
+                                label={t("label.question.form.invalid")}
+                                checked={moreOptionValue.invalid}
+                                onChange={handleInvalidChange}
+                                className={{
+                                    root: inputStyles({
+                                        disabled:
+                                            finalized ||
+                                            moreOptionValue.anweredTooSoon,
+                                        full: false,
+                                    }),
+                                }}
+                            />
+                            <Checkbox
+                                id="too-soon"
+                                label={t("label.question.form.tooSoon")}
+                                checked={moreOptionValue.anweredTooSoon}
+                                onChange={handleAnsweredTooSoonChange}
+                                className={{
+                                    root: inputStyles({
+                                        disabled:
+                                            finalized ||
+                                            moreOptionValue.invalid,
+                                        full: false,
+                                    }),
+                                }}
+                            />
+                        </div>
+                    )}
+                    <div className="mt-4">
                         <BondInput
                             t={t}
                             value={minimumBond || bond}
@@ -382,39 +385,47 @@ export const AnswerForm = ({
                             disabled={finalized}
                         />
                     </div>
-                </>
+                </div>
             )}
             {!open && (
-                <>
+                <div className="flex flex-col gap-2 mt-10">
                     <Typography>{t("label.question.timeLeft")}</Typography>
                     <OpeningCountdown
                         t={t}
                         to={question.openingTimestamp}
                         countdown={true}
                     />
-                </>
+                </div>
             )}
-            {!finalized && (
-                <Button
-                    onClick={handleSubmit}
-                    disabled={!postAnswerAsync}
-                    loading={submitting}
-                    size="small"
-                >
-                    {t("label.question.form.confirm")}
-                </Button>
-            )}
-            {finalized && isQuestionAnsweredTooSoon(question) && (
-                <Button
-                    onClick={handleReopenSubmit}
-                    disabled={!reopenAnswerAsync}
-                    loading={submitting}
-                    size="small"
-                >
-                    {t("label.question.form.reopen")}
-                </Button>
-            )}
-            <Answer t={t} question={question} />
+            <div className="mt-10">
+                {loadingQuestion ? (
+                    <Skeleton width="100%" height="48px" />
+                ) : (
+                    <Answer t={t} question={question} />
+                )}
+            </div>
+            <div className="flex gap-6 mt-5">
+                {!finalized && (
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={!postAnswerAsync || loadingQuestion}
+                        loading={submitting || isFetchingSubmitAnswer}
+                        size="small"
+                    >
+                        {t("label.question.form.confirm")}
+                    </Button>
+                )}
+                {finalized && isQuestionAnsweredTooSoon(question) && (
+                    <Button
+                        onClick={handleReopenSubmit}
+                        disabled={!reopenAnswerAsync}
+                        loading={submitting}
+                        size="small"
+                    >
+                        {t("label.question.form.reopen")}
+                    </Button>
+                )}
+            </div>
         </div>
     );
 };
