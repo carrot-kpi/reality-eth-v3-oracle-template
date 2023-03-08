@@ -3,7 +3,7 @@ import { ReactElement } from "react";
 
 interface CuntdownFrameProps {
     label: string;
-    timeFrame: number;
+    timeFrame: string;
 }
 
 export const CountdownFrame = ({
@@ -12,7 +12,10 @@ export const CountdownFrame = ({
 }: CuntdownFrameProps): ReactElement => {
     return (
         <div className="flex flex-col gap-6 justify-center items-center pt-3">
-            <Typography className={{ root: "text-[64px]" }} weight="medium">
+            <Typography
+                className={{ root: "text-2xl md:text-[64px]" }}
+                weight="medium"
+            >
                 {timeFrame}
             </Typography>
             <Typography uppercase variant="md">

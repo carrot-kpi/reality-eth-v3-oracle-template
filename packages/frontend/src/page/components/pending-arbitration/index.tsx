@@ -7,30 +7,27 @@ import { RealityQuestion } from "../../types";
 
 interface PendingArbitrationProps {
     t: NamespacedTranslateFunction;
-    realityQuestion: RealityQuestion | null;
+    question: RealityQuestion | null;
 }
 
 export const PendingArbitration = ({
     t,
-    realityQuestion,
+    question,
 }: PendingArbitrationProps): ReactElement => {
     const { chain } = useNetwork();
 
     const blockExplorerHref = useMemo(() => {
         if (
-            !!!realityQuestion ||
-            !realityQuestion.arbitrator ||
+            !!!question ||
+            !question.arbitrator ||
             !chain ||
             !chain.blockExplorers
         )
             return "";
-        return `${chain.blockExplorers.default.url}/address/${realityQuestion.arbitrator}`;
-    }, [realityQuestion, chain]);
+        return `${chain.blockExplorers.default.url}/address/${question.arbitrator}`;
+    }, [question, chain]);
 
-    if (
-        !!!realityQuestion ||
-        (!!realityQuestion && !realityQuestion.pendingArbitration)
-    )
+    if (!!!question || (!!question && !question.pendingArbitration))
         return <></>;
 
     return (
@@ -43,7 +40,7 @@ export const PendingArbitration = ({
                     rel="noopener noreferrer"
                     className="font-mono text-orange"
                 >
-                    {shortenAddress(realityQuestion.arbitrator)}
+                    {shortenAddress(question.arbitrator)}
                 </a>{" "}
                 {t("label.arbitration.peding.2")}
             </Typography>

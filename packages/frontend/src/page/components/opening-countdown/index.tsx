@@ -42,22 +42,22 @@ export const OpeningCountdown = ({
         <div className="flex gap-6 content-center">
             <CountdownFrame
                 label={t("label.question.time.days")}
-                timeFrame={duration.days()}
+                timeFrame={String(duration.days()).padStart(2, "0")}
             />
             <VerticalDivider />
             <CountdownFrame
                 label={t("label.question.time.hours")}
-                timeFrame={duration.hours()}
+                timeFrame={String(duration.hours()).padStart(2, "0")}
             />
             <VerticalDivider />
             <CountdownFrame
                 label={t("label.question.time.minutes")}
-                timeFrame={duration.minutes()}
+                timeFrame={String(duration.minutes()).padStart(2, "0")}
             />
             <VerticalDivider />
             <CountdownFrame
                 label={t("label.question.time.seconds")}
-                timeFrame={duration.seconds()}
+                timeFrame={String(duration.seconds()).padStart(2, "0")}
             />
         </div>
     );
