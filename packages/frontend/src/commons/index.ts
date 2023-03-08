@@ -33,6 +33,8 @@ export enum SupportedRealityTemplates {
 
 export const REALITY_DAPP_ENDPOINT = "https://reality.eth.link/app/index.html";
 
+export const REALITY_WEBSITE = "https://reality.eth.limo";
+
 export const REALITY_TEMPLATE_OPTIONS: SelectOption[] = [
     {
         label: "Yes/no",
