@@ -27,9 +27,9 @@ class Fetcher implements IPartialFetcher {
         if (
             !isCID(cid) ||
             !templateId ||
-            !REALITY_TEMPLATE_OPTIONS.find((validTemplate) => {
-                return validTemplate.value === parseInt(templateId);
-            })
+            !REALITY_TEMPLATE_OPTIONS.find(
+                (validTemplate) => validTemplate.value === templateId
+            )
         )
             return null;
 
@@ -72,7 +72,7 @@ class Fetcher implements IPartialFetcher {
             id: finalQuestionId,
             reopenedId: questionId === finalQuestionId ? undefined : questionId,
             historyHash: history_hash,
-            templateId: parseInt(templateId),
+            templateId,
             content: question,
             resolvedContent: (
                 await CoreFetcher.fetchContentFromIPFS({

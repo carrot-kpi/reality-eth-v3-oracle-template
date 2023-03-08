@@ -23,7 +23,7 @@ export interface RealityQuestion {
     id: string;
     reopenedId?: string;
     historyHash: string;
-    templateId: number;
+    templateId: string;
     content: string;
     resolvedContent: string;
     contentHash: string;

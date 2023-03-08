@@ -27,8 +27,8 @@ export const ARBITRATORS_BY_CHAIN: Record<SupportedChain, OptionWithIcon[]> = {
 };
 
 export enum SupportedRealityTemplates {
-    BOOL = 0,
-    UINT = 1,
+    BOOL = "0",
+    UINT = "1",
 }
 
 export const REALITY_DAPP_ENDPOINT = "https://reality.eth.link/app/index.html";
