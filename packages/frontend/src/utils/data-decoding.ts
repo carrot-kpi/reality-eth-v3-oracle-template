@@ -1,4 +1,4 @@
-import { defaultAbiCoder } from "ethers/lib/utils.js";
+import { ethers } from "ethers";
 
 interface DecodedData {
     realityV3Address: string;
@@ -7,10 +7,11 @@ interface DecodedData {
 }
 
 export const decodeOracleData = (data: string): DecodedData | null => {
-    const [realityV3Address, questionId, question] = defaultAbiCoder.decode(
-        ["address", "bytes32", "string"],
-        data
-    ) as [string, string, string];
+    const [realityV3Address, questionId, question] =
+        ethers.utils.defaultAbiCoder.decode(
+            ["address", "bytes32", "string"],
+            data
+        ) as [string, string, string];
     return {
         realityV3Address,
         question,
