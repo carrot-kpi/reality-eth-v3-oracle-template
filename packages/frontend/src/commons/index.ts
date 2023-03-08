@@ -54,3 +54,10 @@ export const ANSWERED_TOO_SOON_REALITY_ANSWER =
 
 export const BYTES32_ZERO =
     "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+export enum BooleanAnswer {
+    NO = "0",
+    YES = "1",
+    INVALID_REALITY_ANSWER = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    ANSWERED_TOO_SOON_REALITY_ANSWER = "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe",
+}

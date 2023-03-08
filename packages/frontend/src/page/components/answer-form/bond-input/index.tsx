@@ -38,8 +38,9 @@ export const BondInput = ({ t, disabled, value, onChange }: BondInputProps) => {
             disabled={disabled}
             onValueChange={handleChange}
             className={{
-                root: "w-full",
-                input: "w-full",
+                root: "w-fit",
+                input: "w-fit",
+                labelText: { root: "text-sm" },
                 inputWrapper: inputStyles({
                     disabled,
                 }),
