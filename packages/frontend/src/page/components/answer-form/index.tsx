@@ -203,7 +203,10 @@ export const AnswerForm = ({
         <div className="flex flex-col gap-10">
             <Markdown>{question.resolvedContent}</Markdown>
             <div className="flex justify-between gap-3">
-                <QuestionInfo label={t("label.question.arbitrator")}>
+                <QuestionInfo
+                    label={t("label.question.arbitrator")}
+                    className={{ root: "hidden md:flex" }}
+                >
                     {shortenAddress(question.arbitrator)}
                 </QuestionInfo>
                 <QuestionInfo label={t("label.question.rewards")}>
@@ -218,7 +221,7 @@ export const AnswerForm = ({
                 </QuestionInfo>
                 <QuestionInfo
                     label={t("label.question.oracleLink")}
-                    bordered={false}
+                    className={{ root: "hidden md:flex" }}
                 >
                     <a
                         className="flex gap-1 items-center"
