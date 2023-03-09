@@ -6,7 +6,6 @@ import "@fontsource/inter/500.css";
 import "@fontsource/inter/700.css";
 import "@carrot-kpi/ui/styles.css";
 import "@carrot-kpi/frontend/styles.css";
-import "./global.css";
 
 import { CarrotConnector, Root } from "@carrot-kpi/frontend";
 import { createRoot } from "react-dom/client";
