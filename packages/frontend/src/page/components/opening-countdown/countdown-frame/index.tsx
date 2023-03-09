@@ -1,7 +1,7 @@
 import { Typography } from "@carrot-kpi/ui";
 import { ReactElement } from "react";
 
-interface CuntdownFrameProps {
+interface CountdownFrameProps {
     label: string;
     timeFrame: string;
 }
@@ -9,7 +9,7 @@ interface CuntdownFrameProps {
 export const CountdownFrame = ({
     label,
     timeFrame,
-}: CuntdownFrameProps): ReactElement => {
+}: CountdownFrameProps): ReactElement => {
     return (
         <div className="flex flex-col gap-6 justify-center items-center pt-3">
             <Typography
