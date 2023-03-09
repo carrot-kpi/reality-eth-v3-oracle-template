@@ -87,7 +87,7 @@ export const AnswerForm = ({
         overrides: {
             value: bond || BigNumber.from(0),
         },
-        enabled: !!answer && !!bond && bond.gt(minimumBond),
+        enabled: !!answer && !!bond && bond.gte(minimumBond),
     });
     const { writeAsync: postAnswerAsync } =
         useContractWrite(submitAnswerConfig);
@@ -113,10 +113,21 @@ export const AnswerForm = ({
         useContractWrite(reopenQuestionConfig);
 
     useEffect(() => {
+        setBond(question.bond.mul(2));
+    }, [question.bond]);
+
+    useEffect(() => {
         setSubmitAnswerDisabled(
-            !answer || (!!bond && bond.lte(minimumBond)) || !postAnswerAsync
+            !answer || (!!bond && bond.lt(minimumBond)) || !postAnswerAsync
         );
     }, [answer, bond, minimumBond, postAnswerAsync]);
+
+    console.log({
+        answer,
+        bond,
+        submitAnswerDisabled,
+        lower: !!bond && bond.lt(minimumBond),
+    });
 
     useEffect(() => {
         if (question.openingTimestamp < dayjs().unix()) {
@@ -178,7 +189,7 @@ export const AnswerForm = ({
             setBondErrorText(
                 !value || BigNumber.from(value).isZero()
                     ? t("error.bond.empty")
-                    : value.lte(minimumBond)
+                    : value.lt(minimumBond)
                     ? t("error.bond.insufficient", {
                           minBond: utils.formatUnits(
                               minimumBond,
@@ -243,7 +254,9 @@ export const AnswerForm = ({
 
     return (
         <div className="flex flex-col">
-            <Markdown>{question.resolvedContent}</Markdown>
+            <div className="max-h-[400px] overflow-y-auto">
+                <Markdown>{question.resolvedContent}</Markdown>
+            </div>
             <div className="flex justify-between gap-3 mt-10">
                 <QuestionInfo
                     label={t("label.question.arbitrator")}
@@ -411,7 +424,7 @@ export const AnswerForm = ({
                     <div className="mt-4">
                         <BondInput
                             t={t}
-                            value={minimumBond || bond}
+                            value={bond}
                             placeholder={utils.formatUnits(
                                 minimumBond,
                                 chain?.nativeCurrency.decimals

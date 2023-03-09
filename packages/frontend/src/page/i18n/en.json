@@ -33,5 +33,5 @@
     "label.answer.learnMore": " To learn more about the results you can visit the oracle.",
     "label.reward": "Reward: {{reward}}",
     "error.bond.empty": "Bond is required",
-    "error.bond.insufficient": "Bond needs to be more than {{minBond}}"
+    "error.bond.insufficient": "Bond needs to be at least {{minBond}}"
 }

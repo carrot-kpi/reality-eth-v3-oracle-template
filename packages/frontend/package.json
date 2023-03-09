@@ -25,10 +25,10 @@
         "test": "echo 'Fix issues with pnpm and Jest not resolving modules'"
     },
     "devDependencies": {
-        "@carrot-kpi/frontend": "^1.0.0-rc.43",
+        "@carrot-kpi/frontend": "^1.0.0-rc.45",
         "@carrot-kpi/react": "^0.32.0",
         "@carrot-kpi/sdk": "^1.17.1",
-        "@carrot-kpi/ui": "^0.30.1",
+        "@carrot-kpi/ui": "^0.31.1",
         "@fontsource/ibm-plex-mono": "^4.5.13",
         "@fontsource/inter": "^4.5.15",
         "@svgr/webpack": "^6.5.1",

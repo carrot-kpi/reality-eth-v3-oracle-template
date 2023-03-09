@@ -47,7 +47,7 @@ export const BondInput = ({
             value={
                 value ? utils.formatUnits(value, nativeCurrency.decimals) : null
             }
-            helperText={errorText}
+            errorText={errorText}
             error={!!errorText}
             disabled={disabled}
             onValueChange={handleChange}

@@ -227,7 +227,7 @@ export const Component = ({
                         onValueChange={handleQuestionTimeout}
                         value={questionTimeout}
                         error={!!questionTimeoutErrorText}
-                        helperText={questionTimeoutErrorText}
+                        errorText={questionTimeoutErrorText}
                     />
                 </div>
                 <div className="md:w-1/2">
@@ -258,7 +258,7 @@ export const Component = ({
                 onValueChange={handleMinimumBondChange}
                 value={minimumBond}
                 error={!!minimumBondErrorText}
-                helperText={minimumBondErrorText}
+                errorText={minimumBondErrorText}
             />
             <MarkdownInput
                 id="question"
@@ -267,7 +267,7 @@ export const Component = ({
                 onChange={handleQuestionChange}
                 value={question}
                 error={!!questionErrorText}
-                helperText={questionErrorText}
+                errorText={questionErrorText}
                 className={{
                     root: "w-full",
                     input: "w-full",
