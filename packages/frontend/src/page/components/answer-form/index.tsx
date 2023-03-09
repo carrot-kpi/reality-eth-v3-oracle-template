@@ -7,6 +7,7 @@ import {
     Typography,
     Radio,
     Skeleton,
+    RadioGroup,
 } from "@carrot-kpi/ui";
 import { BigNumber, utils } from "ethers";
 import {
@@ -258,17 +259,27 @@ export const AnswerForm = ({
                     </a>
                 </QuestionInfo>
             </div>
+            <Typography
+                variant="h5"
+                weight="bold"
+                className={{ root: "mt-10" }}
+            >
+                {t("label.question.subtitle")}
+            </Typography>
             {open && !finalized && (
                 <div className="flex flex-col gap-6 mt-10">
-                    <Typography variant="h5" weight="bold">
-                        {t("label.question.subtitle")}
-                    </Typography>
                     {question.templateId === SupportedRealityTemplates.BOOL && (
-                        <div className="flex flex-col md:flex-row gap-8">
+                        <RadioGroup
+                            id="bool-template"
+                            className={{
+                                radioInputsWrapper:
+                                    "flex flex-col gap-8 md:flex-row md:gap-11",
+                            }}
+                        >
                             <Radio
                                 id="bool-template-yes"
                                 name="bool-answer"
-                                label="Yes"
+                                label={t("label.question.form.yes")}
                                 value={BooleanAnswer.YES}
                                 checked={booleanValue === BooleanAnswer.YES}
                                 disabled={answerInputDisabled}
@@ -282,7 +293,7 @@ export const AnswerForm = ({
                             <Radio
                                 id="bool-template-no"
                                 name="bool-answer"
-                                label="No"
+                                label={t("label.question.form.no")}
                                 value={BooleanAnswer.NO}
                                 checked={booleanValue === BooleanAnswer.NO}
                                 disabled={answerInputDisabled}
@@ -296,7 +307,7 @@ export const AnswerForm = ({
                             <Radio
                                 id="bool-template-invalid"
                                 name="bool-answer"
-                                label="Invalid question"
+                                label={t("label.question.form.invalid")}
                                 value={BooleanAnswer.INVALID_REALITY_ANSWER}
                                 checked={
                                     booleanValue ===
@@ -313,7 +324,7 @@ export const AnswerForm = ({
                             <Radio
                                 id="bool-template-too-soon"
                                 name="bool-answer"
-                                label="Answered too soon"
+                                label={t("label.question.form.tooSoon")}
                                 value={
                                     BooleanAnswer.ANSWERED_TOO_SOON_REALITY_ANSWER
                                 }
@@ -329,7 +340,7 @@ export const AnswerForm = ({
                                     }),
                                 }}
                             />
-                        </div>
+                        </RadioGroup>
                     )}
                     {question.templateId === SupportedRealityTemplates.UINT && (
                         <div className="flex flex-col md:items-center md:flex-row gap-8">

@@ -46,8 +46,8 @@ export const Answer = ({ t, question }: AnswerProps): ReactElement => {
                         {t("label.answer.answer", {
                             answer:
                                 question.bestAnswer === BYTES32_ZERO
-                                    ? t("label.answer.no")
-                                    : t("label.answer.yes"),
+                                    ? t("label.answer.form.no")
+                                    : t("label.answer.form.yes"),
                         })}
                     </Typography>
                     <LearnMore t={t} />
@@ -70,7 +70,7 @@ export const Answer = ({ t, question }: AnswerProps): ReactElement => {
                 <div className="flex flex-col gap-1">
                     <Typography>
                         {t("label.answer.marked.as", {
-                            outcome: t("label.question.form.invalid"),
+                            outcome: t("label.answer.form.invalid"),
                         })}
                     </Typography>
                     <LearnMore t={t} />
@@ -80,7 +80,7 @@ export const Answer = ({ t, question }: AnswerProps): ReactElement => {
                 <div className="flex flex-col gap-1">
                     <Typography>
                         {t("label.answer.marked.as", {
-                            outcome: t("label.question.form.tooSoon"),
+                            outcome: t("label.answer.form.tooSoon"),
                         })}
                     </Typography>
                     {finalized && (
