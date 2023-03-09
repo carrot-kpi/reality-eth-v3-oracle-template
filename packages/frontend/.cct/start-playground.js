@@ -86,7 +86,7 @@ export const startPlayground = async (
             new webpack.DefinePlugin(globals),
             new webpack.container.ModuleFederationPlugin({
                 name: "host",
-                shared
+                shared,
             }),
         ],
     });
@@ -162,7 +162,7 @@ export const startPlayground = async (
                         "../src/creation-form/i18n/index.ts"
                     ),
                 },
-                shared
+                shared,
             }),
             new webpack.container.ModuleFederationPlugin({
                 name: `${commitHash}page`,
@@ -171,7 +171,7 @@ export const startPlayground = async (
                     "./component": join(__dirname, "../src/page/index.tsx"),
                     "./i18n": join(__dirname, "../src/page/i18n/index.ts"),
                 },
-                shared
+                shared,
             }),
         ],
     });
