@@ -1,21 +1,19 @@
-import {
-    NamespacedTranslateFunction,
-    useNativeCurrency,
-} from "@carrot-kpi/react";
-import { Chip, Typography } from "@carrot-kpi/ui";
+import { NamespacedTranslateFunction } from "@carrot-kpi/react";
+import { Typography } from "@carrot-kpi/ui";
 import { BigNumber } from "ethers";
 import { formatUnits } from "ethers/lib/utils.js";
 import { ReactElement } from "react";
 import { BYTES32_ZERO } from "../../../../commons";
 import {
-    isQuestionAnsweredTooSoon,
-    isQuestionAnswerInvalid,
-    isQuestionAnswerMissing,
-    isQuestionBoolean,
+    isAnsweredTooSoon,
+    isAnswerInvalid,
+    isAnswerMissing,
+    isAnswerPurelyBoolean,
     isQuestionFinalized,
-    isQuestionNumerical,
+    isAnswerPurelyNumerical,
 } from "../../../../utils";
 import { RealityQuestion } from "../../../types";
+import { LearnMore } from "../../learn-more";
 
 interface AnswerProps {
     t: NamespacedTranslateFunction;
@@ -23,61 +21,72 @@ interface AnswerProps {
 }
 
 export const Answer = ({ t, question }: AnswerProps): ReactElement => {
-    const nativeCurrency = useNativeCurrency();
-
-    if (isQuestionAnswerMissing(question))
+    if (isAnswerMissing(question))
         return (
             <Typography variant="lg">{t("label.answer.missing")}</Typography>
         );
 
     const finalized = isQuestionFinalized(question);
-    const formattedBond = formatUnits(question.bond, nativeCurrency.decimals);
+    // TODO: display the bond somewhere
+    // const formattedBond = formatUnits(question.bond, nativeCurrency.decimals);
     return (
         <div className="flex flex-col justify-between gap-3">
-            {isQuestionBoolean(question) && (
-                <Typography variant="lg">
-                    {t("label.answer.answer", {
-                        answer:
-                            question.bestAnswer === BYTES32_ZERO
-                                ? t("label.answer.no")
-                                : t("label.answer.yes"),
-                        bond: formattedBond,
-                        symbol: nativeCurrency.symbol,
-                    })}
-                </Typography>
-            )}
-            {isQuestionNumerical(question) && (
-                <Typography variant="lg">
-                    {t("label.answer.answer", {
-                        answer: formatUnits(
-                            BigNumber.from(question.bestAnswer),
-                            18
-                        ),
-                        bond: formattedBond,
-                        symbol: nativeCurrency.symbol,
-                    })}
-                </Typography>
-            )}
-            {isQuestionAnswerInvalid(question) && (
-                <Chip className={{ root: "bg-red w-fit" }}>
-                    {t("label.answer.invalid", {
-                        bond: formattedBond,
-                        symbol: nativeCurrency.symbol,
-                    })}
-                </Chip>
-            )}
-            {isQuestionAnsweredTooSoon(question) && (
-                <Chip className={{ root: "bg-yellow w-fit" }}>
-                    {t("label.answer.tooSoon", {
-                        bond: formattedBond,
-                        symbol: nativeCurrency.symbol,
-                    })}
-                </Chip>
-            )}
             {finalized && (
-                <Chip className={{ root: "bg-green w-fit" }}>
+                <Typography
+                    variant="h5"
+                    weight="bold"
+                    className={{ root: "mb-4" }}
+                >
                     {t("label.answer.finalized")}
-                </Chip>
+                </Typography>
+            )}
+            {isAnswerPurelyBoolean(question) && (
+                <div className="flex flex-col gap-1">
+                    <Typography>
+                        {t("label.answer.answer", {
+                            answer:
+                                question.bestAnswer === BYTES32_ZERO
+                                    ? t("label.answer.form.no")
+                                    : t("label.answer.form.yes"),
+                        })}
+                    </Typography>
+                    <LearnMore t={t} />
+                </div>
+            )}
+            {isAnswerPurelyNumerical(question) && (
+                <div className="flex flex-col gap-1">
+                    <Typography>
+                        {t("label.answer.answer", {
+                            answer: formatUnits(
+                                BigNumber.from(question.bestAnswer),
+                                18
+                            ),
+                        })}
+                    </Typography>
+                    <LearnMore t={t} />
+                </div>
+            )}
+            {isAnswerInvalid(question) && (
+                <div className="flex flex-col gap-1">
+                    <Typography>
+                        {t("label.answer.marked.as", {
+                            outcome: t("label.answer.form.invalid"),
+                        })}
+                    </Typography>
+                    <LearnMore t={t} />
+                </div>
+            )}
+            {isAnsweredTooSoon(question) && (
+                <div className="flex flex-col gap-1">
+                    <Typography>
+                        {t("label.answer.marked.as", {
+                            outcome: t("label.answer.form.tooSoon"),
+                        })}
+                    </Typography>
+                    {finalized && (
+                        <Typography>{t("label.answer.ask.reopen")}</Typography>
+                    )}
+                </div>
             )}
         </div>
     );

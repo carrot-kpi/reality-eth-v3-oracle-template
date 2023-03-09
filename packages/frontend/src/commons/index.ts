@@ -33,6 +33,8 @@ export enum SupportedRealityTemplates {
 
 export const REALITY_DAPP_ENDPOINT = "https://reality.eth.link/app/index.html";
 
+export const REALITY_WEBSITE = "https://reality.eth.limo";
+
 export const REALITY_TEMPLATE_OPTIONS: SelectOption[] = [
     {
         label: "Yes/no",
@@ -54,3 +56,10 @@ export const ANSWERED_TOO_SOON_REALITY_ANSWER =
 
 export const BYTES32_ZERO =
     "0x0000000000000000000000000000000000000000000000000000000000000000";
+
+export enum BooleanAnswer {
+    NO = "0",
+    YES = "1",
+    INVALID_REALITY_ANSWER = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    ANSWERED_TOO_SOON_REALITY_ANSWER = "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe",
+}

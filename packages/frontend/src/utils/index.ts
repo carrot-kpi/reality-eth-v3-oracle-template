@@ -31,30 +31,30 @@ export const isQuestionFinalized = (question: RealityQuestion) => {
     );
 };
 
-export const isQuestionAnswerMissing = (question: RealityQuestion) => {
+export const isAnswerMissing = (question: RealityQuestion) => {
     return question.bestAnswer === BYTES32_ZERO && question.bond.isZero();
 };
 
-export const isQuestionAnswerInvalid = (question: RealityQuestion) => {
+export const isAnswerInvalid = (question: RealityQuestion) => {
     return question.bestAnswer === INVALID_REALITY_ANSWER;
 };
 
-export const isQuestionAnsweredTooSoon = (question: RealityQuestion) => {
+export const isAnsweredTooSoon = (question: RealityQuestion) => {
     return question.bestAnswer === ANSWERED_TOO_SOON_REALITY_ANSWER;
 };
 
-export const isQuestionBoolean = (question: RealityQuestion) => {
+export const isAnswerPurelyBoolean = (question: RealityQuestion) => {
     return (
-        !isQuestionAnswerInvalid(question) &&
-        !isQuestionAnsweredTooSoon(question) &&
+        !isAnswerInvalid(question) &&
+        !isAnsweredTooSoon(question) &&
         question.templateId === SupportedRealityTemplates.BOOL
     );
 };
 
-export const isQuestionNumerical = (question: RealityQuestion) => {
+export const isAnswerPurelyNumerical = (question: RealityQuestion) => {
     return (
-        !isQuestionAnswerInvalid(question) &&
-        !isQuestionAnsweredTooSoon(question) &&
+        !isAnswerInvalid(question) &&
+        !isAnsweredTooSoon(question) &&
         question.templateId === SupportedRealityTemplates.UINT
     );
 };
@@ -63,7 +63,7 @@ export const isQuestionReopenable = (question: RealityQuestion) => {
     if (!isQuestionFinalized(question)) {
         return false;
     }
-    if (!isQuestionAnsweredTooSoon(question)) {
+    if (!isAnsweredTooSoon(question)) {
         return false;
     }
     return true;

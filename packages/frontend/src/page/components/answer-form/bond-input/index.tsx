@@ -12,15 +12,27 @@ interface BondInputProps {
     t: NamespacedTranslateFunction;
     disabled?: boolean;
     value: BigNumber | null;
+    placeholder?: string;
+    errorText?: string;
     onChange: (value: BigNumber) => void;
 }
 
-export const BondInput = ({ t, disabled, value, onChange }: BondInputProps) => {
+export const BondInput = ({
+    t,
+    disabled,
+    value,
+    placeholder,
+    errorText,
+    onChange,
+}: BondInputProps) => {
     const nativeCurrency = useNativeCurrency();
 
     const handleChange = useCallback(
         (value: NumberFormatValue) => {
-            onChange(utils.parseUnits(value.value, nativeCurrency.decimals));
+            const bond = value.value
+                ? utils.parseUnits(value.value, nativeCurrency.decimals)
+                : BigNumber.from("0");
+            onChange(bond);
         },
         [nativeCurrency, onChange]
     );
@@ -29,17 +41,20 @@ export const BondInput = ({ t, disabled, value, onChange }: BondInputProps) => {
         <NumberInput
             id="bond"
             label={t("label.question.form.bond")}
-            placeholder={"0.0"}
+            placeholder={placeholder || "0.0"}
             allowNegative={false}
             min={0}
             value={
                 value ? utils.formatUnits(value, nativeCurrency.decimals) : null
             }
+            errorText={errorText}
+            error={!!errorText}
             disabled={disabled}
             onValueChange={handleChange}
             className={{
-                root: "w-full",
-                input: "w-full",
+                root: "w-fit",
+                input: "w-fit",
+                labelText: { root: "text-sm" },
                 inputWrapper: inputStyles({
                     disabled,
                 }),

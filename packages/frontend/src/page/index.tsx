@@ -35,33 +35,33 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
 
     if (loadingData || !realityQuestion) {
         return (
-            <div className="flex justify-center content-center">
+            <div className="flex justify-center content-center px-3 py-6">
                 <Loader />
             </div>
         );
     }
+    if (loadingRealityQuestion && !realityQuestion) {
+        return (
+            <div className="flex justify-center content-center px-3 py-6">
+                <Loader />
+            </div>
+        );
+    }
+
     return (
         <div className="flex flex-col gap-3 px-6 py-12">
-            {loadingRealityQuestion ? (
-                <div className="flex justify-center content-center">
-                    <Loader />
-                </div>
-            ) : (
-                <>
-                    {realityQuestion.pendingArbitration ? (
-                        <PendingArbitration
-                            t={t}
-                            realityQuestion={realityQuestion}
-                        />
-                    ) : (
-                        <AnswerForm
-                            t={t}
-                            realityAddress={realityV3Address}
-                            question={realityQuestion}
-                        />
-                    )}
-                </>
-            )}
+            <>
+                {realityQuestion.pendingArbitration ? (
+                    <PendingArbitration t={t} question={realityQuestion} />
+                ) : (
+                    <AnswerForm
+                        t={t}
+                        realityAddress={realityV3Address}
+                        loadingQuestion={loadingRealityQuestion}
+                        question={realityQuestion}
+                    />
+                )}
+            </>
         </div>
     );
 };
