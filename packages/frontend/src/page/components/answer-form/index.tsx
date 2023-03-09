@@ -69,28 +69,26 @@ export const AnswerForm = ({
         invalid: false,
         anweredTooSoon: false,
     });
+    const [submitAnswerDisabled, setSubmitAnswerDisabled] = useState(true);
 
     const [bond, setBond] = useState<BigNumber | null>(null);
+    const [bondErrorText, setBondErrorText] = useState("");
+
+    const minimumBond = question.bond.isZero()
+        ? question.minBond
+        : question.bond.mul(2);
 
     const { chain } = useNetwork();
-    const { config: submitAnswerConfig, isFetching: isFetchingSubmitAnswer } =
-        usePrepareContractWrite({
-            address: realityAddress,
-            abi: REALITY_ETH_V3_ABI,
-            functionName: "submitAnswer",
-            args: [question.id, answer, BigNumber.from(0)],
-            overrides: {
-                value: bond || BigNumber.from(0),
-            },
-            enabled:
-                !!answer &&
-                !!bond &&
-                bond.gt(
-                    question.bond.isZero()
-                        ? question.minBond
-                        : question.bond.mul(2)
-                ),
-        });
+    const { config: submitAnswerConfig } = usePrepareContractWrite({
+        address: realityAddress,
+        abi: REALITY_ETH_V3_ABI,
+        functionName: "submitAnswer",
+        args: [question.id, answer, BigNumber.from(0)],
+        overrides: {
+            value: bond || BigNumber.from(0),
+        },
+        enabled: !!answer && !!bond && bond.gt(minimumBond),
+    });
     const { writeAsync: postAnswerAsync } =
         useContractWrite(submitAnswerConfig);
 
@@ -113,6 +111,12 @@ export const AnswerForm = ({
     });
     const { writeAsync: reopenAnswerAsync } =
         useContractWrite(reopenQuestionConfig);
+
+    useEffect(() => {
+        setSubmitAnswerDisabled(
+            !answer || (!!bond && bond.lte(minimumBond)) || !postAnswerAsync
+        );
+    }, [answer, bond, minimumBond, postAnswerAsync]);
 
     useEffect(() => {
         if (question.openingTimestamp < dayjs().unix()) {
@@ -168,6 +172,25 @@ export const AnswerForm = ({
         }));
     }, []);
 
+    const handleBondChange = useCallback(
+        (value: BigNumber | null) => {
+            setBond(value);
+            setBondErrorText(
+                !value || BigNumber.from(value).isZero()
+                    ? t("error.bond.empty")
+                    : value.lte(minimumBond)
+                    ? t("error.bond.insufficient", {
+                          minBond: utils.formatUnits(
+                              minimumBond,
+                              chain?.nativeCurrency.decimals
+                          ),
+                      })
+                    : ""
+            );
+        },
+        [t, setBondErrorText, minimumBond, chain]
+    );
+
     const handleSubmit = useCallback(() => {
         if (!postAnswerAsync) return;
         let cancelled = false;
@@ -215,9 +238,6 @@ export const AnswerForm = ({
 
     if (question.pendingArbitration) return <></>;
 
-    const minimumBond = question.bond.isZero()
-        ? BigNumber.from(0)
-        : question.bond.mul(2);
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
 
@@ -392,7 +412,12 @@ export const AnswerForm = ({
                         <BondInput
                             t={t}
                             value={minimumBond || bond}
-                            onChange={setBond}
+                            placeholder={utils.formatUnits(
+                                minimumBond,
+                                chain?.nativeCurrency.decimals
+                            )}
+                            errorText={bondErrorText}
+                            onChange={handleBondChange}
                             disabled={finalized}
                         />
                     </div>
@@ -419,8 +444,8 @@ export const AnswerForm = ({
                 {!finalized && (
                     <Button
                         onClick={handleSubmit}
-                        disabled={!postAnswerAsync || loadingQuestion}
-                        loading={submitting || isFetchingSubmitAnswer}
+                        disabled={submitAnswerDisabled}
+                        loading={submitting}
                         size="small"
                     >
                         {t("label.question.form.confirm")}
