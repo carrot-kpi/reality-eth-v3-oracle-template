@@ -122,12 +122,7 @@ export const AnswerForm = ({
         );
     }, [answer, bond, minimumBond, postAnswerAsync]);
 
-    console.log({
-        answer,
-        bond,
-        submitAnswerDisabled,
-        lower: !!bond && bond.lt(minimumBond),
-    });
+
 
     useEffect(() => {
         if (question.openingTimestamp < dayjs().unix()) {
