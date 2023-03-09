@@ -31,5 +31,7 @@
     "label.answer.ask.reopen": "Do you want to reopen the question?",
     "label.answer.tooSoon": "Goal currently market as answered too soon with $ {{bond}} {{symbol}} bonded",
     "label.answer.learnMore": " To learn more about the results you can visit the oracle.",
-    "label.reward": "Reward: {{reward}}"
+    "label.reward": "Reward: {{reward}}",
+    "error.bond.empty": "Bond is required",
+    "error.bond.insufficient": "Bond needs to be more than {{minBond}}"
 }
