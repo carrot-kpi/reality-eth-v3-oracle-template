@@ -5,12 +5,12 @@ import { formatUnits } from "ethers/lib/utils.js";
 import { ReactElement } from "react";
 import { BYTES32_ZERO } from "../../../../commons";
 import {
-    isQuestionAnsweredTooSoon,
-    isQuestionAnswerInvalid,
-    isQuestionAnswerMissing,
-    isQuestionBoolean,
+    isAnsweredTooSoon,
+    isAnswerInvalid,
+    isAnswerMissing,
+    isAnswerPurelyBoolean,
     isQuestionFinalized,
-    isQuestionNumerical,
+    isAnswerPurelyNumerical,
 } from "../../../../utils";
 import { RealityQuestion } from "../../../types";
 import { LearnMore } from "../../learn-more";
@@ -21,7 +21,7 @@ interface AnswerProps {
 }
 
 export const Answer = ({ t, question }: AnswerProps): ReactElement => {
-    if (isQuestionAnswerMissing(question))
+    if (isAnswerMissing(question))
         return (
             <Typography variant="lg">{t("label.answer.missing")}</Typography>
         );
@@ -40,7 +40,7 @@ export const Answer = ({ t, question }: AnswerProps): ReactElement => {
                     {t("label.answer.finalized")}
                 </Typography>
             )}
-            {isQuestionBoolean(question) && (
+            {isAnswerPurelyBoolean(question) && (
                 <div className="flex flex-col gap-1">
                     <Typography>
                         {t("label.answer.answer", {
@@ -53,7 +53,7 @@ export const Answer = ({ t, question }: AnswerProps): ReactElement => {
                     <LearnMore t={t} />
                 </div>
             )}
-            {isQuestionNumerical(question) && (
+            {isAnswerPurelyNumerical(question) && (
                 <div className="flex flex-col gap-1">
                     <Typography>
                         {t("label.answer.answer", {
@@ -66,7 +66,7 @@ export const Answer = ({ t, question }: AnswerProps): ReactElement => {
                     <LearnMore t={t} />
                 </div>
             )}
-            {isQuestionAnswerInvalid(question) && (
+            {isAnswerInvalid(question) && (
                 <div className="flex flex-col gap-1">
                     <Typography>
                         {t("label.answer.marked.as", {
@@ -76,7 +76,7 @@ export const Answer = ({ t, question }: AnswerProps): ReactElement => {
                     <LearnMore t={t} />
                 </div>
             )}
-            {isQuestionAnsweredTooSoon(question) && (
+            {isAnsweredTooSoon(question) && (
                 <div className="flex flex-col gap-1">
                     <Typography>
                         {t("label.answer.marked.as", {

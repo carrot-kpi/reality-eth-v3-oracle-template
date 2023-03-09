@@ -26,7 +26,7 @@ import {
 import {
     formatCountDownString,
     formatRealityEthQuestionLink,
-    isQuestionAnsweredTooSoon,
+    isAnsweredTooSoon,
     isQuestionFinalized,
     numberToByte32,
     shortenAddress,
@@ -108,7 +108,7 @@ export const AnswerForm = ({
             question.minBond,
             question.reopenedId || question.id,
         ],
-        enabled: finalized && isQuestionAnsweredTooSoon(question),
+        enabled: finalized && isAnsweredTooSoon(question),
     });
     const { writeAsync: reopenAnswerAsync } =
         useContractWrite(reopenQuestionConfig);
@@ -415,7 +415,7 @@ export const AnswerForm = ({
                         {t("label.question.form.confirm")}
                     </Button>
                 )}
-                {finalized && isQuestionAnsweredTooSoon(question) && (
+                {finalized && isAnsweredTooSoon(question) && (
                     <Button
                         onClick={handleReopenSubmit}
                         disabled={!reopenAnswerAsync}
