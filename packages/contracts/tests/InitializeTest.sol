@@ -155,20 +155,14 @@ contract InitializeTest is BaseTestSetup {
         (
             address _onChainReality,
             bytes32 _onChainQuestionId,
-            address _onChainArbitrator,
-            string memory _onChainQuestion,
-            uint32 _onChainTimeout,
-            uint32 _onChainOpeningTs
+            string memory _onChainQuestion
         ) = abi.decode(
                 _data,
-                (address, bytes32, address, string, uint32, uint32)
+                (address, bytes32, string)
             );
         assertEq(_onChainReality, REALITY_V3_ADDRESS);
         assertEq(_onChainQuestionId, _questionId);
-        assertEq(_onChainArbitrator, address(1));
         assertEq(_onChainQuestion, "a");
-        assertEq(_onChainTimeout, 60);
-        assertEq(_onChainOpeningTs, _openingTs);
 
         vm.clearMockedCalls();
     }
