@@ -13,8 +13,9 @@ const rootStyles = cva([
     "flex flex-col",
     "gap-3",
     "w-full",
-    "md:border-r md:border-black md:dark:border-white",
-    "border-r-none md:last-of-type:border-none",
+    "border border-black",
+    "p-5",
+    "rounded-xxl",
 ]);
 
 export const QuestionInfo = ({

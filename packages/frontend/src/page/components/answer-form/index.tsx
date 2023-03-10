@@ -256,7 +256,10 @@ export const AnswerForm = ({
                 >
                     {shortenAddress(question.arbitrator)}
                 </QuestionInfo>
-                <QuestionInfo label={t("label.question.rewards")}>
+                <QuestionInfo
+                    label={t("label.question.rewards")}
+                    className={{ root: "hidden sm:flex" }}
+                >
                     {!question.bounty.isZero() && chain?.id ? (
                         <>{/* TODO: add rewards when implemented */}</>
                     ) : (
