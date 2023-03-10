@@ -34,7 +34,7 @@ const main = async () => {
             {
                 mode: "production",
                 devtool: false,
-                entry: join(__dirname,"../src/index.ts"),
+                entry: join(__dirname, "../src/index.ts"),
                 output: {
                     filename: "[name].js",
                     path: join(__dirname, "../dist"),
