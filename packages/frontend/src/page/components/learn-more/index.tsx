@@ -10,7 +10,7 @@ interface LearnMoreProps {
 
 export const LearnMore = ({ t }: LearnMoreProps): ReactElement => {
     return (
-        <>
+        <div className="flex flex-col gap-2">
             <Typography>{t("label.answer.learnMore")}</Typography>
             <Button
                 href={REALITY_WEBSITE}
@@ -22,6 +22,6 @@ export const LearnMore = ({ t }: LearnMoreProps): ReactElement => {
             >
                 Reality
             </Button>
-        </>
+        </div>
     );
 };
