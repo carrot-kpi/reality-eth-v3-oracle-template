@@ -45,6 +45,7 @@ export const isAnsweredTooSoon = (question: RealityQuestion) => {
 
 export const isAnswerPurelyBoolean = (question: RealityQuestion) => {
     return (
+        !isAnswerMissing(question) &&
         !isAnswerInvalid(question) &&
         !isAnsweredTooSoon(question) &&
         question.templateId === SupportedRealityTemplates.BOOL
@@ -53,6 +54,7 @@ export const isAnswerPurelyBoolean = (question: RealityQuestion) => {
 
 export const isAnswerPurelyNumerical = (question: RealityQuestion) => {
     return (
+        !isAnswerMissing(question) &&
         !isAnswerInvalid(question) &&
         !isAnsweredTooSoon(question) &&
         question.templateId === SupportedRealityTemplates.UINT
