@@ -27,6 +27,7 @@ const stripHtml = (value: string) => value.replace(/(<([^>]+)>)/gi, "");
 export const Component = ({
     t,
     state,
+    kpiToken,
     onChange,
 }: OracleCreationFormProps<State>): ReactElement => {
     const { chain } = useNetwork();
@@ -65,15 +66,18 @@ export const Component = ({
     const [minimumBondErrorText, setMinimumBondErrorText] = useState("");
 
     const [minimumDate, setMinimumDate] = useState(new Date());
+    const [maximumDate, setMaximumDate] = useState(new Date());
 
     useEffect(() => {
+        if (kpiToken?.expiration)
+            setMaximumDate(dayjs.unix(kpiToken.expiration).toDate());
         const interval = setInterval(() => {
             setMinimumDate(new Date());
         }, 1_000);
         return () => {
             clearInterval(interval);
         };
-    }, []);
+    }, [kpiToken?.expiration]);
 
     // the effect reacts to any change in internal state, firing an
     // onChange event to the creation for user when necessary.
@@ -241,6 +245,7 @@ export const Component = ({
                         label={t("label.opening.timestamp")}
                         placeholder={t("placeholder.number")}
                         min={minimumDate}
+                        max={maximumDate}
                         onChange={handleOpeningTimestampChange}
                         value={openingTimestamp?.toDate()}
                     />
