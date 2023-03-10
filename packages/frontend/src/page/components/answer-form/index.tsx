@@ -6,7 +6,6 @@ import {
     NumberInput,
     Typography,
     Radio,
-    Skeleton,
     RadioGroup,
 } from "@carrot-kpi/ui";
 import { BigNumber, utils } from "ethers";
@@ -121,8 +120,6 @@ export const AnswerForm = ({
             !answer || (!!bond && bond.lt(minimumBond)) || !postAnswerAsync
         );
     }, [answer, bond, minimumBond, postAnswerAsync]);
-
-
 
     useEffect(() => {
         if (question.openingTimestamp < dayjs().unix()) {
@@ -249,13 +246,13 @@ export const AnswerForm = ({
 
     return (
         <div className="flex flex-col">
-            <div className="max-h-[400px] overflow-y-auto">
+            <div className="min-h-[50px] max-h-[400px] overflow-y-auto">
                 <Markdown>{question.resolvedContent}</Markdown>
             </div>
-            <div className="flex justify-between gap-3 mt-10">
+            <div className="flex justify-between gap-4 mt-10">
                 <QuestionInfo
                     label={t("label.question.arbitrator")}
-                    className={{ root: "hidden md:flex" }}
+                    className={{ root: "hidden lg:flex" }}
                 >
                     {shortenAddress(question.arbitrator)}
                 </QuestionInfo>
@@ -271,7 +268,7 @@ export const AnswerForm = ({
                 </QuestionInfo>
                 <QuestionInfo
                     label={t("label.question.oracleLink")}
-                    className={{ root: "hidden md:flex" }}
+                    className={{ root: "hidden lg:flex" }}
                 >
                     <a
                         className="flex gap-1 items-center"
@@ -287,15 +284,24 @@ export const AnswerForm = ({
                     </a>
                 </QuestionInfo>
             </div>
-            <Typography
-                variant="h5"
-                weight="bold"
-                className={{ root: "mt-10" }}
-            >
-                {t("label.question.subtitle")}
-            </Typography>
+            <div className="mt-6">
+                <Answer
+                    t={t}
+                    question={question}
+                    loadingQuestion={loadingQuestion}
+                />
+            </div>
+            {!finalized && (
+                <Typography
+                    variant="h5"
+                    weight="bold"
+                    className={{ root: "mt-12" }}
+                >
+                    {t("label.question.subtitle")}
+                </Typography>
+            )}
             {open && !finalized && (
-                <div className="flex flex-col gap-6 mt-10">
+                <div className="flex flex-col gap-6 mt-6">
                     {question.templateId === SupportedRealityTemplates.BOOL && (
                         <RadioGroup
                             id="bool-template"
@@ -416,7 +422,7 @@ export const AnswerForm = ({
                             />
                         </div>
                     )}
-                    <div className="mt-4">
+                    <div className="mt-3">
                         <BondInput
                             t={t}
                             value={bond}
@@ -441,35 +447,28 @@ export const AnswerForm = ({
                     />
                 </div>
             )}
-            <div className="mt-10">
-                {loadingQuestion ? (
-                    <Skeleton width="100%" height="48px" />
-                ) : (
-                    <Answer t={t} question={question} />
-                )}
-            </div>
-            <div className="flex gap-6 mt-5">
-                {!finalized && (
-                    <Button
-                        onClick={handleSubmit}
-                        disabled={submitAnswerDisabled}
-                        loading={submitting}
-                        size="small"
-                    >
-                        {t("label.question.form.confirm")}
-                    </Button>
-                )}
-                {finalized && isAnsweredTooSoon(question) && (
-                    <Button
-                        onClick={handleReopenSubmit}
-                        disabled={!reopenAnswerAsync}
-                        loading={submitting}
-                        size="small"
-                    >
-                        {t("label.question.form.reopen")}
-                    </Button>
-                )}
-            </div>
+            {!finalized && (
+                <Button
+                    onClick={handleSubmit}
+                    disabled={submitAnswerDisabled}
+                    loading={submitting || loadingQuestion}
+                    size="small"
+                    className={{ root: "mt-5" }}
+                >
+                    {t("label.question.form.confirm")}
+                </Button>
+            )}
+            {finalized && isAnsweredTooSoon(question) && (
+                <Button
+                    onClick={handleReopenSubmit}
+                    disabled={!reopenAnswerAsync}
+                    loading={submitting || loadingQuestion}
+                    size="small"
+                    className={{ root: "mt-5" }}
+                >
+                    {t("label.question.form.reopen")}
+                </Button>
+            )}
         </div>
     );
 };
