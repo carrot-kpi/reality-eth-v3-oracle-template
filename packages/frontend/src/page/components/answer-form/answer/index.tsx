@@ -1,4 +1,7 @@
-import { NamespacedTranslateFunction } from "@carrot-kpi/react";
+import {
+    NamespacedTranslateFunction,
+    useNativeCurrency,
+} from "@carrot-kpi/react";
 import { Skeleton, Typography } from "@carrot-kpi/ui";
 import { BigNumber, utils } from "ethers";
 import { formatUnits } from "ethers/lib/utils.js";
@@ -13,6 +16,7 @@ import {
     isAnswerMissing,
 } from "../../../../utils";
 import { RealityQuestion } from "../../../types";
+import { AnswerInfo } from "../../answer-info";
 import { LearnMore } from "../../learn-more";
 
 interface AnswerProps {
@@ -26,10 +30,10 @@ export const Answer = ({
     question,
     loadingQuestion,
 }: AnswerProps): ReactElement => {
+    const nativeCurrency = useNativeCurrency();
     const finalized = isQuestionFinalized(question);
 
-    // TODO: display the bond somewhere
-    // const formattedBond = formatUnits(question.bond, nativeCurrency.decimals);
+    const formattedBond = formatUnits(question.bond, nativeCurrency.decimals);
     const purelyBoolean = isAnswerPurelyBoolean(question);
     const purelyNumerical = isAnswerPurelyNumerical(question);
     const invalid = isAnswerInvalid(question);
@@ -97,48 +101,58 @@ export const Answer = ({
                     )}
                 </>
             ) : (
-                <div className="flex flex-col gap-3 border-l border-black dark:border-white pl-4">
-                    <Typography variant="lg" uppercase>
-                        {t("label.answer.current")}
-                    </Typography>
-                    {loadingQuestion ? (
-                        <Skeleton width="150px" variant="2xl" />
-                    ) : (
-                        <>
-                            {isAnswerMissing(question) && (
-                                <Typography>
-                                    {t("label.answer.form.missing")}
-                                </Typography>
-                            )}
-                            {purelyBoolean && (
-                                <Typography>
-                                    {question.bestAnswer === BYTES32_ZERO
-                                        ? t("label.answer.form.no")
-                                        : t("label.answer.form.yes")}
-                                </Typography>
-                            )}
-                            {purelyNumerical && (
-                                <Typography>
-                                    {utils.commify(
-                                        formatUnits(
-                                            BigNumber.from(question.bestAnswer),
-                                            18
-                                        )
-                                    )}
-                                </Typography>
-                            )}
-                            {invalid && (
-                                <Typography>
-                                    {t("label.answer.form.invalid")}
-                                </Typography>
-                            )}
-                            {answeredTooSoon && (
-                                <Typography>
-                                    {t("label.answer.form.tooSoon")}
-                                </Typography>
-                            )}
-                        </>
-                    )}
+                <div className="flex flex-col md:flex-row gap-6 md:gap-12">
+                    <AnswerInfo label={t("label.answer.current")}>
+                        {loadingQuestion ? (
+                            <Skeleton width="150px" variant="2xl" />
+                        ) : (
+                            <>
+                                {isAnswerMissing(question) && (
+                                    <Typography>
+                                        {t("label.answer.form.missing")}
+                                    </Typography>
+                                )}
+                                {purelyBoolean && (
+                                    <Typography>
+                                        {question.bestAnswer === BYTES32_ZERO
+                                            ? t("label.answer.form.no")
+                                            : t("label.answer.form.yes")}
+                                    </Typography>
+                                )}
+                                {purelyNumerical && (
+                                    <Typography>
+                                        {utils.commify(
+                                            formatUnits(
+                                                BigNumber.from(
+                                                    question.bestAnswer
+                                                ),
+                                                18
+                                            )
+                                        )}
+                                    </Typography>
+                                )}
+                                {invalid && (
+                                    <Typography>
+                                        {t("label.answer.form.invalid")}
+                                    </Typography>
+                                )}
+                                {answeredTooSoon && (
+                                    <Typography>
+                                        {t("label.answer.form.tooSoon")}
+                                    </Typography>
+                                )}
+                            </>
+                        )}
+                    </AnswerInfo>
+                    <AnswerInfo label={t("label.answer.form.bonded")}>
+                        {loadingQuestion ? (
+                            <Skeleton width="150px" variant="2xl" />
+                        ) : (
+                            `${utils.commify(formattedBond)} ${
+                                nativeCurrency.symbol
+                            }`
+                        )}
+                    </AnswerInfo>
                 </div>
             )}
         </div>

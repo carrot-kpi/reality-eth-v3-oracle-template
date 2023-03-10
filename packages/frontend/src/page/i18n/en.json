@@ -24,7 +24,7 @@
     "label.answer.form.no": "No",
     "label.answer.form.invalid": "Invalid Question",
     "label.answer.form.tooSoon": "Answered too soon",
-    "label.answer.form.bonded": "bonded",
+    "label.answer.form.bonded": "Bonded amount",
     "label.answer.finalized": "Question is finalized",
     "label.answer.final.answer": "Final Answer",
     "label.answer.marked.as": "This question has been marked as \"{{outcome}}\".",
