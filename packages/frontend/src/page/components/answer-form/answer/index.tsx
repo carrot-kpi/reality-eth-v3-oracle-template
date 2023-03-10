@@ -30,6 +30,11 @@ export const Answer = ({
 
     // TODO: display the bond somewhere
     // const formattedBond = formatUnits(question.bond, nativeCurrency.decimals);
+    const purelyBoolean = isAnswerPurelyBoolean(question);
+    const purelyNumerical = isAnswerPurelyNumerical(question);
+    const invalid = isAnswerInvalid(question);
+    const answeredTooSoon = isAnsweredTooSoon(question);
+
     return (
         <div className="flex flex-col justify-between gap-3">
             {finalized ? (
@@ -39,37 +44,36 @@ export const Answer = ({
                         weight="bold"
                         className={{ root: "mb-4" }}
                     >
-                        {t("label.answer.finalized")}
+                        {purelyBoolean || purelyNumerical
+                            ? t("label.answer.final.answer")
+                            : t("label.answer.finalized")}
                     </Typography>
-                    {isAnswerPurelyBoolean(question) && (
+                    {purelyBoolean && (
                         <div className="flex flex-col gap-1">
-                            <Typography>
-                                {t("label.answer.answer", {
-                                    answer:
-                                        question.bestAnswer === BYTES32_ZERO
-                                            ? t("label.answer.form.no")
-                                            : t("label.answer.form.yes"),
-                                })}
+                            <Typography variant="lg">
+                                {question.bestAnswer === BYTES32_ZERO
+                                    ? t("label.answer.form.no")
+                                    : t("label.answer.form.yes")}
                             </Typography>
                             <LearnMore t={t} />
                         </div>
                     )}
-                    {isAnswerPurelyNumerical(question) && (
+                    {purelyNumerical && (
                         <div className="flex flex-col gap-1">
-                            <Typography>
-                                {t("label.answer.answer", {
-                                    answer: formatUnits(
+                            <Typography variant="lg">
+                                {utils.commify(
+                                    formatUnits(
                                         BigNumber.from(question.bestAnswer),
                                         18
-                                    ),
-                                })}
+                                    )
+                                )}
                             </Typography>
                             <LearnMore t={t} />
                         </div>
                     )}
-                    {isAnswerInvalid(question) && (
+                    {invalid && (
                         <div className="flex flex-col gap-1">
-                            <Typography>
+                            <Typography variant="lg">
                                 {t("label.answer.marked.as", {
                                     outcome: t("label.answer.form.invalid"),
                                 })}
@@ -77,9 +81,9 @@ export const Answer = ({
                             <LearnMore t={t} />
                         </div>
                     )}
-                    {isAnsweredTooSoon(question) && (
+                    {answeredTooSoon && (
                         <div className="flex flex-col gap-1">
-                            <Typography>
+                            <Typography variant="lg">
                                 {t("label.answer.marked.as", {
                                     outcome: t("label.answer.form.tooSoon"),
                                 })}
@@ -106,14 +110,14 @@ export const Answer = ({
                                     {t("label.answer.form.missing")}
                                 </Typography>
                             )}
-                            {isAnswerPurelyBoolean(question) && (
+                            {purelyBoolean && (
                                 <Typography>
                                     {question.bestAnswer === BYTES32_ZERO
                                         ? t("label.answer.form.no")
                                         : t("label.answer.form.yes")}
                                 </Typography>
                             )}
-                            {isAnswerPurelyNumerical(question) && (
+                            {purelyNumerical && (
                                 <Typography>
                                     {utils.commify(
                                         formatUnits(
@@ -123,12 +127,12 @@ export const Answer = ({
                                     )}
                                 </Typography>
                             )}
-                            {isAnswerInvalid(question) && (
+                            {invalid && (
                                 <Typography>
                                     {t("label.answer.form.invalid")}
                                 </Typography>
                             )}
-                            {isAnsweredTooSoon(question) && (
+                            {answeredTooSoon && (
                                 <Typography>
                                     {t("label.answer.form.tooSoon")}
                                 </Typography>
