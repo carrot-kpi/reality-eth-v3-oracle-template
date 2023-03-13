@@ -39,7 +39,7 @@ export const OpeningCountdown = ({
     }, [countdown, duration, to]);
 
     return (
-        <div className="flex gap-6 content-center">
+        <div className="flex gap-2 justify-between md:justify-start sm:gap-3 md:gap-5 content-center">
             <CountdownFrame
                 label={t("label.question.time.days")}
                 timeFrame={duration.format("DD[D]")}
@@ -58,6 +58,7 @@ export const OpeningCountdown = ({
             <CountdownFrame
                 label={t("label.question.time.seconds")}
                 timeFrame={duration.format("ss[S]")}
+                className={{ root: "hidden sm:flex" }}
             />
         </div>
     );
