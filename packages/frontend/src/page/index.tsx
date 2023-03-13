@@ -50,18 +50,16 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
 
     return (
         <div className="flex flex-col gap-3 px-6 py-12">
-            <>
-                {realityQuestion.pendingArbitration ? (
-                    <PendingArbitration t={t} question={realityQuestion} />
-                ) : (
-                    <AnswerForm
-                        t={t}
-                        realityAddress={realityV3Address}
-                        loadingQuestion={loadingRealityQuestion}
-                        question={realityQuestion}
-                    />
-                )}
-            </>
+            {realityQuestion.pendingArbitration ? (
+                <PendingArbitration t={t} question={realityQuestion} />
+            ) : (
+                <AnswerForm
+                    t={t}
+                    realityAddress={realityV3Address}
+                    loadingQuestion={loadingRealityQuestion}
+                    question={realityQuestion}
+                />
+            )}
         </div>
     );
 };

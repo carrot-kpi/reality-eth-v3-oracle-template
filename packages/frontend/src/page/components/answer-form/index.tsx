@@ -112,10 +112,6 @@ export const AnswerForm = ({
         useContractWrite(reopenQuestionConfig);
 
     useEffect(() => {
-        setBond(question.bond.mul(2));
-    }, [question.bond]);
-
-    useEffect(() => {
         setSubmitAnswerDisabled(
             !answer || (!!bond && bond.lt(minimumBond)) || !postAnswerAsync
         );
