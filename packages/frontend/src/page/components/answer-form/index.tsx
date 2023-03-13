@@ -36,7 +36,7 @@ import { Answer } from "./answer";
 import REALITY_ETH_V3_ABI from "../../../abis/reality-eth-v3.json";
 import { BondInput } from "./bond-input";
 import dayjs from "dayjs";
-import { inputStyles } from "./common/styles";
+import { infoPopoverStyles, inputStyles } from "./common/styles";
 import { QuestionInfo } from "../question-info";
 import { ReactComponent as ExternalSvg } from "../../../assets/external.svg";
 import { OpeningCountdown } from "../opening-countdown";
@@ -341,6 +341,11 @@ export const AnswerForm = ({
                                 id="bool-template-invalid"
                                 name="bool-answer"
                                 label={t("label.question.form.invalid")}
+                                info={
+                                    <Typography variant="sm">
+                                        {t("invalid.info")}
+                                    </Typography>
+                                }
                                 value={BooleanAnswer.INVALID_REALITY_ANSWER}
                                 checked={
                                     booleanValue ===
@@ -349,6 +354,7 @@ export const AnswerForm = ({
                                 disabled={answerInputDisabled}
                                 onChange={handleBooleanRadioChange}
                                 className={{
+                                    infoPopover: infoPopoverStyles(),
                                     inputWrapper: inputStyles({
                                         disabled: answerInputDisabled,
                                     }),
@@ -358,6 +364,11 @@ export const AnswerForm = ({
                                 id="bool-template-too-soon"
                                 name="bool-answer"
                                 label={t("label.question.form.tooSoon")}
+                                info={
+                                    <Typography variant="sm">
+                                        {t("tooSoon.info")}
+                                    </Typography>
+                                }
                                 value={
                                     BooleanAnswer.ANSWERED_TOO_SOON_REALITY_ANSWER
                                 }
@@ -368,6 +379,7 @@ export const AnswerForm = ({
                                 disabled={answerInputDisabled}
                                 onChange={handleBooleanRadioChange}
                                 className={{
+                                    infoPopover: infoPopoverStyles(),
                                     inputWrapper: inputStyles({
                                         disabled: answerInputDisabled,
                                     }),
@@ -376,7 +388,7 @@ export const AnswerForm = ({
                         </RadioGroup>
                     )}
                     {question.templateId === SupportedRealityTemplates.UINT && (
-                        <div className="flex flex-col md:items-center md:flex-row gap-8">
+                        <div className="flex flex-col lg:items-center lg:flex-row gap-8">
                             <NumberInput
                                 id="uint-template"
                                 placeholder={"0.0"}
@@ -394,9 +406,15 @@ export const AnswerForm = ({
                             <Checkbox
                                 id="invalid"
                                 label={t("label.question.form.invalid")}
+                                info={
+                                    <Typography variant="sm">
+                                        {t("invalid.info")}
+                                    </Typography>
+                                }
                                 checked={moreOptionValue.invalid}
                                 onChange={handleInvalidChange}
                                 className={{
+                                    infoPopover: infoPopoverStyles(),
                                     root: inputStyles({
                                         disabled:
                                             finalized ||
@@ -408,9 +426,15 @@ export const AnswerForm = ({
                             <Checkbox
                                 id="too-soon"
                                 label={t("label.question.form.tooSoon")}
+                                info={
+                                    <Typography variant="sm">
+                                        {t("tooSoon.info")}
+                                    </Typography>
+                                }
                                 checked={moreOptionValue.anweredTooSoon}
                                 onChange={handleAnsweredTooSoonChange}
                                 className={{
+                                    infoPopover: infoPopoverStyles(),
                                     root: inputStyles({
                                         disabled:
                                             finalized ||

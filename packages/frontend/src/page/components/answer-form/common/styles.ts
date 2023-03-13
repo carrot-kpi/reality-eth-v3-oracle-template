@@ -11,3 +11,5 @@ export const inputStyles = cva(["opacity-100 transition-opacity"], {
         },
     },
 });
+
+export const infoPopoverStyles = cva(["w-full max-w-[450px]"]);
