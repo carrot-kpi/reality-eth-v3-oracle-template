@@ -22,4 +22,12 @@ interface IRealityV3 {
     function getTimeout(bytes32 _id) external view returns (uint32);
 
     function resultForOnceSettled(bytes32 _id) external view returns (bytes32);
+
+    function setQuestionFee(uint256 fee) external;
+
+    function submitAnswerByArbitrator(bytes32 _questionId, bytes32 _answer, address _answerer) external;
+
+    function cancelArbitration(bytes32 _questionId) external;
+
+    function notifyOfArbitrationRequest(bytes32 _questionId, address _requester, uint256 _maxPrevious) external;
 }

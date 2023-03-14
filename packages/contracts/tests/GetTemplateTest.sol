@@ -13,16 +13,12 @@ import {ClonesUpgradeable} from "oz-upgradeable/proxy/ClonesUpgradeable.sol";
 /// @author Federico Luzzi - <federico.luzzi@protonmail.com>
 contract GetTemplateTest is BaseTestSetup {
     function testSuccess() external {
-        RealityV3Oracle oracleInstance = RealityV3Oracle(
-            ClonesUpgradeable.clone(address(realityV3OracleTemplate))
-        );
+        RealityV3Oracle oracleInstance = RealityV3Oracle(ClonesUpgradeable.clone(address(realityV3OracleTemplate)));
         Template memory _template = oraclesManager.template(1);
         bytes32 _questionId = bytes32("questionId");
         vm.mockCall(
             REALITY_V3_ADDRESS,
-            abi.encodeWithSignature(
-                "askQuestionWithMinBond(uint256,string,address,uint32,uint32,uint256,uint256)"
-            ),
+            abi.encodeWithSignature("askQuestionWithMinBond(uint256,string,address,uint32,uint32,uint256,uint256)"),
             abi.encode(_questionId)
         );
         vm.prank(address(oraclesManager));
@@ -32,14 +28,7 @@ contract GetTemplateTest is BaseTestSetup {
                 kpiToken: address(1),
                 templateId: _template.id,
                 templateVersion: _template.version,
-                data: abi.encode(
-                    REALITY_V3_ADDRESS,
-                    0,
-                    "a",
-                    60,
-                    block.timestamp + 60,
-                    0
-                )
+                data: abi.encode(REALITY_V3_ADDRESS, 0, "a", 60, block.timestamp + 60, 0)
             })
         );
 

@@ -49,7 +49,7 @@ supported formats by checking
 [this](https://github.com/conventional-changelog/commitlint/tree/master/@commitlint/config-conventional)
 out.
 
-### Deploying
+### Deploying the template
 
 In order to deploy the template contract to a given network you can go ahead and
 create a .env.<NETWORK_NAME> file exporting 2 env variables:
@@ -74,4 +74,37 @@ deployment:
 
 ```
 forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPOINT ./scripts/Deploy.sol
+```
+
+### Deploying the trusted arbitrator
+
+In order to deploy the trusted arbitrator contract to a given network you can go
+ahead and create a .env.<NETWORK_NAME> file exporting 4 env variables:
+
+```
+export PRIVATE_KEY=""
+export RPC_ENDPOINT=""
+export METADATA=""
+export QUESTION_FEE=""
+```
+
+brief explainer of the env variables:
+
+- `PRIVATE_KEY`: the private key related to the account that will perform the
+  deployment.
+- `RPC_ENDPOINT`: the RPC endpoint that will be used to broadcast transactions.
+  This will also determine the network where the deployment will happen.
+- `METADATA`: the initial arbitrator metadata. Have a look
+  [here](https://reality.eth.limo/app/docs/html/arbitrators.html#getting-information-about-the-arbitrator).
+- `QUESTION_FEE`: the initial arbitrator question fee, expressed in the target
+  chain's native currency.
+
+Once you have one instance of this file for each network you're interested in
+(e.g. .`env.goerli`, `.env.gnosis`, `env.mainnet` etc etc), you can go ahead and
+locally load the env variables by executing `source .env.<NETWORK_NAME>`. After
+doing that, you can finally execute the following command to initiate the
+deployment:
+
+```
+forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPOINT --sig 'run(string,uint256)' ./scripts/DeployArbitrator.sol $METADATA $QUESTION_FEE
 ```
