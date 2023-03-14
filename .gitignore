@@ -305,5 +305,6 @@ yarn-debug.log*
 yarn-error.log*
 
 RealityV3Oracle[0-9]*.sol
+TrustedRealityV3Arbitrator[0-9]*.sol
 .env*
 packages/contracts/broadcast

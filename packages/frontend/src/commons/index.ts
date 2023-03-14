@@ -19,7 +19,7 @@ export const ARBITRATORS_BY_CHAIN: Record<SupportedChain, OptionWithIcon[]> = {
     ],
     [ChainId.GNOSIS]: [
         {
-            value: "0x0000000000000000000000000000000000000001",
+            value: "0xe37AA274d1bb3815b63cd13064dE443423F74316",
             label: "Carrot guild",
             icon: CarrotIcon,
         },

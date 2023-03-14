@@ -7,6 +7,7 @@ remappings = [
     'carrot/=lib/carrot/contracts',
     'forge-std/=lib/forge-std/src/',
     'oz-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/',
+    'oz/=lib/openzeppelin-contracts/contracts/',
     'tests/=tests/'
 ]
 
