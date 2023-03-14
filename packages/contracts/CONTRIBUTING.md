@@ -79,7 +79,7 @@ forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPO
 ### Deploying the trusted arbitrator
 
 In order to deploy the trusted arbitrator contract to a given network you can go
-ahead and create a .env.<NETWORK_NAME> file exporting 2 env variables:
+ahead and create a .env.<NETWORK_NAME> file exporting 4 env variables:
 
 ```
 export PRIVATE_KEY=""
