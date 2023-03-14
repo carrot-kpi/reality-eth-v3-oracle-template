@@ -24,19 +24,20 @@ if (!realityV3Address) {
     process.exit(1);
 }
 
-const generate = async () => {
-    let source = (
-        await readFile(join(__dirname, "./src/RealityV3Oracle.sol"))
-    ).toString();
-    source = source.replace(
-        "address(123456789)",
-        `address(${realityV3Address})`
-    );
+const sources = ["RealityV3Oracle", "TrustedRealityV3Arbitrator"];
 
-    await writeFile(
-        join(__dirname, `./src/RealityV3Oracle${chainId}.sol`),
-        source
-    );
+const generate = async () => {
+    for (const source of sources) {
+        let code = (
+            await readFile(join(__dirname, `./src/${source}.sol`))
+        ).toString();
+        code = code.replace(
+            "address(123456789)",
+            `address(${realityV3Address})`
+        );
+
+        await writeFile(join(__dirname, `./src/${source}${chainId}.sol`), code);
+    }
 };
 
 generate().then().catch(console.error);

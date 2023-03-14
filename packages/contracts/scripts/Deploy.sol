@@ -9,9 +9,6 @@ import {Strings} from "oz/utils/Strings.sol";
 /// @dev Deploys the template on a target network.
 /// @author Federico Luzzi - <federico.luzzi@protonmail.com>
 contract Deploy is Script {
-    error ZeroAddressFeeReceiver();
-    error ZeroAddressGelatoOps();
-
     function run() external {
         bytes memory _bytecode =
             vm.getCode(string.concat("RealityV3Oracle", Strings.toString(block.chainid), ".sol:RealityV3Oracle"));
