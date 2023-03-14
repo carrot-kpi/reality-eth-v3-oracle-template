@@ -108,3 +108,35 @@ deployment:
 ```
 forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPOINT --sig 'run(string,uint256)' ./scripts/DeployArbitrator.sol $METADATA $QUESTION_FEE
 ```
+
+### Setting the trusted arbitrator creation fee
+
+In order to set the trusted arbitrator creation fee on a given network you can
+go ahead and create a .env.<NETWORK_NAME> file exporting 4 env variables:
+
+```
+export PRIVATE_KEY=""
+export RPC_ENDPOINT=""
+export ARBITRATOR=""
+export QUESTION_FEE=""
+```
+
+brief explainer of the env variables:
+
+- `PRIVATE_KEY`: the private key related to the account that will perform the
+  deployment.
+- `RPC_ENDPOINT`: the RPC endpoint that will be used to broadcast transactions.
+  This will also determine the network where the deployment will happen.
+- `ARBITRATOR`: the arbitrator address. You must own this contract.
+- `QUESTION_FEE`: the arbitrator question fee, expressed in the target chain's
+  native currency.
+
+Once you have one instance of this file for each network you're interested in
+(e.g. .`env.goerli`, `.env.gnosis`, `env.mainnet` etc etc), you can go ahead and
+locally load the env variables by executing `source .env.<NETWORK_NAME>`. After
+doing that, you can finally execute the following command to initiate the
+deployment:
+
+```
+forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPOINT --sig 'run(address,uint256)' ./scripts/SetArbitratorQuestionFee.sol $ARBITRATOR $QUESTION_FEE
+```
