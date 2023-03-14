@@ -1,12 +1,12 @@
 import { useCallback } from "react";
 import { NumberFormatValue } from "../../../types";
-import { NumberInput } from "@carrot-kpi/ui";
+import { NumberInput, Typography } from "@carrot-kpi/ui";
 import {
     NamespacedTranslateFunction,
     useNativeCurrency,
 } from "@carrot-kpi/react";
 import { BigNumber, utils } from "ethers";
-import { inputStyles } from "../common/styles";
+import { infoPopoverStyles, inputStyles } from "../common/styles";
 
 interface BondInputProps {
     t: NamespacedTranslateFunction;
@@ -41,6 +41,17 @@ export const BondInput = ({
         <NumberInput
             id="bond"
             label={t("label.question.form.bond")}
+            info={
+                <>
+                    <Typography variant="sm" className={{ root: "mb-2" }}>
+                        {t("bond.info.1")}
+                    </Typography>
+                    <Typography variant="sm" className={{ root: "mb-2" }}>
+                        {t("bond.info.2")}
+                    </Typography>
+                    <Typography variant="sm">{t("bond.info.3")}</Typography>
+                </>
+            }
             placeholder={placeholder || "0.0"}
             allowNegative={false}
             min={0}
@@ -54,6 +65,7 @@ export const BondInput = ({
             className={{
                 root: "w-fit",
                 input: "w-fit",
+                infoPopover: infoPopoverStyles(),
                 labelText: { root: "text-sm" },
                 inputWrapper: inputStyles({
                     disabled,
