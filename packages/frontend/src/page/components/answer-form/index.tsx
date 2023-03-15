@@ -568,7 +568,7 @@ export const AnswerForm = ({
                     />
                 </div>
             )}
-            {!finalized && (
+            {!question.pendingArbitration && !finalized && (
                 <div className="flex flex-col md:flex-row gap-5 mt-5">
                     <Button
                         onClick={handleSubmit}
@@ -588,17 +588,19 @@ export const AnswerForm = ({
                     </Button>
                 </div>
             )}
-            {finalized && isAnsweredTooSoon(question) && (
-                <Button
-                    onClick={handleReopenSubmit}
-                    disabled={!reopenAnswerAsync}
-                    loading={submitting || loadingQuestion}
-                    size="small"
-                    className={{ root: "mt-5" }}
-                >
-                    {t("label.question.form.reopen")}
-                </Button>
-            )}
+            {!question.pendingArbitration &&
+                finalized &&
+                isAnsweredTooSoon(question) && (
+                    <Button
+                        onClick={handleReopenSubmit}
+                        disabled={!reopenAnswerAsync}
+                        loading={submitting || loadingQuestion}
+                        size="small"
+                        className={{ root: "mt-5" }}
+                    >
+                        {t("label.question.form.reopen")}
+                    </Button>
+                )}
             {!question.pendingArbitration &&
                 finalized &&
                 !isAnsweredTooSoon(question) && (
