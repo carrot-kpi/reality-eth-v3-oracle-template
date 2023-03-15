@@ -34,14 +34,13 @@ import {
 import { NumberFormatValue, RealityQuestion } from "../../types";
 import { Answer } from "./answer";
 import REALITY_ETH_V3_ABI from "../../../abis/reality-eth-v3.json";
-import RALITY_ORACLE_V3_ABI from "../../../abis/reality-oracle-v3.json";
 import { BondInput } from "./bond-input";
 import dayjs from "dayjs";
 import { infoPopoverStyles, inputStyles } from "./common/styles";
 import { QuestionInfo } from "../question-info";
 import { ReactComponent as ExternalSvg } from "../../../assets/external.svg";
 import { OpeningCountdown } from "../opening-countdown";
-import { Oracle } from "@carrot-kpi/sdk";
+import { Oracle, ORACLE_ABI } from "@carrot-kpi/sdk";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -118,7 +117,7 @@ export const AnswerForm = ({
 
     const { config: finalizeOracleConfig } = usePrepareContractWrite({
         address: oracle.address,
-        abi: RALITY_ORACLE_V3_ABI,
+        abi: ORACLE_ABI,
         functionName: "finalize",
         enabled: finalized && !oracle.finalized,
     });
@@ -212,7 +211,6 @@ export const AnswerForm = ({
             try {
                 const tx = await postAnswerAsync();
                 await tx.wait();
-                if (cancelled) return;
             } catch (error) {
                 console.error("error submitting answer to reality v3", error);
             } finally {
@@ -233,7 +231,6 @@ export const AnswerForm = ({
             try {
                 const tx = await reopenAnswerAsync();
                 await tx.wait();
-                if (cancelled) return;
             } catch (error) {
                 console.error(
                     "error submitting answer reopening to reality v3",
@@ -257,7 +254,6 @@ export const AnswerForm = ({
             try {
                 const tx = await finalizeOracleAsync();
                 await tx.wait();
-                if (cancelled) return;
             } catch (error) {
                 console.error("error finalizing oracle", error);
             } finally {
