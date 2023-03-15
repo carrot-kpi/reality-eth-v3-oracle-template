@@ -92,6 +92,17 @@ export const AnswerForm = ({
         : question.bond.mul(2);
 
     const { chain } = useNetwork();
+
+    const { data: disputeFee } = useContractRead({
+        address:
+            !!chain && chain.id
+                ? TRUSTED_REALITY_ARBITRATORS[chain.id as ChainId]
+                : "",
+        abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
+        functionName: "getDisputeFee",
+        enabled: !!chain && !!chain.id,
+    });
+
     const { config: submitAnswerConfig } = usePrepareContractWrite({
         address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
@@ -142,8 +153,15 @@ export const AnswerForm = ({
         abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
         functionName: "requestArbitration",
         args: [question.id, BigNumber.from(0)],
+        overrides: {
+            value: disputeFee ? BigNumber.from(disputeFee) : undefined,
+        },
         enabled:
-            !!chain && !!chain.id && !finalized && !isAnswerMissing(question),
+            !!chain &&
+            !!chain.id &&
+            !finalized &&
+            !!disputeFee &&
+            !isAnswerMissing(question),
     });
     const { writeAsync: requestArbitrationAsync } = useContractWrite(
         requestArbitrationConfig
