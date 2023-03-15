@@ -34,16 +34,19 @@ import {
 import { NumberFormatValue, RealityQuestion } from "../../types";
 import { Answer } from "./answer";
 import REALITY_ETH_V3_ABI from "../../../abis/reality-eth-v3.json";
+import RALITY_ORACLE_V3_ABI from "../../../abis/reality-oracle-v3.json";
 import { BondInput } from "./bond-input";
 import dayjs from "dayjs";
 import { infoPopoverStyles, inputStyles } from "./common/styles";
 import { QuestionInfo } from "../question-info";
 import { ReactComponent as ExternalSvg } from "../../../assets/external.svg";
 import { OpeningCountdown } from "../opening-countdown";
+import { Oracle } from "@carrot-kpi/sdk";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
     realityAddress: string;
+    oracle: Oracle;
     question: RealityQuestion;
     loadingQuestion: boolean;
 }
@@ -51,6 +54,7 @@ interface AnswerFormProps {
 export const AnswerForm = ({
     t,
     realityAddress,
+    oracle,
     question,
     loadingQuestion,
 }: AnswerFormProps): ReactElement => {
@@ -64,6 +68,7 @@ export const AnswerForm = ({
     });
     const [answer, setAnswer] = useState("");
     const [submitting, setSubmitting] = useState(false);
+    const [finalizingOracle, setFinalizingOracle] = useState(false);
     const [moreOptionValue, setMoreOptionValue] = useState({
         invalid: false,
         anweredTooSoon: false,
@@ -110,6 +115,16 @@ export const AnswerForm = ({
     });
     const { writeAsync: reopenAnswerAsync } =
         useContractWrite(reopenQuestionConfig);
+
+    const { config: finalizeOracleConfig } = usePrepareContractWrite({
+        address: oracle.address,
+        // TODO: use the ABI exported from the SDK
+        abi: RALITY_ORACLE_V3_ABI,
+        functionName: "finalize",
+        enabled: finalized && !oracle.finalized,
+    });
+    const { writeAsync: finalizeOracleAsync } =
+        useContractWrite(finalizeOracleConfig);
 
     useEffect(() => {
         setSubmitAnswerDisabled(
@@ -198,7 +213,6 @@ export const AnswerForm = ({
             try {
                 const tx = await postAnswerAsync();
                 await tx.wait();
-                if (cancelled) return;
             } catch (error) {
                 console.error("error submitting answer to reality v3", error);
             } finally {
@@ -219,7 +233,6 @@ export const AnswerForm = ({
             try {
                 const tx = await reopenAnswerAsync();
                 await tx.wait();
-                if (cancelled) return;
             } catch (error) {
                 console.error(
                     "error submitting answer reopening to reality v3",
@@ -234,6 +247,26 @@ export const AnswerForm = ({
             cancelled = true;
         };
     }, [reopenAnswerAsync]);
+
+    const handleFinalizeOracleSubmit = useCallback(() => {
+        if (!finalizeOracleAsync) return;
+        let cancelled = false;
+        const submitFinalizeOracle = async () => {
+            if (!cancelled) setFinalizingOracle(true);
+            try {
+                const tx = await finalizeOracleAsync();
+                await tx.wait();
+            } catch (error) {
+                console.error("error finalizing oracle", error);
+            } finally {
+                if (!cancelled) setFinalizingOracle(false);
+            }
+        };
+        void submitFinalizeOracle();
+        return () => {
+            cancelled = true;
+        };
+    }, [finalizeOracleAsync]);
 
     if (question.pendingArbitration) return <></>;
 
@@ -490,6 +523,17 @@ export const AnswerForm = ({
                     className={{ root: "mt-5" }}
                 >
                     {t("label.question.form.reopen")}
+                </Button>
+            )}
+            {finalized && !isAnsweredTooSoon(question) && (
+                <Button
+                    onClick={handleFinalizeOracleSubmit}
+                    disabled={!finalizeOracleAsync || oracle.finalized}
+                    loading={finalizingOracle || loadingQuestion}
+                    size="small"
+                    className={{ root: "mt-5" }}
+                >
+                    {t("label.question.form.finalize")}
                 </Button>
             )}
         </div>

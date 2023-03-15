@@ -56,6 +56,7 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
                 <AnswerForm
                     t={t}
                     realityAddress={realityV3Address}
+                    oracle={oracle}
                     loadingQuestion={loadingRealityQuestion}
                     question={realityQuestion}
                 />
