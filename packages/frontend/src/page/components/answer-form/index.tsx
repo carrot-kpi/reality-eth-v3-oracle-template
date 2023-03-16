@@ -34,6 +34,7 @@ import {
     formatRealityEthQuestionLink,
     isAnsweredTooSoon,
     isAnswerMissing,
+    isAnswerPendingArbitration,
     isQuestionFinalized,
     numberToByte32,
     shortenAddress,
@@ -334,7 +335,9 @@ export const AnswerForm = ({
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
     const requestArbitrationDisabled =
-        finalized || isAnswerMissing(question) || question.pendingArbitration;
+        finalized ||
+        isAnswerMissing(question) ||
+        isAnswerPendingArbitration(question);
 
     return (
         <div className="flex flex-col">
@@ -386,7 +389,7 @@ export const AnswerForm = ({
                     loadingQuestion={loadingQuestion}
                 />
             </div>
-            {!finalized && (
+            {!isAnswerPendingArbitration(question) && !finalized && (
                 <Typography
                     variant="h5"
                     weight="bold"
@@ -395,7 +398,7 @@ export const AnswerForm = ({
                     {t("label.question.subtitle")}
                 </Typography>
             )}
-            {open && !question.pendingArbitration && !finalized && (
+            {open && !isAnswerPendingArbitration(question) && !finalized && (
                 <div className="flex flex-col gap-6 mt-6">
                     {question.templateId === SupportedRealityTemplates.BOOL && (
                         <RadioGroup
@@ -566,52 +569,54 @@ export const AnswerForm = ({
                     />
                 </div>
             )}
-            {!question.pendingArbitration && !finalized && (
-                <div className="flex flex-col md:flex-row gap-5 mt-5">
-                    <Button
-                        onClick={handleSubmit}
-                        disabled={submitAnswerDisabled}
-                        loading={submitting || loadingQuestion}
-                        size="small"
-                    >
-                        {t("label.question.form.confirm")}
-                    </Button>
-                    <Button
-                        onClick={handleRequestArbitrationSubmit}
-                        disabled={requestArbitrationDisabled}
-                        loading={requestingArbitration || loadingQuestion}
-                        size="small"
-                    >
-                        {t("label.question.form.requestArbitration")}
-                    </Button>
-                </div>
+            {!isAnswerPendingArbitration(question) && (
+                <>
+                    {!finalized && (
+                        <div className="flex flex-col md:flex-row gap-5 mt-5">
+                            <Button
+                                onClick={handleSubmit}
+                                disabled={submitAnswerDisabled}
+                                loading={submitting || loadingQuestion}
+                                size="small"
+                            >
+                                {t("label.question.form.confirm")}
+                            </Button>
+                            <Button
+                                onClick={handleRequestArbitrationSubmit}
+                                disabled={requestArbitrationDisabled}
+                                loading={
+                                    requestingArbitration || loadingQuestion
+                                }
+                                size="small"
+                            >
+                                {t("label.question.form.requestArbitration")}
+                            </Button>
+                        </div>
+                    )}
+                    {finalized && isAnsweredTooSoon(question) && (
+                        <Button
+                            onClick={handleReopenSubmit}
+                            disabled={!reopenAnswerAsync}
+                            loading={submitting || loadingQuestion}
+                            size="small"
+                            className={{ root: "mt-5" }}
+                        >
+                            {t("label.question.form.reopen")}
+                        </Button>
+                    )}
+                    {finalized && !isAnsweredTooSoon(question) && (
+                        <Button
+                            onClick={handleFinalizeOracleSubmit}
+                            disabled={!finalizeOracleAsync || oracle.finalized}
+                            loading={finalizingOracle || loadingQuestion}
+                            size="small"
+                            className={{ root: "mt-5" }}
+                        >
+                            {t("label.question.form.finalize")}
+                        </Button>
+                    )}
+                </>
             )}
-            {!question.pendingArbitration &&
-                finalized &&
-                isAnsweredTooSoon(question) && (
-                    <Button
-                        onClick={handleReopenSubmit}
-                        disabled={!reopenAnswerAsync}
-                        loading={submitting || loadingQuestion}
-                        size="small"
-                        className={{ root: "mt-5" }}
-                    >
-                        {t("label.question.form.reopen")}
-                    </Button>
-                )}
-            {!question.pendingArbitration &&
-                finalized &&
-                !isAnsweredTooSoon(question) && (
-                    <Button
-                        onClick={handleFinalizeOracleSubmit}
-                        disabled={!finalizeOracleAsync || oracle.finalized}
-                        loading={finalizingOracle || loadingQuestion}
-                        size="small"
-                        className={{ root: "mt-5" }}
-                    >
-                        {t("label.question.form.finalize")}
-                    </Button>
-                )}
         </div>
     );
 };

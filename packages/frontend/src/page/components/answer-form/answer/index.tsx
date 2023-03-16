@@ -14,6 +14,7 @@ import {
     isQuestionFinalized,
     isAnswerPurelyNumerical,
     isAnswerMissing,
+    isAnswerPendingArbitration,
 } from "../../../../utils";
 import { RealityQuestion } from "../../../types";
 import { AnswerInfo } from "../../answer-info";
@@ -38,7 +39,7 @@ export const Answer = ({
     const purelyNumerical = isAnswerPurelyNumerical(question);
     const invalid = isAnswerInvalid(question);
     const answeredTooSoon = isAnsweredTooSoon(question);
-    const pendingArbitration = question.pendingArbitration;
+    const pendingArbitration = isAnswerPendingArbitration(question);
 
     return (
         <div className="flex flex-col justify-between gap-3">
