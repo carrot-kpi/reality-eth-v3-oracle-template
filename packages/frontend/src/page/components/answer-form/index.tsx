@@ -514,7 +514,7 @@ export const AnswerForm = ({
                                 onChange={handleInvalidChange}
                                 className={{
                                     infoPopover: infoPopoverStyles(),
-                                    root: inputStyles({
+                                    inputWrapper: inputStyles({
                                         disabled:
                                             finalized ||
                                             moreOptionValue.anweredTooSoon,
@@ -534,7 +534,7 @@ export const AnswerForm = ({
                                 onChange={handleAnsweredTooSoonChange}
                                 className={{
                                     infoPopover: infoPopoverStyles(),
-                                    root: inputStyles({
+                                    inputWrapper: inputStyles({
                                         disabled:
                                             finalized ||
                                             moreOptionValue.invalid,
