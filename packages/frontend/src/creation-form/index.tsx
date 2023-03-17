@@ -140,7 +140,7 @@ export const Component = ({
                         arbitrator.value,
                         realityTemplateId.value,
                         `${questionCid}-${realityTemplateId.value}`,
-                        questionTimeout,
+                        questionTimeout.value,
                         openingTimestamp.unix(),
                         formattedMinimumBond,
                     ]
