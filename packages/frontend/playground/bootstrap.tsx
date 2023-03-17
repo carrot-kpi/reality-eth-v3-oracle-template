@@ -35,6 +35,7 @@ createRoot(document.getElementById("root")!).render(
         ]}
         getAdditionalConnectors={() => [
             new CarrotConnector({
+                chains: supportedChains,
                 options: {
                     rpcURL: CCT_RPC_URL,
                     chainId: CCT_CHAIN_ID,

@@ -16,7 +16,7 @@ import {
     SupportedChain,
     ARBITRATORS_BY_CHAIN,
     REALITY_TEMPLATE_OPTIONS,
-    MINIMUM_QUESTION_TIMEOUT,
+    TIMEOUT_OPTIONS,
 } from "../commons";
 import { OptionWithIcon, State } from "./types";
 import { ArbitratorOption } from "./components/arbitrator-option";
@@ -37,6 +37,13 @@ export const Component = ({
         !chain || !(chain.id in SupportedChain)
             ? []
             : ARBITRATORS_BY_CHAIN[chain.id as SupportedChain];
+    const timeoutOptions = TIMEOUT_OPTIONS.map((option) => {
+        return {
+            label: t(option.tKey),
+            value: option.seconds,
+        };
+    });
+
     const [arbitrator, setArbitrator] = useState<OptionWithIcon | null>(
         state.arbitrator
             ? arbitratorsByChain.find(
@@ -53,16 +60,26 @@ export const Component = ({
                 : null
         );
     const [question, setQuestion] = useState(state.question || "");
+
+    let questionTimeoutFromExternalState: SelectOption | null = null;
+    if (state.questionTimeout) {
+        const optionFromExternalState = TIMEOUT_OPTIONS.find(
+            (option) => option.seconds === state.questionTimeout
+        );
+        if (optionFromExternalState)
+            questionTimeoutFromExternalState = {
+                label: t(optionFromExternalState.tKey),
+                value: optionFromExternalState.seconds,
+            };
+    }
     const [questionTimeout, setQuestionTimeout] = useState(
-        state.questionTimeout || ""
+        questionTimeoutFromExternalState
     );
     const [openingTimestamp, setOpeningTimestamp] = useState<Dayjs | null>(
         state.openingTimestamp ? dayjs.unix(state.openingTimestamp) : null
     );
     const [minimumBond, setMinimumBond] = useState(state.minimumBond || "");
     const [questionErrorText, setQuestionErrorText] = useState("");
-    const [questionTimeoutErrorText, setQuestionTimeoutErrorText] =
-        useState("");
     const [minimumBondErrorText, setMinimumBondErrorText] = useState("");
 
     const [minimumDate, setMinimumDate] = useState(new Date());
@@ -90,7 +107,7 @@ export const Component = ({
                 ? (realityTemplateId.value as string)
                 : undefined,
             question,
-            questionTimeout,
+            questionTimeout: questionTimeout?.value as number,
             openingTimestamp: openingTimestamp?.unix(),
             minimumBond,
         };
@@ -101,7 +118,6 @@ export const Component = ({
             realityTemplateId &&
             stripHtml(question).trim() &&
             questionTimeout &&
-            parseInt(questionTimeout) >= MINIMUM_QUESTION_TIMEOUT &&
             openingTimestamp &&
             openingTimestamp.isAfter(dayjs())
         ) {
@@ -161,21 +177,6 @@ export const Component = ({
         setOpeningTimestamp(dayjs(value));
     }, []);
 
-    const handleQuestionTimeout = useCallback(
-        ({ value }: { value: string }) => {
-            const parsedValue = parseFloat(value);
-            setQuestionTimeout(value);
-            setQuestionTimeoutErrorText(
-                isNaN(parsedValue) || parsedValue < MINIMUM_QUESTION_TIMEOUT
-                    ? t("error.question.timeout.empty", {
-                          minimum: MINIMUM_QUESTION_TIMEOUT,
-                      })
-                    : ""
-            );
-        },
-        [t]
-    );
-
     const handleMinimumBondChange = useCallback(
         ({ value }: { value: string }) => {
             setMinimumBond(value);
@@ -219,7 +220,7 @@ export const Component = ({
             </div>
             <div className="md:flex md:gap-2">
                 <div className="md:w-1/2">
-                    <NumberInput
+                    <Select
                         id="question-timeout"
                         className={{
                             root: "w-full",
@@ -228,10 +229,9 @@ export const Component = ({
                         }}
                         label={t("label.question.timeout")}
                         placeholder={t("placeholder.number")}
-                        onValueChange={handleQuestionTimeout}
+                        options={timeoutOptions}
+                        onChange={setQuestionTimeout}
                         value={questionTimeout}
-                        error={!!questionTimeoutErrorText}
-                        errorText={questionTimeoutErrorText}
                     />
                 </div>
                 <div className="md:w-1/2">

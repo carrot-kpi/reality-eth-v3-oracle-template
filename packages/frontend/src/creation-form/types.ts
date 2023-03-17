@@ -5,7 +5,7 @@ export interface State {
     arbitrator: string;
     realityTemplateId: string;
     question: string;
-    questionTimeout: string;
+    questionTimeout: number;
     openingTimestamp: number;
     minimumBond: string;
 }

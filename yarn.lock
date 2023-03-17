@@ -1068,10 +1068,10 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@carrot-kpi/frontend@^1.0.0-rc.48":
-  version "1.0.0-rc.48"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/frontend/-/frontend-1.0.0-rc.48.tgz#a111518b9dc8bf9d3f58560ed88a5406beaba91d"
-  integrity sha512-D7nuru3wCJNulVEDB684diTKtTyKr6F+Mi7DhASyWs9IIQh5rggKa3Xv1asHy8OuCxE42I1tXFe3WYzQJCs1ig==
+"@carrot-kpi/frontend@^1.0.0-rc.49":
+  version "1.0.0-rc.49"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/frontend/-/frontend-1.0.0-rc.49.tgz#3cbaa49212369d91de20dfc5d421c289c11dba54"
+  integrity sha512-g+1jY7r5St9g2X96njwPDiwVNILKzSbmqmOfpn7+RethnqZbwYX4iTrcrwz5FgDQuQd3r98f6yhnrT2Ne04wmA==
   dependencies:
     "@carrot-kpi/react" "*"
     "@carrot-kpi/sdk" "*"
@@ -1103,7 +1103,7 @@
     bufferutil "4.0.5"
     utf-8-validate "5.0.7"
 
-"@carrot-kpi/react@*", "@carrot-kpi/react@^0.32.2":
+"@carrot-kpi/react@*":
   version "0.32.2"
   resolved "https://registry.yarnpkg.com/@carrot-kpi/react/-/react-0.32.2.tgz#56099bbde4e1bde85021a4f457c3b7fda18f8a3f"
   integrity sha512-qgLtVgVRg+e6grRw6Y+IKi7GERUd0dxXvTZ8eqXJ/8cT3UklShhi8cBi1rwqzrtO0KDByc2rQ8W2EBqfT4nT4Q==
@@ -1116,10 +1116,10 @@
     class-variance-authority "^0.4.0"
     react-use "^17.4.0"
 
-"@carrot-kpi/react@^0.32.3":
-  version "0.32.3"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/react/-/react-0.32.3.tgz#dc8831fd5503f16a20d298dee9fa1bef66db8549"
-  integrity sha512-WgqZuNZ/uFtu1RnNAIkpibyC2OQfI3dXxB+4sMgmmjbue9T71SlN1RhRdxZJGn3OwtBk5TnsBc5dQxdTOCrL3A==
+"@carrot-kpi/react@^0.33.0":
+  version "0.33.0"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/react/-/react-0.33.0.tgz#b115add37370027b45502c16ada4bf8838b9c44a"
+  integrity sha512-5zEJ4lYGE93Wi3owfeUP8HkKPMJQStLeANpdsH6gI3rKPYH9t2aCsr8x/ynf2oUf2y0Fi1Ad3/H9Iw340IcOeA==
   dependencies:
     "@carrot-kpi/sdk" "*"
     "@ethersproject/bignumber" "^5.7.0"
@@ -1147,6 +1147,20 @@
   version "1.18.3"
   resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.18.3.tgz#2318deca2f14423d119c972532d8cc226e2adc62"
   integrity sha512-B8NqrdE7WfNX2yhj4S8hnolUWgmtpw9/XUBAP1pRUBnAoG9YpuOmDkG2Zv8XQ6It+jKBAkCUmbHPMyocfMW8+Q==
+  dependencies:
+    "@ethersproject/address" "^5.7.0"
+    "@ethersproject/bignumber" "^5.7.0"
+    "@ethersproject/contracts" "^5.7.0"
+    "@ethersproject/providers" "^5.7.2"
+    "@ethersproject/units" "^5.7.0"
+    "@ethersproject/wallet" "^5.7.0"
+    decimal.js-light "^2.5.1"
+    multiformats "^9.9.0"
+
+"@carrot-kpi/sdk@^1.19.0":
+  version "1.19.0"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.19.0.tgz#f184cbb9490e923605571997811d6d1e3ddead07"
+  integrity sha512-ElJcrqTVramQBp+o36HvQ4+PkSzbwBSbLKYl24KTLPd087JrZJ+BDWUUyWW/qgoYL/iWVOiAgrUe3XM6xPH8Cg==
   dependencies:
     "@ethersproject/address" "^5.7.0"
     "@ethersproject/bignumber" "^5.7.0"
@@ -1189,13 +1203,15 @@
     react-virtualized-auto-sizer "^1.0.7"
     react-window "^1.8.8"
 
-"@carrot-kpi/ui@^0.32.2":
-  version "0.32.2"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/ui/-/ui-0.32.2.tgz#b3b2b210a4d86e8d39fb3cd929814337ac099d48"
-  integrity sha512-vyRJttbZBBX4S1+psuCJrkeWJvbBV4XCnWvcBwpJ9cpvo9o/Kigj8OaRRSfE9YwvnvYWMiXB58lkAkSl2Hh9ww==
+"@carrot-kpi/ui@^0.33.0":
+  version "0.33.0"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/ui/-/ui-0.33.0.tgz#cdf4fb2f048954b119f070846143418145253a4d"
+  integrity sha512-e4qxfeXx9HJ4q/cXV5YJvG3Oy/d+JJLCdS9n+I69Aeq4mMHGPBd0jtSUy9HYHKEMpDb9ldpgoo0BB+ngtGKc2Q==
   dependencies:
     "@carrot-kpi/sdk" "*"
+    "@ethersproject/address" "^5.7.0"
     "@ethersproject/bignumber" "^5.7.0"
+    "@ethersproject/units" "^5.7.0"
     "@popperjs/core" "^2.11.6"
     "@tailwindcss/line-clamp" "^0.4.2"
     "@tiptap/extension-placeholder" "2.0.0-beta.215"
@@ -1206,6 +1222,7 @@
     "@uniswap/token-lists" "1.0.0-beta.31"
     class-variance-authority "^0.4.0"
     dayjs "^1.11.7"
+    decimal.js-light "^2.5.1"
     rc-switch "^4.0.0"
     react-number-format "^5.1.2"
     react-popper "^2.3.0"

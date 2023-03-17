@@ -26,6 +26,71 @@ export const ARBITRATORS_BY_CHAIN: Record<SupportedChain, OptionWithIcon[]> = {
     ],
 };
 
+interface TimeoutOption {
+    tKey: string;
+    seconds: number;
+}
+
+export const TIMEOUT_OPTIONS: TimeoutOption[] = [];
+if (__DEV__) {
+    TIMEOUT_OPTIONS.push(
+        {
+            tKey: "option.question.timeout.1",
+            seconds: 30,
+        },
+        {
+            tKey: "option.question.timeout.2",
+            seconds: 180,
+        },
+        {
+            tKey: "option.question.timeout.3",
+            seconds: 900,
+        }
+    );
+}
+TIMEOUT_OPTIONS.push(
+    {
+        tKey: "option.question.timeout.4",
+        seconds: 3_600,
+    },
+    {
+        tKey: "option.question.timeout.5",
+        seconds: 10_800,
+    },
+    {
+        tKey: "option.question.timeout.6",
+        seconds: 43_200,
+    },
+    {
+        tKey: "option.question.timeout.7",
+        seconds: 86_400,
+    },
+    {
+        tKey: "option.question.timeout.8",
+        seconds: 172_800,
+    },
+    {
+        tKey: "option.question.timeout.9",
+        seconds: 259_200,
+    },
+    {
+        tKey: "option.question.timeout.10",
+        seconds: 345_600,
+    },
+    {
+        tKey: "option.question.timeout.11",
+        seconds: 432_000,
+    },
+    {
+        tKey: "option.question.timeout.12",
+        seconds: 518_400,
+    },
+    {
+        tKey: "option.question.timeout.13",
+        seconds: 604_800,
+    }
+);
+
 export enum SupportedRealityTemplates {
     BOOL = "0",
     UINT = "1",
@@ -45,8 +110,6 @@ export const REALITY_TEMPLATE_OPTIONS: SelectOption[] = [
         value: SupportedRealityTemplates.UINT,
     },
 ];
-
-export const MINIMUM_QUESTION_TIMEOUT = 120;
 
 export const INVALID_REALITY_ANSWER =
     "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
