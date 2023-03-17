@@ -5,7 +5,6 @@ import { ReactElement, useEffect, useState } from "react";
 import { NamespacedTranslateFunction, useWatchData } from "@carrot-kpi/react";
 import { useWatchRealityQuestion } from "../hooks/useWatchRealityQuestion";
 import { Loader } from "@carrot-kpi/ui";
-import { PendingArbitration } from "./components/pending-arbitration";
 import { AnswerForm } from "./components/answer-form";
 import { decodeOracleData } from "../utils/data-decoding";
 
@@ -50,17 +49,13 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
 
     return (
         <div className="flex flex-col gap-3 px-6 py-12">
-            {realityQuestion.pendingArbitration ? (
-                <PendingArbitration t={t} question={realityQuestion} />
-            ) : (
-                <AnswerForm
-                    t={t}
-                    realityAddress={realityV3Address}
-                    oracle={oracle}
-                    loadingQuestion={loadingRealityQuestion}
-                    question={realityQuestion}
-                />
-            )}
+            <AnswerForm
+                t={t}
+                realityAddress={realityV3Address}
+                oracle={oracle}
+                loadingQuestion={loadingRealityQuestion}
+                question={realityQuestion}
+            />
         </div>
     );
 };
