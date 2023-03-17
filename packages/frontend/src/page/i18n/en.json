@@ -18,6 +18,7 @@
     "label.question.form.tooSoon": "Answered too soon",
     "label.question.form.confirm": "Confirm my answer",
     "label.question.form.reopen": "Reopen",
+    "label.question.form.finalize": "Finalize oracle",
     "label.answer.current": "Current answer",
     "label.answer.form.missing": "No answer submitted yet",
     "label.answer.form.yes": "Yes",
