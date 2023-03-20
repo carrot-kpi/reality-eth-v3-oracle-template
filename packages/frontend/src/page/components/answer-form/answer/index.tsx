@@ -14,6 +14,7 @@ import {
     isQuestionFinalized,
     isAnswerPurelyNumerical,
     isAnswerMissing,
+    isAnswerPendingArbitration,
 } from "../../../../utils";
 import { RealityQuestion } from "../../../types";
 import { AnswerInfo } from "../../answer-info";
@@ -38,10 +39,28 @@ export const Answer = ({
     const purelyNumerical = isAnswerPurelyNumerical(question);
     const invalid = isAnswerInvalid(question);
     const answeredTooSoon = isAnsweredTooSoon(question);
+    const pendingArbitration = isAnswerPendingArbitration(question);
 
     return (
         <div className="flex flex-col justify-between gap-3">
-            {finalized ? (
+            {pendingArbitration && (
+                <div>
+                    <Typography
+                        variant="h5"
+                        weight="bold"
+                        className={{ root: "mb-4" }}
+                    >
+                        {t("label.answer.pendingArbitration")}
+                    </Typography>
+                    <Typography>
+                        {t("label.answer.pendingArbitration.description.1")}
+                    </Typography>
+                    <Typography>
+                        {t("label.answer.pendingArbitration.description.2")}
+                    </Typography>
+                </div>
+            )}
+            {!pendingArbitration && finalized && (
                 <>
                     <Typography
                         variant="h5"
@@ -100,7 +119,8 @@ export const Answer = ({
                         </div>
                     )}
                 </>
-            ) : (
+            )}
+            {!pendingArbitration && !finalized && (
                 <div className="flex flex-col md:flex-row gap-6 md:gap-12">
                     <AnswerInfo label={t("label.answer.current")}>
                         {loadingQuestion ? (

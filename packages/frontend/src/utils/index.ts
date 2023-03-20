@@ -24,6 +24,10 @@ export const shortenAddress = (address?: string) => {
         : undefined;
 };
 
+export const isAnswerPendingArbitration = (question: RealityQuestion) => {
+    return question.pendingArbitration;
+};
+
 export const isQuestionFinalized = (question: RealityQuestion) => {
     return (
         question.finalizationTimestamp !== 0 &&

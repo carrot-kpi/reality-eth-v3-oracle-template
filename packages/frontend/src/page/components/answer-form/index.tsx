@@ -16,17 +16,25 @@ import {
     useEffect,
     useState,
 } from "react";
-import { usePrepareContractWrite, useContractWrite, useNetwork } from "wagmi";
+import {
+    usePrepareContractWrite,
+    useContractWrite,
+    useNetwork,
+    useContractRead,
+} from "wagmi";
 import {
     ANSWERED_TOO_SOON_REALITY_ANSWER,
     BooleanAnswer,
     INVALID_REALITY_ANSWER,
     SupportedRealityTemplates,
+    TRUSTED_REALITY_ARBITRATORS,
 } from "../../../commons";
 import {
     formatCountDownString,
     formatRealityEthQuestionLink,
     isAnsweredTooSoon,
+    isAnswerMissing,
+    isAnswerPendingArbitration,
     isQuestionFinalized,
     numberToByte32,
     shortenAddress,
@@ -34,14 +42,15 @@ import {
 import { NumberFormatValue, RealityQuestion } from "../../types";
 import { Answer } from "./answer";
 import REALITY_ETH_V3_ABI from "../../../abis/reality-eth-v3.json";
-import RALITY_ORACLE_V3_ABI from "../../../abis/reality-oracle-v3.json";
+import REALITY_ORACLE_V3_ABI from "../../../abis/reality-oracle-v3.json";
+import TRUSTED_REALITY_ARBITRATOR_V3_ABI from "../../../abis/trusted-reality-arbitrator-v3.json";
 import { BondInput } from "./bond-input";
 import dayjs from "dayjs";
 import { infoPopoverStyles, inputStyles } from "./common/styles";
 import { QuestionInfo } from "../question-info";
 import { ReactComponent as ExternalSvg } from "../../../assets/external.svg";
 import { OpeningCountdown } from "../opening-countdown";
-import { Oracle } from "@carrot-kpi/sdk";
+import { ChainId, Oracle } from "@carrot-kpi/sdk";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -69,6 +78,7 @@ export const AnswerForm = ({
     const [answer, setAnswer] = useState("");
     const [submitting, setSubmitting] = useState(false);
     const [finalizingOracle, setFinalizingOracle] = useState(false);
+    const [requestingArbitration, setRequestingArbitration] = useState(false);
     const [moreOptionValue, setMoreOptionValue] = useState({
         invalid: false,
         anweredTooSoon: false,
@@ -83,6 +93,17 @@ export const AnswerForm = ({
         : question.bond.mul(2);
 
     const { chain } = useNetwork();
+
+    const { data: disputeFee } = useContractRead({
+        address:
+            !!chain && chain.id
+                ? TRUSTED_REALITY_ARBITRATORS[chain.id as ChainId]
+                : "",
+        abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
+        functionName: "getDisputeFee",
+        enabled: !!chain && !!chain.id,
+    });
+
     const { config: submitAnswerConfig } = usePrepareContractWrite({
         address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
@@ -119,12 +140,34 @@ export const AnswerForm = ({
     const { config: finalizeOracleConfig } = usePrepareContractWrite({
         address: oracle.address,
         // TODO: use the ABI exported from the SDK
-        abi: RALITY_ORACLE_V3_ABI,
+        abi: REALITY_ORACLE_V3_ABI,
         functionName: "finalize",
         enabled: finalized && !oracle.finalized,
     });
     const { writeAsync: finalizeOracleAsync } =
         useContractWrite(finalizeOracleConfig);
+
+    const { config: requestArbitrationConfig } = usePrepareContractWrite({
+        address:
+            !!chain && chain.id
+                ? TRUSTED_REALITY_ARBITRATORS[chain.id as ChainId]
+                : "",
+        abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
+        functionName: "requestArbitration",
+        args: [question.id, BigNumber.from(0)],
+        overrides: {
+            value: disputeFee ? BigNumber.from(disputeFee) : undefined,
+        },
+        enabled:
+            !!chain &&
+            !!chain.id &&
+            !finalized &&
+            !!disputeFee &&
+            !isAnswerMissing(question),
+    });
+    const { writeAsync: requestArbitrationAsync } = useContractWrite(
+        requestArbitrationConfig
+    );
 
     useEffect(() => {
         setSubmitAnswerDisabled(
@@ -268,10 +311,33 @@ export const AnswerForm = ({
         };
     }, [finalizeOracleAsync]);
 
-    if (question.pendingArbitration) return <></>;
+    const handleRequestArbitrationSubmit = useCallback(() => {
+        if (!requestArbitrationAsync) return;
+        let cancelled = false;
+        const submitRequestArbitration = async () => {
+            if (!cancelled) setRequestingArbitration(true);
+            try {
+                const tx = await requestArbitrationAsync();
+                await tx.wait();
+                if (cancelled) return;
+            } catch (error) {
+                console.error("error requesting arbitration", error);
+            } finally {
+                if (!cancelled) setRequestingArbitration(false);
+            }
+        };
+        void submitRequestArbitration();
+        return () => {
+            cancelled = true;
+        };
+    }, [requestArbitrationAsync]);
 
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
+    const requestArbitrationDisabled =
+        finalized ||
+        isAnswerMissing(question) ||
+        isAnswerPendingArbitration(question);
 
     return (
         <div className="flex flex-col">
@@ -323,7 +389,7 @@ export const AnswerForm = ({
                     loadingQuestion={loadingQuestion}
                 />
             </div>
-            {!finalized && (
+            {!isAnswerPendingArbitration(question) && !finalized && (
                 <Typography
                     variant="h5"
                     weight="bold"
@@ -332,7 +398,7 @@ export const AnswerForm = ({
                     {t("label.question.subtitle")}
                 </Typography>
             )}
-            {open && !finalized && (
+            {open && !isAnswerPendingArbitration(question) && !finalized && (
                 <div className="flex flex-col gap-6 mt-6">
                     {question.templateId === SupportedRealityTemplates.BOOL && (
                         <RadioGroup
@@ -448,7 +514,7 @@ export const AnswerForm = ({
                                 onChange={handleInvalidChange}
                                 className={{
                                     infoPopover: infoPopoverStyles(),
-                                    root: inputStyles({
+                                    inputWrapper: inputStyles({
                                         disabled:
                                             finalized ||
                                             moreOptionValue.anweredTooSoon,
@@ -468,7 +534,7 @@ export const AnswerForm = ({
                                 onChange={handleAnsweredTooSoonChange}
                                 className={{
                                     infoPopover: infoPopoverStyles(),
-                                    root: inputStyles({
+                                    inputWrapper: inputStyles({
                                         disabled:
                                             finalized ||
                                             moreOptionValue.invalid,
@@ -503,38 +569,53 @@ export const AnswerForm = ({
                     />
                 </div>
             )}
-            {!finalized && (
-                <Button
-                    onClick={handleSubmit}
-                    disabled={submitAnswerDisabled}
-                    loading={submitting || loadingQuestion}
-                    size="small"
-                    className={{ root: "mt-5" }}
-                >
-                    {t("label.question.form.confirm")}
-                </Button>
-            )}
-            {finalized && isAnsweredTooSoon(question) && (
-                <Button
-                    onClick={handleReopenSubmit}
-                    disabled={!reopenAnswerAsync}
-                    loading={submitting || loadingQuestion}
-                    size="small"
-                    className={{ root: "mt-5" }}
-                >
-                    {t("label.question.form.reopen")}
-                </Button>
-            )}
-            {finalized && !isAnsweredTooSoon(question) && (
-                <Button
-                    onClick={handleFinalizeOracleSubmit}
-                    disabled={!finalizeOracleAsync || oracle.finalized}
-                    loading={finalizingOracle || loadingQuestion}
-                    size="small"
-                    className={{ root: "mt-5" }}
-                >
-                    {t("label.question.form.finalize")}
-                </Button>
+            {!isAnswerPendingArbitration(question) && (
+                <>
+                    {!finalized && (
+                        <div className="flex flex-col md:flex-row gap-5 mt-5">
+                            <Button
+                                onClick={handleSubmit}
+                                disabled={submitAnswerDisabled}
+                                loading={submitting || loadingQuestion}
+                                size="small"
+                            >
+                                {t("label.question.form.confirm")}
+                            </Button>
+                            <Button
+                                onClick={handleRequestArbitrationSubmit}
+                                disabled={requestArbitrationDisabled}
+                                loading={
+                                    requestingArbitration || loadingQuestion
+                                }
+                                size="small"
+                            >
+                                {t("label.question.form.requestArbitration")}
+                            </Button>
+                        </div>
+                    )}
+                    {finalized && isAnsweredTooSoon(question) && (
+                        <Button
+                            onClick={handleReopenSubmit}
+                            disabled={!reopenAnswerAsync}
+                            loading={submitting || loadingQuestion}
+                            size="small"
+                            className={{ root: "mt-5" }}
+                        >
+                            {t("label.question.form.reopen")}
+                        </Button>
+                    )}
+                    {finalized && !isAnsweredTooSoon(question) && (
+                        <Button
+                            onClick={handleFinalizeOracleSubmit}
+                            disabled={!finalizeOracleAsync || oracle.finalized}
+                            loading={finalizingOracle || loadingQuestion}
+                            size="small"
+                            className={{ root: "mt-5" }}
+                        >
+                            {t("label.question.form.finalize")}
+                        </Button>
+                    )}
+                </>
             )}
         </div>
     );

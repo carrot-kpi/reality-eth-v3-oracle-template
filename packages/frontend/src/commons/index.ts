@@ -9,17 +9,22 @@ export const SupportedChain = {
     [ChainId.GNOSIS]: ChainId.GNOSIS,
 } as const;
 
+export const TRUSTED_REALITY_ARBITRATORS: Record<ChainId, string> = {
+    [ChainId.GNOSIS]: "0xe37AA274d1bb3815b63cd13064dE443423F74316",
+    [ChainId.SEPOLIA]: "0x96073897873796d1950B1B04Fe2Ead8E0CA34914",
+};
+
 export const ARBITRATORS_BY_CHAIN: Record<SupportedChain, OptionWithIcon[]> = {
     [ChainId.SEPOLIA]: [
         {
-            value: "0x0000000000000000000000000000000000000001",
+            value: TRUSTED_REALITY_ARBITRATORS[ChainId.SEPOLIA],
             label: "Carrot guild",
             icon: CarrotIcon,
         },
     ],
     [ChainId.GNOSIS]: [
         {
-            value: "0xe37AA274d1bb3815b63cd13064dE443423F74316",
+            value: TRUSTED_REALITY_ARBITRATORS[ChainId.GNOSIS],
             label: "Carrot guild",
             icon: CarrotIcon,
         },
