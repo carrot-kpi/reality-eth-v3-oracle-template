@@ -1103,7 +1103,7 @@
     bufferutil "4.0.5"
     utf-8-validate "5.0.7"
 
-"@carrot-kpi/react@*", "@carrot-kpi/react@^0.32.2":
+"@carrot-kpi/react@*":
   version "0.32.2"
   resolved "https://registry.yarnpkg.com/@carrot-kpi/react/-/react-0.32.2.tgz#56099bbde4e1bde85021a4f457c3b7fda18f8a3f"
   integrity sha512-qgLtVgVRg+e6grRw6Y+IKi7GERUd0dxXvTZ8eqXJ/8cT3UklShhi8cBi1rwqzrtO0KDByc2rQ8W2EBqfT4nT4Q==
