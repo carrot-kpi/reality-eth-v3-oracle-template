@@ -17,14 +17,14 @@ export const TRUSTED_REALITY_ARBITRATORS: Record<ChainId, string> = {
 export const ARBITRATORS_BY_CHAIN: Record<SupportedChain, OptionWithIcon[]> = {
     [ChainId.SEPOLIA]: [
         {
-            value: TRUSTED_REALITY_ARBITRATORS[ChainId.SEPOLIA],
+            value: __DEV__ ? CCT_TRUSTED_ARBITRATOR_ADDRESS : TRUSTED_REALITY_ARBITRATORS[ChainId.SEPOLIA],
             label: "Carrot guild",
             icon: CarrotIcon,
         },
     ],
     [ChainId.GNOSIS]: [
         {
-            value: TRUSTED_REALITY_ARBITRATORS[ChainId.GNOSIS],
+            value: __DEV__ ? CCT_TRUSTED_ARBITRATOR_ADDRESS : TRUSTED_REALITY_ARBITRATORS[ChainId.GNOSIS],
             label: "Carrot guild",
             icon: CarrotIcon,
         },

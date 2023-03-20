@@ -41,6 +41,19 @@ export const setupFork = async (
     const templateContract = await templateFactory.deploy();
     await templateContract.deployed();
 
+    // deploy arbitrator
+    const {
+        abi: arbitratorAbi,
+        bytecode: arbitratorBytecode,
+    } = require(`../out/TrustedRealityV3Arbitrator${chainId}.sol/TrustedRealityV3Arbitrator.json`);
+    const arbitratorFactory = new ContractFactory(
+        arbitratorAbi,
+        arbitratorBytecode,
+        signer
+    );
+    const arbitratorContract = await arbitratorFactory.deploy("{}", 0);
+    await arbitratorContract.deployed();
+
     // deploy test erc20 tokens
     const {
         abi: erc20Abi,
@@ -75,6 +88,10 @@ export const setupFork = async (
         templateContract,
         customContracts: [
             {
+                name: "Trusted arbitrator",
+                address: arbitratorContract.address,
+            },
+            {
                 name: "ERC20 1",
                 address: testToken1Contract.address,
             },
@@ -86,6 +103,7 @@ export const setupFork = async (
         frontendGlobals: {
             CCT_ERC20_1_ADDRESS: testToken1Contract.address,
             CCT_ERC20_2_ADDRESS: testToken2Contract.address,
+            CCT_TRUSTED_ARBITRATOR_ADDRESS: arbitratorContract.address,
         },
     };
 };
