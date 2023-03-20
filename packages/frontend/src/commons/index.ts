@@ -10,21 +10,25 @@ export const SupportedChain = {
 } as const;
 
 export const TRUSTED_REALITY_ARBITRATORS: Record<ChainId, string> = {
-    [ChainId.GNOSIS]: "0xe37AA274d1bb3815b63cd13064dE443423F74316",
-    [ChainId.SEPOLIA]: "0x96073897873796d1950B1B04Fe2Ead8E0CA34914",
+    [ChainId.GNOSIS]: __DEV__
+        ? CCT_TRUSTED_ARBITRATOR_ADDRESS
+        : "0xe37AA274d1bb3815b63cd13064dE443423F74316",
+    [ChainId.SEPOLIA]: __DEV__
+        ? CCT_TRUSTED_ARBITRATOR_ADDRESS
+        : "0x96073897873796d1950B1B04Fe2Ead8E0CA34914",
 };
 
 export const ARBITRATORS_BY_CHAIN: Record<SupportedChain, OptionWithIcon[]> = {
     [ChainId.SEPOLIA]: [
         {
-            value: __DEV__ ? CCT_TRUSTED_ARBITRATOR_ADDRESS : TRUSTED_REALITY_ARBITRATORS[ChainId.SEPOLIA],
+            value: TRUSTED_REALITY_ARBITRATORS[ChainId.SEPOLIA],
             label: "Carrot guild",
             icon: CarrotIcon,
         },
     ],
     [ChainId.GNOSIS]: [
         {
-            value: __DEV__ ? CCT_TRUSTED_ARBITRATOR_ADDRESS : TRUSTED_REALITY_ARBITRATORS[ChainId.GNOSIS],
+            value: TRUSTED_REALITY_ARBITRATORS[ChainId.GNOSIS],
             label: "Carrot guild",
             icon: CarrotIcon,
         },
