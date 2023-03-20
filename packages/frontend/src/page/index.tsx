@@ -1,20 +1,18 @@
 import "../global.css";
 
-import { Oracle } from "@carrot-kpi/sdk";
 import { ReactElement, useEffect, useState } from "react";
-import { NamespacedTranslateFunction, useWatchData } from "@carrot-kpi/react";
+import { OraclePageProps, useWatchData } from "@carrot-kpi/react";
 import { useWatchRealityQuestion } from "../hooks/useWatchRealityQuestion";
 import { Loader } from "@carrot-kpi/ui";
 import { AnswerForm } from "./components/answer-form";
 import { decodeOracleData } from "../utils/data-decoding";
 
-interface PageProps {
-    t: NamespacedTranslateFunction;
-    oracle: Oracle;
-}
-
-export const Component = ({ t, oracle }: PageProps): ReactElement => {
-    const { loading: loadingData, data } = useWatchData(oracle.address);
+export const Component = ({
+    t,
+    oracle,
+    onTx,
+}: OraclePageProps): ReactElement => {
+    const { loading: loadingData, data } = useWatchData(oracle?.address);
 
     const [realityV3Address, setRealityV3Address] = useState("");
     const [questionId, setQuestionId] = useState("");
@@ -32,7 +30,7 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
     const { loading: loadingRealityQuestion, question: realityQuestion } =
         useWatchRealityQuestion(realityV3Address, questionId, question);
 
-    if (loadingData || !realityQuestion) {
+    if (!oracle || loadingData || !realityQuestion) {
         return (
             <div className="flex justify-center content-center px-3 py-6">
                 <Loader />
@@ -55,6 +53,7 @@ export const Component = ({ t, oracle }: PageProps): ReactElement => {
                 oracle={oracle}
                 loadingQuestion={loadingRealityQuestion}
                 question={realityQuestion}
+                onTx={onTx}
             />
         </div>
     );
