@@ -41,5 +41,9 @@
     "bond.info.2": "Posting a bond stakes a claim to the answer you are giving; if someone else later reposts the same answer, you will get your bond back, and also be paid, as a minimum, an amount equal to the bond you have posted.",
     "bond.info.3": "Correcting an answer will entitle you to the bond of the previous user. However, you must submit your own bond, and it must be at least twice as high as the bond submitted by the previous answerer. If you are resubmitting an answer that someone has already given, part of that payment will be deducted and paid to them.",
     "tooSoon.info": "Select this answer if it was too soon to answer the question at the time the first answer was given, for instance because the question was about an event that had not happened yet.",
-    "invalid.info": "Select this answer if the question cannot be answered."
+    "invalid.info": "Select this answer if the question cannot be answered.",
+    "label.transaction.answerSubmitted": "Answered with {{bond}} {{symbol}} bonded",
+    "label.transaction.reopenSubmitted": "Reopened question",
+    "label.transaction.oracleFinalized": "Finalized oracle",
+    "label.transaction.arbitrationRequested": "Arbitration requested"
 }

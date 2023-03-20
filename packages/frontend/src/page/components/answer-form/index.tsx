@@ -1,4 +1,8 @@
-import { NamespacedTranslateFunction } from "@carrot-kpi/react";
+import {
+    NamespacedTranslateFunction,
+    OraclePageProps,
+    TxType,
+} from "@carrot-kpi/react";
 import {
     Button,
     Checkbox,
@@ -51,6 +55,7 @@ import { QuestionInfo } from "../question-info";
 import { ReactComponent as ExternalSvg } from "../../../assets/external.svg";
 import { OpeningCountdown } from "../opening-countdown";
 import { ChainId, Oracle } from "@carrot-kpi/sdk";
+import { unixTimestamp } from "../../../utils/dates";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -58,6 +63,7 @@ interface AnswerFormProps {
     oracle: Oracle;
     question: RealityQuestion;
     loadingQuestion: boolean;
+    onTx: OraclePageProps["onTx"];
 }
 
 export const AnswerForm = ({
@@ -66,6 +72,7 @@ export const AnswerForm = ({
     oracle,
     question,
     loadingQuestion,
+    onTx,
 }: AnswerFormProps): ReactElement => {
     const [open, setOpen] = useState(false);
     const [booleanValue, setBooleanValue] = useState<BooleanAnswer | null>(
@@ -255,7 +262,23 @@ export const AnswerForm = ({
             if (!cancelled) setSubmitting(true);
             try {
                 const tx = await postAnswerAsync();
-                await tx.wait();
+                const receipt = await tx.wait();
+
+                onTx({
+                    type: TxType.CUSTOM,
+                    from: receipt.from,
+                    hash: tx.hash,
+                    payload: {
+                        summary: t("label.transaction.answerSubmitted", {
+                            bond: utils.commify(
+                                utils.formatUnits(BigNumber.from(bond), 18)
+                            ),
+                            symbol: chain?.nativeCurrency.symbol,
+                        }),
+                    },
+                    receipt,
+                    timestamp: unixTimestamp(new Date()),
+                });
             } catch (error) {
                 console.error("error submitting answer to reality v3", error);
             } finally {
@@ -266,7 +289,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [postAnswerAsync]);
+    }, [postAnswerAsync, onTx, t, bond, chain?.nativeCurrency.symbol]);
 
     const handleReopenSubmit = useCallback(() => {
         if (!reopenAnswerAsync) return;
@@ -275,7 +298,18 @@ export const AnswerForm = ({
             if (!cancelled) setSubmitting(true);
             try {
                 const tx = await reopenAnswerAsync();
-                await tx.wait();
+                const receipt = await tx.wait();
+
+                onTx({
+                    type: TxType.CUSTOM,
+                    from: receipt.from,
+                    hash: tx.hash,
+                    payload: {
+                        summary: t("label.transaction.reopenSubmitted"),
+                    },
+                    receipt,
+                    timestamp: unixTimestamp(new Date()),
+                });
             } catch (error) {
                 console.error(
                     "error submitting answer reopening to reality v3",
@@ -289,7 +323,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [reopenAnswerAsync]);
+    }, [reopenAnswerAsync, onTx, t]);
 
     const handleFinalizeOracleSubmit = useCallback(() => {
         if (!finalizeOracleAsync) return;
@@ -298,7 +332,18 @@ export const AnswerForm = ({
             if (!cancelled) setFinalizingOracle(true);
             try {
                 const tx = await finalizeOracleAsync();
-                await tx.wait();
+                const receipt = await tx.wait();
+
+                onTx({
+                    type: TxType.CUSTOM,
+                    from: receipt.from,
+                    hash: tx.hash,
+                    payload: {
+                        summary: t("label.transaction.oracleFinalized"),
+                    },
+                    receipt,
+                    timestamp: unixTimestamp(new Date()),
+                });
             } catch (error) {
                 console.error("error finalizing oracle", error);
             } finally {
@@ -309,7 +354,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [finalizeOracleAsync]);
+    }, [finalizeOracleAsync, onTx, t]);
 
     const handleRequestArbitrationSubmit = useCallback(() => {
         if (!requestArbitrationAsync) return;
@@ -318,7 +363,18 @@ export const AnswerForm = ({
             if (!cancelled) setRequestingArbitration(true);
             try {
                 const tx = await requestArbitrationAsync();
-                await tx.wait();
+                const receipt = await tx.wait();
+
+                onTx({
+                    type: TxType.CUSTOM,
+                    from: receipt.from,
+                    hash: tx.hash,
+                    payload: {
+                        summary: t("label.transaction.arbitrationRequested"),
+                    },
+                    receipt,
+                    timestamp: unixTimestamp(new Date()),
+                });
                 if (cancelled) return;
             } catch (error) {
                 console.error("error requesting arbitration", error);
@@ -330,12 +386,13 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [requestArbitrationAsync]);
+    }, [requestArbitrationAsync, onTx, t]);
 
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
     const requestArbitrationDisabled =
         finalized ||
+        !requestArbitrationAsync ||
         isAnswerMissing(question) ||
         isAnswerPendingArbitration(question);
 
