@@ -1,9 +1,10 @@
 {
-    "5": {},
     "11155111": {
+		"template": "0xc8000f0CC97e5661DCC096a2dE5aCf5f55F04f29",
         "arbitrator": "0x96073897873796d1950B1B04Fe2Ead8E0CA34914"
     },
     "100": {
+		"template": "0x2A447682071e7B53c19e68Aab15986ddADE9b984",
         "arbitrator": "0xe37AA274d1bb3815b63cd13064dE443423F74316"
     }
 }
