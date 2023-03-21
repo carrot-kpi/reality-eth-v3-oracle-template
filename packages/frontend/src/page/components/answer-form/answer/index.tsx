@@ -124,7 +124,7 @@ export const Answer = ({
                 <div className="flex flex-col md:flex-row gap-6 md:gap-12">
                     <AnswerInfo label={t("label.answer.current")}>
                         {loadingQuestion ? (
-                            <Skeleton width="150px" variant="2xl" />
+                            <Skeleton width="220px" variant="2xl" />
                         ) : (
                             <>
                                 {isAnswerMissing(question) && (

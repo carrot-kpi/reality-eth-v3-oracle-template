@@ -11,7 +11,7 @@ export const AnswerInfo = ({
     children,
 }: AnswerInfoProps): ReactElement => {
     return (
-        <div className="flex flex-col gap-3 border-l min-w-[180px] border-black dark:border-white pl-4">
+        <div className="flex flex-col gap-3 border-l min-w-[240px] border-black dark:border-white pl-4">
             <Typography variant="lg" uppercase>
                 {label}
             </Typography>
