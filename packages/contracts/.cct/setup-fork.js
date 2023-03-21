@@ -24,9 +24,9 @@ export const setupFork = async (
     const chainId = await signer.getChainId();
     execSync(
         `node ./packages/contracts/codegen-chain-specific-contracts.js ${chainId}`,
-        { stdio: "inherit" }
+        { stdio: "ignore" }
     );
-    execSync("yarn build:contracts", { stdio: "inherit" });
+    execSync("yarn build:contracts", { stdio: "ignore" });
 
     // deploy template
     const {
