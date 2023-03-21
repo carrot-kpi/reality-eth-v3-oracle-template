@@ -1,20 +1,15 @@
-import { useCallback } from "react";
 import { NumberFormatValue } from "../../../types";
 import { NumberInput, Typography } from "@carrot-kpi/ui";
-import {
-    NamespacedTranslateFunction,
-    useNativeCurrency,
-} from "@carrot-kpi/react";
-import { BigNumber, utils } from "ethers";
+import { NamespacedTranslateFunction } from "@carrot-kpi/react";
 import { infoPopoverStyles, inputStyles } from "../common/styles";
 
 interface BondInputProps {
     t: NamespacedTranslateFunction;
     disabled?: boolean;
-    value: BigNumber | null;
+    value: NumberFormatValue;
     placeholder?: string;
     errorText?: string;
-    onChange: (value: BigNumber) => void;
+    onChange: (value: NumberFormatValue) => void;
 }
 
 export const BondInput = ({
@@ -25,18 +20,6 @@ export const BondInput = ({
     errorText,
     onChange,
 }: BondInputProps) => {
-    const nativeCurrency = useNativeCurrency();
-
-    const handleChange = useCallback(
-        (value: NumberFormatValue) => {
-            const bond = value.value
-                ? utils.parseUnits(value.value, nativeCurrency.decimals)
-                : BigNumber.from("0");
-            onChange(bond);
-        },
-        [nativeCurrency, onChange]
-    );
-
     return (
         <NumberInput
             id="bond"
@@ -55,13 +38,11 @@ export const BondInput = ({
             placeholder={placeholder || "0.0"}
             allowNegative={false}
             min={0}
-            value={
-                value ? utils.formatUnits(value, nativeCurrency.decimals) : null
-            }
+            value={value.formattedValue}
             errorText={errorText}
             error={!!errorText}
             disabled={disabled}
-            onValueChange={handleChange}
+            onValueChange={onChange}
             className={{
                 root: "w-fit",
                 input: "w-fit",

@@ -18,6 +18,7 @@ import {
     ReactElement,
     useCallback,
     useEffect,
+    useMemo,
     useState,
 } from "react";
 import {
@@ -91,15 +92,23 @@ export const AnswerForm = ({
         anweredTooSoon: false,
     });
     const [submitAnswerDisabled, setSubmitAnswerDisabled] = useState(true);
-
-    const [bond, setBond] = useState<BigNumber | null>(null);
+    const [bond, setBond] = useState<NumberFormatValue>({
+        formattedValue: "",
+        value: "",
+    });
     const [bondErrorText, setBondErrorText] = useState("");
+
+    const { chain } = useNetwork();
 
     const minimumBond = question.bond.isZero()
         ? question.minBond
         : question.bond.mul(2);
 
-    const { chain } = useNetwork();
+    const finalBond = useMemo(() => {
+        return !!bond && !!bond.value
+            ? utils.parseUnits(bond.value, chain?.nativeCurrency.decimals)
+            : BigNumber.from("0");
+    }, [bond, chain?.nativeCurrency.decimals]);
 
     const { data: disputeFee } = useContractRead({
         address:
@@ -117,9 +126,9 @@ export const AnswerForm = ({
         functionName: "submitAnswer",
         args: [question.id, answer, BigNumber.from(0)],
         overrides: {
-            value: bond || BigNumber.from(0),
+            value: finalBond,
         },
-        enabled: !!answer && !!bond && bond.gte(minimumBond),
+        enabled: !!answer && !!finalBond && finalBond.gte(minimumBond),
     });
     const { writeAsync: postAnswerAsync } =
         useContractWrite(submitAnswerConfig);
@@ -178,9 +187,11 @@ export const AnswerForm = ({
 
     useEffect(() => {
         setSubmitAnswerDisabled(
-            !answer || (!!bond && bond.lt(minimumBond)) || !postAnswerAsync
+            !answer ||
+                (!!finalBond && finalBond.lt(minimumBond)) ||
+                !postAnswerAsync
         );
-    }, [answer, bond, minimumBond, postAnswerAsync]);
+    }, [answer, finalBond, minimumBond, postAnswerAsync]);
 
     useEffect(() => {
         if (question.openingTimestamp < dayjs().unix()) {
@@ -237,12 +248,17 @@ export const AnswerForm = ({
     }, []);
 
     const handleBondChange = useCallback(
-        (value: BigNumber | null) => {
+        (value: NumberFormatValue) => {
             setBond(value);
+
+            const parsedBond = utils.parseUnits(
+                value.value || "0",
+                chain?.nativeCurrency.decimals
+            );
             setBondErrorText(
-                !value || BigNumber.from(value).isZero()
+                !value || !value.value || parsedBond.isZero()
                     ? t("error.bond.empty")
-                    : value.lt(minimumBond)
+                    : parsedBond.lt(minimumBond)
                     ? t("error.bond.insufficient", {
                           minBond: utils.formatUnits(
                               minimumBond,
@@ -271,7 +287,7 @@ export const AnswerForm = ({
                     payload: {
                         summary: t("label.transaction.answerSubmitted", {
                             bond: utils.commify(
-                                utils.formatUnits(BigNumber.from(bond), 18)
+                                utils.formatUnits(BigNumber.from(finalBond), 18)
                             ),
                             symbol: chain?.nativeCurrency.symbol,
                         }),
@@ -289,7 +305,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [postAnswerAsync, onTx, t, bond, chain?.nativeCurrency.symbol]);
+    }, [postAnswerAsync, onTx, t, finalBond, chain?.nativeCurrency.symbol]);
 
     const handleReopenSubmit = useCallback(() => {
         if (!reopenAnswerAsync) return;
