@@ -2,144 +2,55 @@
 
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
-import { writeFile, rm } from "fs/promises";
+import { rm, writeFile } from "fs/promises";
 import { long as longCommitHash } from "git-rev-sync";
 import chalk from "chalk";
-import webpack from "webpack";
 import ora from "ora";
 import { createRequire } from "module";
-import TerserPlugin from "terser-webpack-plugin";
-import MiniCssExtractPlugin from "mini-css-extract-plugin";
+import { existsSync } from "fs";
+import { getTemplateComponentWebpackConfig } from "../.cct/utils/get-template-component-webpack-config.js";
 
-import postcssOptions from "../postcss.config.js";
-import { formatWebpackMessages } from "../.cct/utils/format-webpack-messages.js";
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const require = createRequire(import.meta.url);
 
 // TODO: support different React versions
 const main = async () => {
-    const __dirname = dirname(fileURLToPath(import.meta.url));
-    const require = createRequire(import.meta.url);
-    const shared = require("@carrot-kpi/frontend/shared-dependencies.json");
-
     const outDir = join(__dirname, "../dist");
+
     let spinner = ora();
-    spinner.start(`Removing previous ${chalk.blue("dist")} folder`);
-    await rm(outDir, { recursive: true, force: true });
+    const commitHash = longCommitHash(join(__dirname, "../"));
+
+    spinner = ora(`Removing previous ${chalk.blue("dist")} folder`);
+    const dist = join(__dirname, "../dist");
+    if (existsSync(dist)) await rm(dist, { recursive: true });
     spinner.succeed(`Previous ${chalk.blue("dist")} folder removed`);
 
     spinner = ora();
     spinner.start(`Building ${chalk.blue("federated modules")}`);
-    const commitHash = longCommitHash(join(__dirname, "../"));
     await new Promise((resolve) => {
         webpack(
-            {
-                mode: "production",
-                devtool: false,
-                entry: join(__dirname, "../src/index.ts"),
-                output: {
-                    filename: "[name].js",
-                    path: join(__dirname, "../dist"),
-                },
-                resolve: {
-                    extensions: [".ts", ".tsx", "..."],
-                },
-                module: {
-                    rules: [
-                        { test: /\.tsx?$/, use: "ts-loader" },
-                        {
-                            test: /\.css$/i,
-                            use: [
-                                MiniCssExtractPlugin.loader,
-                                "css-loader",
-                                {
-                                    loader: "postcss-loader",
-                                    options: {
-                                        postcssOptions,
-                                    },
-                                },
-                            ],
-                        },
-                        {
-                            test: /\.svg$/,
-                            use: [
-                                {
-                                    loader: "@svgr/webpack",
-                                    options: {
-                                        prettier: false,
-                                        svgoConfig: {
-                                            plugins: [
-                                                {
-                                                    name: "preset-default",
-                                                    params: {
-                                                        overrides: {
-                                                            removeViewBox: false,
-                                                        },
-                                                    },
-                                                },
-                                            ],
-                                        },
-                                    },
-                                },
-                                "url-loader",
-                            ],
-                        },
-                    ],
-                },
-                optimization: {
-                    minimize: true,
-                    minimizer: [
-                        new TerserPlugin({
-                            terserOptions: {
-                                format: {
-                                    comments: false,
-                                },
-                            },
-                            extractComments: false,
-                        }),
-                    ],
-                },
-                plugins: [
-                    new webpack.DefinePlugin({
-                        __DEV__: JSON.stringify(false),
-                    }),
-                    new MiniCssExtractPlugin(),
-                    new webpack.container.ModuleFederationPlugin({
-                        name: `${commitHash}creationForm`,
-                        library: {
-                            type: "window",
-                            name: `${commitHash}creationForm`,
-                        },
-                        exposes: {
-                            "./component": join(
-                                __dirname,
-                                "../src/creation-form/index.tsx"
-                            ),
-                            "./i18n": join(
-                                __dirname,
-                                "../src/creation-form/i18n/index.ts"
-                            ),
-                        },
-                        shared,
-                    }),
-                    new webpack.container.ModuleFederationPlugin({
-                        name: `${commitHash}page`,
-                        library: { type: "window", name: `${commitHash}page` },
-                        exposes: {
-                            "./component": join(
-                                __dirname,
-                                "../src/page/index.tsx"
-                            ),
-                            "./i18n": join(
-                                __dirname,
-                                "../src/page/i18n/index.ts"
-                            ),
-                        },
-                        shared,
-                    }),
-                ],
-            },
+            [
+                getTemplateComponentWebpackConfig(
+                    "creationForm",
+                    join(__dirname, "../src/creation-form/index.tsx"),
+                    join(__dirname, "../src/creation-form/i18n/index.ts"),
+                    globals,
+                    join(dist, "creationForm")
+                ),
+                getTemplateComponentWebpackConfig(
+                    "page",
+                    join(__dirname, "../src/page/index.tsx"),
+                    join(__dirname, "../src/page/i18n/index.ts"),
+                    globals,
+                    join(dist, "page")
+                ),
+            ],
             (error, stats) => {
                 if (error) {
-                    spinner.fail("Failed to build federated modules");
+                    spinner.fail(
+                        `Failed to build ${chalk.blue("federated modules")}`
+                    );
                     console.log();
                     console.log(error.message || error);
                     console.log();
@@ -156,16 +67,21 @@ const main = async () => {
 
                 if (messages.errors.length) {
                     if (messages.errors.length > 1) messages.errors.length = 1;
-                    spinner.fail("Failed to build federated modules");
+                    spinner.fail(
+                        `Failed to build ${chalk.blue("federated modules")}`
+                    );
                     console.log();
                     console.log(messages.errors.join("\n\n"));
                     process.exit(0);
                 }
 
                 if (messages.warnings.length) {
-                    spinner.warn("Federated modules built with warnings.");
+                    spinner.warn(
+                        `${chalk.blue("Federated modules")} built with warnings`
+                    );
                     console.log();
                     console.log(messages.warnings.join("\n\n"));
+                    console.log();
                     resolve();
                     return;
                 }
@@ -175,6 +91,7 @@ const main = async () => {
             }
         );
     });
+    spinner.succeed(`${chalk.blue("Federated modules")} successfully built`);
 
     spinner = ora(`Building ${chalk.blue("base.json")}`);
     const partialBase = require("../src/base.json");
