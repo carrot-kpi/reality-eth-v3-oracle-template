@@ -8,7 +8,9 @@ import chalk from "chalk";
 import ora from "ora";
 import { createRequire } from "module";
 import { existsSync } from "fs";
+import webpack from "webpack";
 import { getTemplateComponentWebpackConfig } from "../.cct/utils/get-template-component-webpack-config.js";
+import { formatWebpackMessages } from "../.cct/utils/format-webpack-messages.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -35,14 +37,14 @@ const main = async () => {
                     "creationForm",
                     join(__dirname, "../src/creation-form/index.tsx"),
                     join(__dirname, "../src/creation-form/i18n/index.ts"),
-                    globals,
+                    {},
                     join(dist, "creationForm")
                 ),
                 getTemplateComponentWebpackConfig(
                     "page",
                     join(__dirname, "../src/page/index.tsx"),
                     join(__dirname, "../src/page/i18n/index.ts"),
-                    globals,
+                    {},
                     join(dist, "page")
                 ),
             ],
