@@ -57,6 +57,7 @@ import { ReactComponent as ExternalSvg } from "../../../assets/external.svg";
 import { OpeningCountdown } from "../opening-countdown";
 import { ChainId, Oracle } from "@carrot-kpi/sdk";
 import { unixTimestamp } from "../../../utils/dates";
+import { useWatchRealityQuestionAnswers } from "../../../hooks/useWatchRealityQuestionAnswers";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -75,6 +76,13 @@ export const AnswerForm = ({
     loadingQuestion,
     onTx,
 }: AnswerFormProps): ReactElement => {
+    const { loading: loadingAnswers, answers } = useWatchRealityQuestionAnswers(
+        realityAddress,
+        question.id
+    );
+    // TODO: remove this console log
+    console.log({ loadingAnswers, answers });
+
     const [open, setOpen] = useState(false);
     const [booleanValue, setBooleanValue] = useState<BooleanAnswer | null>(
         null
