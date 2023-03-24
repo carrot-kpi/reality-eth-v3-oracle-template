@@ -142,3 +142,9 @@ export enum BooleanAnswer {
     INVALID_REALITY_ANSWER = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
     ANSWERED_TOO_SOON_REALITY_ANSWER = "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe",
 }
+
+// the default value of the current answer finalization timestamp on
+// the reality subgraph question entity.
+// when the question has no answer yet, this is the finalization ts value.
+export const SUBGRAPH_CURRENT_ANSWER_FINALIZATION_TIMESTAMP_NULL_VALUE =
+    "2147483647";

@@ -9,8 +9,8 @@ export interface SubgraphQuestion {
     currentScheduledFinalizationTimestamp: string;
     isPendingArbitration: boolean;
     bounty: string;
-    currentAnswer: string;
-    historyHash: string;
+    currentAnswer?: string;
+    historyHash?: string;
     currentAnswerBond: string;
     minBond: string;
 }
