@@ -4,7 +4,7 @@ import { ReactComponent as CarrotIcon } from "../assets/carrot.svg";
 import { OptionWithIcon } from "../creation-form/types";
 
 export type SupportedChain = Extract<ChainId, ChainId.SEPOLIA | ChainId.GNOSIS>;
-export const SupportedChain = {
+export const SupportedChain: Record<SupportedChain, SupportedChain> = {
     [ChainId.SEPOLIA]: ChainId.SEPOLIA,
     [ChainId.GNOSIS]: ChainId.GNOSIS,
 } as const;
@@ -33,6 +33,12 @@ export const ARBITRATORS_BY_CHAIN: Record<SupportedChain, OptionWithIcon[]> = {
             icon: CarrotIcon,
         },
     ],
+};
+
+export const SUBGRAPH_URL: Record<SupportedChain, string | null> = {
+    [ChainId.GNOSIS]:
+        "https://api.thegraph.com/subgraphs/name/realityeth/realityeth-xdai",
+    [ChainId.SEPOLIA]: null,
 };
 
 interface TimeoutOption {
@@ -136,3 +142,9 @@ export enum BooleanAnswer {
     INVALID_REALITY_ANSWER = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
     ANSWERED_TOO_SOON_REALITY_ANSWER = "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe",
 }
+
+// the default value of the current answer finalization timestamp on
+// the reality subgraph question entity.
+// when the question has no answer yet, this is the finalization ts value.
+export const SUBGRAPH_CURRENT_ANSWER_FINALIZATION_TIMESTAMP_NULL_VALUE =
+    "2147483647";

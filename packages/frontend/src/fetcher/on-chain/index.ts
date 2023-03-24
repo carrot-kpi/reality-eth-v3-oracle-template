@@ -10,13 +10,13 @@ import {
     SupportedChain,
 } from "../../commons";
 import REALITY_ETH_V3_ABI from "../../abis/reality-eth-v3.json";
-import { enforce, isCID, CoreFetcher } from "@carrot-kpi/sdk";
+import { enforce, isCID } from "@carrot-kpi/sdk";
 import {
-    FullRealityAnswer,
+    RealityResponse,
     OnChainRealityQuestion,
     RealityQuestion,
 } from "../../page/types";
-import { utils } from "ethers";
+import { BigNumber, utils } from "ethers";
 import { defaultAbiCoder } from "ethers/lib/utils.js";
 
 const LOGS_BLOCKS_SIZE = __DEV__ ? 10 : 10_000;
@@ -41,10 +41,8 @@ class Fetcher implements IPartialFetcher {
         realityV3Address,
         questionId,
         question,
-        ipfsGatewayURL,
     }: FetchQuestionParams): Promise<RealityQuestion | null> {
-        if (!realityV3Address || !question || !questionId || !ipfsGatewayURL)
-            return null;
+        if (!realityV3Address || !question || !questionId) return null;
         const [cid, templateId] = question.split("-");
         if (
             !isCID(cid) ||
@@ -96,12 +94,6 @@ class Fetcher implements IPartialFetcher {
             historyHash: history_hash,
             templateId,
             content: question,
-            resolvedContent: (
-                await CoreFetcher.fetchContentFromIPFS({
-                    cids: [cid],
-                    ipfsGatewayURL,
-                })
-            )[cid],
             contentHash: content_hash,
             arbitrator,
             timeout,
@@ -119,7 +111,7 @@ class Fetcher implements IPartialFetcher {
         provider,
         realityV3Address,
         questionId,
-    }: FetchAnswersHistoryParams): Promise<FullRealityAnswer[]> {
+    }: FetchAnswersHistoryParams): Promise<RealityResponse[]> {
         if (!realityV3Address || !questionId) return [];
         const { chainId } = await provider.getNetwork();
         enforce(
@@ -134,7 +126,7 @@ class Fetcher implements IPartialFetcher {
 
         let toBlock = await provider.getBlockNumber();
         let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
-        const answersFromLogs: FullRealityAnswer[] = [];
+        const answersFromLogs: RealityResponse[] = [];
         try {
             while (true) {
                 const logs = await provider.getLogs({
@@ -154,21 +146,23 @@ class Fetcher implements IPartialFetcher {
                             ["address"],
                             log.topics[2]
                         );
-                        const [answer, hash, bond] = defaultAbiCoder.decode(
-                            [
-                                "bytes32",
-                                "bytes32",
-                                "uint256",
-                                "uint256",
-                                "bool",
-                            ],
-                            log.data
-                        );
+                        const [answer, hash, bond, timestamp] =
+                            defaultAbiCoder.decode(
+                                [
+                                    "bytes32",
+                                    "bytes32",
+                                    "uint256",
+                                    "uint256",
+                                    "bool",
+                                ],
+                                log.data
+                            );
                         answersFromLogs.push({
                             answerer,
                             bond,
                             hash,
-                            value: answer,
+                            answer,
+                            timestamp: (timestamp as BigNumber).toNumber(),
                         });
                     } else if (log.topics[0] === NEW_QUESTION_LOG_TOPIC)
                         shouldBreak = true;
@@ -180,7 +174,9 @@ class Fetcher implements IPartialFetcher {
         } catch (error) {
             console.warn("error while fetching question logs", error);
         }
-        return answersFromLogs;
+        return answersFromLogs.sort((a, b) => {
+            return a.timestamp - b.timestamp;
+        });
     }
 }
 

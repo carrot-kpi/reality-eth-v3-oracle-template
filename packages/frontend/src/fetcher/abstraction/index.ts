@@ -1,6 +1,6 @@
 import { Provider } from "@ethersproject/providers";
 import { ChainId } from "@carrot-kpi/sdk";
-import { FullRealityAnswer, RealityQuestion } from "../../page/types";
+import { RealityResponse, RealityQuestion } from "../../page/types";
 
 export interface SupportedInChainParams {
     chainId: ChainId;
@@ -11,7 +11,12 @@ export interface FetchQuestionParams {
     realityV3Address?: string;
     question?: string;
     questionId?: string;
-    ipfsGatewayURL?: string;
+}
+
+export interface FetchAnswersHistoryParams {
+    provider: Provider;
+    realityV3Address?: string;
+    questionId?: string;
 }
 
 export interface FetchAnswersHistoryParams {
@@ -27,7 +32,7 @@ export interface IPartialFetcher {
 
     fetchAnswersHistory(
         params: FetchAnswersHistoryParams
-    ): Promise<FullRealityAnswer[] | null>;
+    ): Promise<RealityResponse[] | null>;
 }
 
 export interface DecentralizationParams {
@@ -49,5 +54,5 @@ export interface IFullFetcher {
 
     fetchAnswersHistory(
         params: FullFetcherFetchAnswersHistoryParams
-    ): Promise<FullRealityAnswer[]>;
+    ): Promise<RealityResponse[]>;
 }

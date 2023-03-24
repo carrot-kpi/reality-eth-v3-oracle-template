@@ -11,6 +11,7 @@ import {
     Typography,
     Radio,
     RadioGroup,
+    Skeleton,
 } from "@carrot-kpi/ui";
 import { BigNumber, utils } from "ethers";
 import {
@@ -59,7 +60,8 @@ import { ReactComponent as ExternalSvg } from "../../../assets/external.svg";
 import { OpeningCountdown } from "../opening-countdown";
 import { ChainId, Oracle } from "@carrot-kpi/sdk";
 import { unixTimestamp } from "../../../utils/dates";
-import { useWatchRealityQuestionAnswers } from "../../../hooks/useWatchRealityQuestionAnswers";
+import { useRealityQuestionResponses } from "../../../hooks/useRealityQuestionResponses";
+import { useQuestionContent } from "../../../hooks/useQuestionContent";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -78,9 +80,12 @@ export const AnswerForm = ({
     loadingQuestion,
     onTx,
 }: AnswerFormProps): ReactElement => {
-    const { answers } = useWatchRealityQuestionAnswers(
+    const { loading: loadingAnswers, responses } = useRealityQuestionResponses(
         realityAddress,
         question.id
+    );
+    const { loading: loadingContent, content } = useQuestionContent(
+        question.content
     );
 
     const [open, setOpen] = useState(false);
@@ -122,24 +127,24 @@ export const AnswerForm = ({
     }, [bond, chain?.nativeCurrency.decimals]);
 
     const claimWinningsPayload = useMemo(() => {
-        const payload = answers.reduce(
+        const payload = responses.reduce(
             (
                 accumulator: {
                     historyHashes: string[];
                     answerers: string[];
                     bonds: BigNumber[];
-                    answers: string[];
+                    responses: string[];
                 },
                 answer
             ) => {
                 accumulator.historyHashes.push(answer.hash);
                 accumulator.answerers.push(answer.answerer);
                 accumulator.bonds.push(answer.bond);
-                accumulator.answers.push(answer.value);
+                accumulator.responses.push(answer.answer);
 
                 return accumulator;
             },
-            { historyHashes: [], answerers: [], bonds: [], answers: [] }
+            { historyHashes: [], answerers: [], bonds: [], responses: [] }
         );
 
         // the last history hash must be empty
@@ -147,10 +152,10 @@ export const AnswerForm = ({
         payload.historyHashes.push(BYTES32_ZERO);
         payload.answerers.reverse();
         payload.bonds.reverse();
-        payload.answers.reverse();
+        payload.responses.reverse();
 
         return payload;
-    }, [answers]);
+    }, [responses]);
 
     const { data: disputeFee } = useContractRead({
         address:
@@ -206,7 +211,6 @@ export const AnswerForm = ({
 
     const { config: finalizeOracleConfig } = usePrepareContractWrite({
         address: oracle.address,
-        // TODO: use the ABI exported from the SDK
         abi: REALITY_ORACLE_V3_ABI,
         functionName: "finalize",
         enabled: finalized && !oracle.finalized,
@@ -245,7 +249,7 @@ export const AnswerForm = ({
             claimWinningsPayload.historyHashes,
             claimWinningsPayload.answerers,
             claimWinningsPayload.bonds,
-            claimWinningsPayload.answers,
+            claimWinningsPayload.responses,
         ],
         enabled:
             finalized &&
@@ -253,7 +257,7 @@ export const AnswerForm = ({
             claimWinningsPayload.historyHashes.length > 0 &&
             claimWinningsPayload.answerers.length > 0 &&
             claimWinningsPayload.bonds.length > 0 &&
-            claimWinningsPayload.answers.length > 0 &&
+            claimWinningsPayload.responses.length > 0 &&
             !isAnswerMissing(question),
     });
     const { writeAsync: claimWinningsAsync } =
@@ -566,7 +570,11 @@ export const AnswerForm = ({
     return (
         <div className="flex flex-col">
             <div className="min-h-[50px] max-h-[400px] overflow-y-auto">
-                <Markdown>{question.resolvedContent}</Markdown>
+                {loadingContent ? (
+                    <Skeleton width="100px" />
+                ) : (
+                    <Markdown>{content}</Markdown>
+                )}
             </div>
             <div className="flex justify-between gap-4 mt-10">
                 <QuestionInfo
@@ -849,7 +857,7 @@ export const AnswerForm = ({
                                         question.historyHash
                                     ).isZero()
                                 }
-                                loading={claimingWinnings}
+                                loading={loadingAnswers || claimingWinnings}
                                 size="small"
                                 className={{ root: "mt-5" }}
                             >

@@ -1,39 +1,39 @@
-import { usePreferDecentralization } from "@carrot-kpi/react";
 import { useEffect, useState } from "react";
-import { useBlockNumber, useProvider } from "wagmi";
+import {
+    useIPFSGatewayURL,
+    usePreferDecentralization,
+} from "@carrot-kpi/react";
+import { useProvider } from "wagmi";
 import { Fetcher } from "../fetcher";
-import { RealityQuestion } from "../page/types";
+import { RealityResponse } from "../page/types";
 
-export function useWatchRealityQuestion(
+export function useRealityQuestionResponses(
     realityV3Address?: string,
-    questionId?: string,
-    question?: string
+    questionId?: string
 ): {
     loading: boolean;
-    question: RealityQuestion | null;
+    responses: RealityResponse[];
 } {
     const provider = useProvider();
-    const blockNumber = useBlockNumber();
+    const ipfsGatewayURL = useIPFSGatewayURL();
     const preferDecentralization = usePreferDecentralization();
 
     const [loading, setLoading] = useState(true);
-    const [realityQuestion, setOnChainQuestion] =
-        useState<RealityQuestion | null>(null);
+    const [responses, setResponses] = useState<RealityResponse[]>([]);
 
     useEffect(() => {
         let cancelled = false;
         const fetchData = async (): Promise<void> => {
-            if (!realityV3Address || !question || !questionId) return;
+            if (!realityV3Address || !questionId || !ipfsGatewayURL) return;
             if (!cancelled) setLoading(true);
             try {
-                const fetched = await Fetcher.fetchQuestion({
+                const fetched = await Fetcher.fetchAnswersHistory({
                     preferDecentralization,
                     provider,
                     realityV3Address,
-                    question,
                     questionId,
                 });
-                if (!cancelled) setOnChainQuestion(fetched);
+                if (!cancelled) setResponses(fetched);
             } catch (error) {
                 console.error("error fetching reality v3 question", error);
             } finally {
@@ -46,12 +46,11 @@ export function useWatchRealityQuestion(
         };
     }, [
         provider,
-        question,
         questionId,
-        blockNumber.data,
+        ipfsGatewayURL,
         realityV3Address,
         preferDecentralization,
     ]);
 
-    return { loading, question: realityQuestion };
+    return { loading, responses };
 }
