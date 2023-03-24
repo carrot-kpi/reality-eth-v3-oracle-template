@@ -54,6 +54,7 @@ export interface SubgraphResponse {
     user: string;
     bond: string;
     answer?: string;
+    timestamp: string;
 }
 
 export const ResponseDataFields = `
@@ -61,6 +62,7 @@ export const ResponseDataFields = `
     user
     bond
     answer
+    timestamp
 `;
 
 export interface GetResponsesQueryResponse {

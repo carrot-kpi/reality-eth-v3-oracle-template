@@ -107,6 +107,7 @@ class Fetcher implements IPartialFetcher {
                 answerer: rawResponse.user,
                 bond: BigNumber.from(rawResponse.bond),
                 hash: rawResponse.historyHash,
+                timestamp: parseInt(rawResponse.timestamp),
             });
         }
         return responses;

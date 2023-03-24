@@ -42,4 +42,5 @@ export interface RealityResponse {
     answerer: string;
     bond: BigNumber;
     answer: string;
+    timestamp: number;
 }

@@ -16,7 +16,7 @@ import {
     OnChainRealityQuestion,
     RealityQuestion,
 } from "../../page/types";
-import { utils } from "ethers";
+import { BigNumber, utils } from "ethers";
 import { defaultAbiCoder } from "ethers/lib/utils.js";
 
 const LOGS_BLOCKS_SIZE = __DEV__ ? 10 : 10_000;
@@ -146,21 +146,23 @@ class Fetcher implements IPartialFetcher {
                             ["address"],
                             log.topics[2]
                         );
-                        const [answer, hash, bond] = defaultAbiCoder.decode(
-                            [
-                                "bytes32",
-                                "bytes32",
-                                "uint256",
-                                "uint256",
-                                "bool",
-                            ],
-                            log.data
-                        );
+                        const [answer, hash, bond, timestamp] =
+                            defaultAbiCoder.decode(
+                                [
+                                    "bytes32",
+                                    "bytes32",
+                                    "uint256",
+                                    "uint256",
+                                    "bool",
+                                ],
+                                log.data
+                            );
                         answersFromLogs.push({
                             answerer,
                             bond,
                             hash,
                             answer,
+                            timestamp: (timestamp as BigNumber).toNumber(),
                         });
                     } else if (log.topics[0] === NEW_QUESTION_LOG_TOPIC)
                         shouldBreak = true;
@@ -172,7 +174,9 @@ class Fetcher implements IPartialFetcher {
         } catch (error) {
             console.warn("error while fetching question logs", error);
         }
-        return answersFromLogs.reverse();
+        return answersFromLogs.sort((a, b) => {
+            return a.timestamp - b.timestamp;
+        });
     }
 }
 
