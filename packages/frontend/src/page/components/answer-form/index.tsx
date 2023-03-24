@@ -273,7 +273,11 @@ export const AnswerForm = ({
         abi: REALITY_ETH_V3_ABI,
         functionName: "withdraw",
         args: [],
-        enabled: finalized && !isAnswerMissing(question),
+        enabled:
+            finalized &&
+            !isAnswerMissing(question) &&
+            !!withdrawableBalance &&
+            !BigNumber.from(withdrawableBalance).isZero(),
     });
     const { writeAsync: withdrawAsync } = useContractWrite(withdrawConfig);
 
