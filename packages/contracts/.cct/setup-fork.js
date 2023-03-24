@@ -54,27 +54,6 @@ export const setupFork = async (
     const arbitratorContract = await arbitratorFactory.deploy("{}", 0);
     await arbitratorContract.deployed();
 
-    // deploy test erc20 tokens
-    const {
-        abi: erc20Abi,
-        bytecode: erc20Bytecode,
-    } = require("../out/ERC20PresetMinterPauser.sol/ERC20PresetMinterPauser.json");
-    const erc20Factory = new ContractFactory(erc20Abi, erc20Bytecode, signer);
-    const testToken1Contract = await erc20Factory.deploy(
-        "Test token 1",
-        "TST1"
-    );
-    await testToken1Contract.deployed();
-    const testToken2Contract = await erc20Factory.deploy(
-        "Test token 2",
-        "TST2"
-    );
-    await testToken2Contract.deployed();
-
-    // mint some test erc20 tokens to signer
-    await testToken1Contract.mint(signer.address, utils.parseUnits("100", 18));
-    await testToken2Contract.mint(signer.address, utils.parseUnits("100", 18));
-
     // give us some wrapped native currency too
     await new Contract(
         WRAPPED_NATIVE_CURRENCY_ADDRESS[chainId],
@@ -91,18 +70,8 @@ export const setupFork = async (
                 name: "Trusted arbitrator",
                 address: arbitratorContract.address,
             },
-            {
-                name: "ERC20 1",
-                address: testToken1Contract.address,
-            },
-            {
-                name: "ERC20 2",
-                address: testToken2Contract.address,
-            },
         ],
         frontendGlobals: {
-            CCT_ERC20_1_ADDRESS: testToken1Contract.address,
-            CCT_ERC20_2_ADDRESS: testToken2Contract.address,
             CCT_TRUSTED_ARBITRATOR_ADDRESS: arbitratorContract.address,
         },
     };

@@ -41,22 +41,23 @@ interface TimeoutOption {
 }
 
 export const TIMEOUT_OPTIONS: TimeoutOption[] = [];
-if (__DEV__) {
-    TIMEOUT_OPTIONS.push(
-        {
-            tKey: "option.question.timeout.1",
-            seconds: 30,
-        },
-        {
-            tKey: "option.question.timeout.2",
-            seconds: 180,
-        },
-        {
-            tKey: "option.question.timeout.3",
-            seconds: 900,
-        }
-    );
-}
+// TODO: reenable this in production after we're done with testing
+// if (__DEV__) {
+TIMEOUT_OPTIONS.push(
+    {
+        tKey: "option.question.timeout.1",
+        seconds: 30,
+    },
+    {
+        tKey: "option.question.timeout.2",
+        seconds: 180,
+    },
+    {
+        tKey: "option.question.timeout.3",
+        seconds: 900,
+    }
+);
+// }
 TIMEOUT_OPTIONS.push(
     {
         tKey: "option.question.timeout.4",

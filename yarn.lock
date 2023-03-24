@@ -1069,10 +1069,10 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@carrot-kpi/frontend@^1.0.0-rc.56":
-  version "1.0.0-rc.56"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/frontend/-/frontend-1.0.0-rc.56.tgz#ddf5e67602af55eff8d51d49e5d8e40ed0dac0a2"
-  integrity sha512-9o238OyTdepG3TigtLA10TG3+tFuiGxt7BCdxngkmnCQotg1v37J0N2Rpskfo7DnQMl643iN6MVIU1GHUENLQA==
+"@carrot-kpi/frontend@^1.0.0-rc.57":
+  version "1.0.0-rc.57"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/frontend/-/frontend-1.0.0-rc.57.tgz#0ea624246a6063603cf1c39a889ca70d43d084f8"
+  integrity sha512-2EWD8njJNiUg3mLpjPNk066LppNHo2CRhsn2oj9PbIhcJ3mrkSJD+8fOWf7gAT9a1uStKiWGujpIneX8Givgig==
   dependencies:
     "@carrot-kpi/react" "*"
     "@carrot-kpi/sdk" "*"
@@ -1117,10 +1117,10 @@
     class-variance-authority "^0.4.0"
     react-use "^17.4.0"
 
-"@carrot-kpi/react@^0.36.2":
-  version "0.36.2"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/react/-/react-0.36.2.tgz#a0b5c25da4bd0d4c4680235aeec5de8146b28c30"
-  integrity sha512-e1uuH68Cx4SwWwQpCg7G4DelTrkQQhhUv/Ehbbhrk+sRmPszAGh55Uj63vO9Iy3QoGjKBN63bP5i/ofWYwCF1w==
+"@carrot-kpi/react@^0.36.3":
+  version "0.36.3"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/react/-/react-0.36.3.tgz#4719aee677f19e72432b4bbed07bc51fdbaf0383"
+  integrity sha512-E0AryiGL0xjnveDgXMp+9ic46TfDkZG9el0Ff8gCosbQKbckG+hblc2Bmpt+uZCoS3P1ctjuNp808ElztPSS2A==
   dependencies:
     "@carrot-kpi/sdk" "*"
     "@ethersproject/bignumber" "^5.7.0"
@@ -1144,10 +1144,10 @@
     decimal.js-light "^2.5.1"
     multiformats "^9.9.0"
 
-"@carrot-kpi/sdk@^1.21.1":
-  version "1.21.1"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.21.1.tgz#63982b6e19e8bddfe924c386d650e522bb2b3196"
-  integrity sha512-O0gUU/Y8RyXu5lekyIShE1m3XNXo09fjveOzQnguw4p+IINhvnT45NMVO9oQeANxoqLT6EVZbXcZbVV7QMhA+w==
+"@carrot-kpi/sdk@^1.21.2":
+  version "1.21.2"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.21.2.tgz#8e1a9b21f47763520c41c1708355729f8bdd5eea"
+  integrity sha512-+7u+ChG4MWTflCXbBkwvYOBs3RzYVeKCpwtV1b7T8kdPrNAZFG6AUH8mnpzRJGnCpA0i4Gksc6KJU9KCioiH1Q==
   dependencies:
     "@ethersproject/address" "^5.7.0"
     "@ethersproject/bignumber" "^5.7.0"

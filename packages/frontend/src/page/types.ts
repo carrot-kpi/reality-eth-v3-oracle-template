@@ -37,3 +37,10 @@ export interface RealityQuestion {
     bond: BigNumber;
     minBond: BigNumber;
 }
+
+export interface FullRealityAnswer {
+    hash: string;
+    answerer: string;
+    bond: BigNumber;
+    value: string;
+}

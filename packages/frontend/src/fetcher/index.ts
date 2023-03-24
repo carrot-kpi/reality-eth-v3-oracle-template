@@ -1,5 +1,9 @@
-import { RealityQuestion } from "../page/types";
-import { FullFetcherFetchQuestionParams, IFullFetcher } from "./abstraction";
+import { FullRealityAnswer, RealityQuestion } from "../page/types";
+import {
+    FullFetcherFetchAnswersHistoryParams,
+    FullFetcherFetchQuestionParams,
+    IFullFetcher,
+} from "./abstraction";
 import { OnChainFetcher } from "./on-chain";
 
 export * from "./abstraction";
@@ -19,6 +23,19 @@ class FullFetcher implements IFullFetcher {
             question,
             questionId,
             ipfsGatewayURL,
+        });
+    }
+
+    public async fetchAnswersHistory({
+        provider,
+        realityV3Address,
+        questionId,
+    }: FullFetcherFetchAnswersHistoryParams): Promise<FullRealityAnswer[]> {
+        // TODO: implement subgraph fetcher
+        return OnChainFetcher.fetchAnswersHistory({
+            provider,
+            realityV3Address,
+            questionId,
         });
     }
 }
