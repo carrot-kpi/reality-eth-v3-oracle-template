@@ -1,5 +1,8 @@
 import { useEffect, useState } from "react";
-import { useIPFSGatewayURL } from "@carrot-kpi/react";
+import {
+    useIPFSGatewayURL,
+    usePreferDecentralization,
+} from "@carrot-kpi/react";
 import { useProvider } from "wagmi";
 import { Fetcher } from "../fetcher";
 import { RealityResponse } from "../page/types";
@@ -13,6 +16,7 @@ export function useRealityQuestionResponses(
 } {
     const provider = useProvider();
     const ipfsGatewayURL = useIPFSGatewayURL();
+    const preferDecentralization = usePreferDecentralization();
 
     const [loading, setLoading] = useState(true);
     const [responses, setResponses] = useState<RealityResponse[]>([]);
@@ -24,6 +28,7 @@ export function useRealityQuestionResponses(
             if (!cancelled) setLoading(true);
             try {
                 const fetched = await Fetcher.fetchAnswersHistory({
+                    preferDecentralization,
                     provider,
                     realityV3Address,
                     questionId,
@@ -39,7 +44,13 @@ export function useRealityQuestionResponses(
         return () => {
             cancelled = true;
         };
-    }, [provider, questionId, ipfsGatewayURL, realityV3Address]);
+    }, [
+        provider,
+        questionId,
+        ipfsGatewayURL,
+        realityV3Address,
+        preferDecentralization,
+    ]);
 
     return { loading, responses };
 }
