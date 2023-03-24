@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useIPFSGatewayURL } from "@carrot-kpi/react";
-import { useProvider } from "wagmi";
+import { useBlockNumber, useProvider } from "wagmi";
 import { Fetcher } from "../fetcher";
 import { FullRealityAnswer } from "../page/types";
 
@@ -12,6 +12,7 @@ export function useWatchRealityQuestionAnswers(
     answers: FullRealityAnswer[];
 } {
     const provider = useProvider();
+    const blockNumber = useBlockNumber();
     const ipfsGatewayURL = useIPFSGatewayURL();
 
     const [loading, setLoading] = useState(true);
@@ -39,7 +40,13 @@ export function useWatchRealityQuestionAnswers(
         return () => {
             cancelled = true;
         };
-    }, [provider, questionId, ipfsGatewayURL, realityV3Address]);
+    }, [
+        provider,
+        questionId,
+        ipfsGatewayURL,
+        blockNumber.data,
+        realityV3Address,
+    ]);
 
     return { loading, answers };
 }
