@@ -4,7 +4,7 @@ import { ReactComponent as CarrotIcon } from "../assets/carrot.svg";
 import { OptionWithIcon } from "../creation-form/types";
 
 export type SupportedChain = Extract<ChainId, ChainId.SEPOLIA | ChainId.GNOSIS>;
-export const SupportedChain = {
+export const SupportedChain: Record<SupportedChain, SupportedChain> = {
     [ChainId.SEPOLIA]: ChainId.SEPOLIA,
     [ChainId.GNOSIS]: ChainId.GNOSIS,
 } as const;
@@ -33,6 +33,12 @@ export const ARBITRATORS_BY_CHAIN: Record<SupportedChain, OptionWithIcon[]> = {
             icon: CarrotIcon,
         },
     ],
+};
+
+export const SUBGRAPH_URL: Record<SupportedChain, string | null> = {
+    [ChainId.GNOSIS]:
+        "https://api.thegraph.com/subgraphs/name/realityeth/realityeth-xdai",
+    [ChainId.SEPOLIA]: null,
 };
 
 interface TimeoutOption {

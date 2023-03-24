@@ -38,9 +38,9 @@ export interface RealityQuestion {
     minBond: BigNumber;
 }
 
-export interface FullRealityAnswer {
+export interface RealityResponse {
     hash: string;
     answerer: string;
     bond: BigNumber;
-    value: string;
+    answer: string;
 }

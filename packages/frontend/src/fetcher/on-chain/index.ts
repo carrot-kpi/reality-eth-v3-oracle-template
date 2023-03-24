@@ -12,7 +12,7 @@ import {
 import REALITY_ETH_V3_ABI from "../../abis/reality-eth-v3.json";
 import { enforce, isCID, CoreFetcher } from "@carrot-kpi/sdk";
 import {
-    FullRealityAnswer,
+    RealityResponse,
     OnChainRealityQuestion,
     RealityQuestion,
 } from "../../page/types";
@@ -119,7 +119,7 @@ class Fetcher implements IPartialFetcher {
         provider,
         realityV3Address,
         questionId,
-    }: FetchAnswersHistoryParams): Promise<FullRealityAnswer[]> {
+    }: FetchAnswersHistoryParams): Promise<RealityResponse[]> {
         if (!realityV3Address || !questionId) return [];
         const { chainId } = await provider.getNetwork();
         enforce(
@@ -134,7 +134,7 @@ class Fetcher implements IPartialFetcher {
 
         let toBlock = await provider.getBlockNumber();
         let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
-        const answersFromLogs: FullRealityAnswer[] = [];
+        const answersFromLogs: RealityResponse[] = [];
         try {
             while (true) {
                 const logs = await provider.getLogs({
@@ -168,7 +168,7 @@ class Fetcher implements IPartialFetcher {
                             answerer,
                             bond,
                             hash,
-                            value: answer,
+                            answer,
                         });
                     } else if (log.topics[0] === NEW_QUESTION_LOG_TOPIC)
                         shouldBreak = true;
@@ -180,7 +180,7 @@ class Fetcher implements IPartialFetcher {
         } catch (error) {
             console.warn("error while fetching question logs", error);
         }
-        return answersFromLogs;
+        return answersFromLogs.reverse();
     }
 }
 

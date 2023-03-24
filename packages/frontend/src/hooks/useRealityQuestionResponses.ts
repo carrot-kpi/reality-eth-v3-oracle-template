@@ -2,20 +2,20 @@ import { useEffect, useState } from "react";
 import { useIPFSGatewayURL } from "@carrot-kpi/react";
 import { useProvider } from "wagmi";
 import { Fetcher } from "../fetcher";
-import { FullRealityAnswer } from "../page/types";
+import { RealityResponse } from "../page/types";
 
-export function useWatchRealityQuestionAnswers(
+export function useRealityQuestionResponses(
     realityV3Address?: string,
     questionId?: string
 ): {
     loading: boolean;
-    answers: FullRealityAnswer[];
+    responses: RealityResponse[];
 } {
     const provider = useProvider();
     const ipfsGatewayURL = useIPFSGatewayURL();
 
     const [loading, setLoading] = useState(true);
-    const [answers, setAnswers] = useState<FullRealityAnswer[]>([]);
+    const [responses, setResponses] = useState<RealityResponse[]>([]);
 
     useEffect(() => {
         let cancelled = false;
@@ -28,7 +28,7 @@ export function useWatchRealityQuestionAnswers(
                     realityV3Address,
                     questionId,
                 });
-                if (!cancelled) setAnswers(fetched);
+                if (!cancelled) setResponses(fetched);
             } catch (error) {
                 console.error("error fetching reality v3 question", error);
             } finally {
@@ -41,5 +41,5 @@ export function useWatchRealityQuestionAnswers(
         };
     }, [provider, questionId, ipfsGatewayURL, realityV3Address]);
 
-    return { loading, answers };
+    return { loading, responses };
 }
