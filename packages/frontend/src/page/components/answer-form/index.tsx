@@ -171,6 +171,15 @@ export const AnswerForm = ({
         watch: true,
     });
 
+    const { data: lastHistoryHash } = useContractRead({
+        address: realityAddress,
+        abi: REALITY_ETH_V3_ABI,
+        functionName: "getHistoryHash",
+        args: [question.id],
+        enabled: !!question && !!question.id,
+        watch: true,
+    });
+
     const { config: submitAnswerConfig } = usePrepareContractWrite({
         address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
@@ -843,7 +852,10 @@ export const AnswerForm = ({
                             )}
                             <Button
                                 onClick={handleClaimWinningsSubmit}
-                                disabled={!claimWinningsAsync}
+                                disabled={
+                                    !claimWinningsAsync ||
+                                    BigNumber.from(lastHistoryHash).isZero()
+                                }
                                 loading={
                                     claimingWinnings ||
                                     loadingQuestion ||
