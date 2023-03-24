@@ -19,6 +19,12 @@ export interface FetchAnswersHistoryParams {
     questionId?: string;
 }
 
+export interface FetchAnswersHistoryParams {
+    provider: Provider;
+    realityV3Address?: string;
+    questionId?: string;
+}
+
 export interface IPartialFetcher {
     supportedInChain(params: SupportedInChainParams): boolean;
 
