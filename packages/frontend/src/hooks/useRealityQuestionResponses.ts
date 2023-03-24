@@ -35,7 +35,10 @@ export function useRealityQuestionResponses(
                 });
                 if (!cancelled) setResponses(fetched);
             } catch (error) {
-                console.error("error fetching reality v3 question", error);
+                console.error(
+                    "error fetching reality v3 question responses",
+                    error
+                );
             } finally {
                 if (!cancelled) setLoading(false);
             }
