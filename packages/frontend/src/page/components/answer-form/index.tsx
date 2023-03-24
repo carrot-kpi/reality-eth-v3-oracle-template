@@ -78,7 +78,7 @@ export const AnswerForm = ({
     loadingQuestion,
     onTx,
 }: AnswerFormProps): ReactElement => {
-    const { loading: loadingAnswers, answers } = useWatchRealityQuestionAnswers(
+    const { answers } = useWatchRealityQuestionAnswers(
         realityAddress,
         question.id
     );
@@ -809,7 +809,7 @@ export const AnswerForm = ({
                             <Button
                                 onClick={handleSubmit}
                                 disabled={submitAnswerDisabled}
-                                loading={submitting || loadingQuestion}
+                                loading={submitting}
                                 size="small"
                             >
                                 {t("label.question.form.confirm")}
@@ -817,9 +817,7 @@ export const AnswerForm = ({
                             <Button
                                 onClick={handleRequestArbitrationSubmit}
                                 disabled={requestArbitrationDisabled}
-                                loading={
-                                    requestingArbitration || loadingQuestion
-                                }
+                                loading={requestingArbitration}
                                 size="small"
                             >
                                 {t("label.question.form.requestArbitration")}
@@ -832,7 +830,7 @@ export const AnswerForm = ({
                                 <Button
                                     onClick={handleReopenSubmit}
                                     disabled={!reopenAnswerAsync}
-                                    loading={submitting || loadingQuestion}
+                                    loading={submitting}
                                     size="small"
                                     className={{ root: "mt-5" }}
                                 >
@@ -845,9 +843,7 @@ export const AnswerForm = ({
                                     disabled={
                                         !finalizeOracleAsync || oracle.finalized
                                     }
-                                    loading={
-                                        finalizingOracle || loadingQuestion
-                                    }
+                                    loading={finalizingOracle}
                                     size="small"
                                     className={{ root: "mt-5" }}
                                 >
@@ -860,11 +856,7 @@ export const AnswerForm = ({
                                     !claimWinningsAsync ||
                                     BigNumber.from(lastHistoryHash).isZero()
                                 }
-                                loading={
-                                    claimingWinnings ||
-                                    loadingQuestion ||
-                                    loadingAnswers
-                                }
+                                loading={claimingWinnings}
                                 size="small"
                                 className={{ root: "mt-5" }}
                             >
@@ -879,11 +871,7 @@ export const AnswerForm = ({
                                             withdrawableBalance
                                         ).isZero())
                                 }
-                                loading={
-                                    withdrawingWinnings ||
-                                    loadingQuestion ||
-                                    loadingAnswers
-                                }
+                                loading={withdrawingWinnings}
                                 size="small"
                                 className={{ root: "mt-5" }}
                             >
