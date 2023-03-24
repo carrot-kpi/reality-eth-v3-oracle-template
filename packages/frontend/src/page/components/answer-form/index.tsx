@@ -26,10 +26,12 @@ import {
     useContractWrite,
     useNetwork,
     useContractRead,
+    useAccount,
 } from "wagmi";
 import {
     ANSWERED_TOO_SOON_REALITY_ANSWER,
     BooleanAnswer,
+    BYTES32_ZERO,
     INVALID_REALITY_ANSWER,
     SupportedRealityTemplates,
     TRUSTED_REALITY_ARBITRATORS,
@@ -80,8 +82,6 @@ export const AnswerForm = ({
         realityAddress,
         question.id
     );
-    // TODO: remove this console log
-    console.log({ loadingAnswers, answers });
 
     const [open, setOpen] = useState(false);
     const [booleanValue, setBooleanValue] = useState<BooleanAnswer | null>(
@@ -95,6 +95,8 @@ export const AnswerForm = ({
     const [submitting, setSubmitting] = useState(false);
     const [finalizingOracle, setFinalizingOracle] = useState(false);
     const [requestingArbitration, setRequestingArbitration] = useState(false);
+    const [claimingWinnings, setClaimingWinnings] = useState(false);
+    const [withdrawingWinnings, setWithdrawingWinnings] = useState(false);
     const [moreOptionValue, setMoreOptionValue] = useState({
         invalid: false,
         anweredTooSoon: false,
@@ -107,6 +109,7 @@ export const AnswerForm = ({
     const [bondErrorText, setBondErrorText] = useState("");
 
     const { chain } = useNetwork();
+    const { address } = useAccount();
 
     const minimumBond = question.bond.isZero()
         ? question.minBond
@@ -118,6 +121,37 @@ export const AnswerForm = ({
             : BigNumber.from("0");
     }, [bond, chain?.nativeCurrency.decimals]);
 
+    const claimWinningsPayload = useMemo(() => {
+        const payload = answers.reduce(
+            (
+                accumulator: {
+                    historyHashes: string[];
+                    answerers: string[];
+                    bonds: BigNumber[];
+                    answers: string[];
+                },
+                answer
+            ) => {
+                accumulator.historyHashes.push(answer.hash);
+                accumulator.answerers.push(answer.answerer);
+                accumulator.bonds.push(answer.bond);
+                accumulator.answers.push(answer.value);
+
+                return accumulator;
+            },
+            { historyHashes: [], answerers: [], bonds: [], answers: [] }
+        );
+
+        // the last history hash must be empty
+        payload.historyHashes.reverse().shift();
+        payload.historyHashes.push(BYTES32_ZERO);
+        payload.answerers.reverse();
+        payload.bonds.reverse();
+        payload.answers.reverse();
+
+        return payload;
+    }, [answers]);
+
     const { data: disputeFee } = useContractRead({
         address:
             !!chain && chain.id
@@ -126,6 +160,15 @@ export const AnswerForm = ({
         abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
         functionName: "getDisputeFee",
         enabled: !!chain && !!chain.id,
+    });
+
+    const { data: withdrawableBalance } = useContractRead({
+        address: realityAddress,
+        abi: REALITY_ETH_V3_ABI,
+        functionName: "balanceOf",
+        args: [address],
+        enabled: !!address,
+        watch: true,
     });
 
     const { config: submitAnswerConfig } = usePrepareContractWrite({
@@ -192,6 +235,38 @@ export const AnswerForm = ({
     const { writeAsync: requestArbitrationAsync } = useContractWrite(
         requestArbitrationConfig
     );
+
+    const { config: claimWinningsConfig } = usePrepareContractWrite({
+        address: realityAddress,
+        abi: REALITY_ETH_V3_ABI,
+        functionName: "claimWinnings",
+        args: [
+            question.id,
+            claimWinningsPayload.historyHashes,
+            claimWinningsPayload.answerers,
+            claimWinningsPayload.bonds,
+            claimWinningsPayload.answers,
+        ],
+        enabled:
+            finalized &&
+            !!claimWinningsPayload &&
+            claimWinningsPayload.historyHashes.length > 0 &&
+            claimWinningsPayload.answerers.length > 0 &&
+            claimWinningsPayload.bonds.length > 0 &&
+            claimWinningsPayload.answers.length > 0 &&
+            !isAnswerMissing(question),
+    });
+    const { writeAsync: claimWinningsAsync } =
+        useContractWrite(claimWinningsConfig);
+
+    const { config: withdrawConfig } = usePrepareContractWrite({
+        address: realityAddress,
+        abi: REALITY_ETH_V3_ABI,
+        functionName: "withdraw",
+        args: [],
+        enabled: finalized && !isAnswerMissing(question),
+    });
+    const { writeAsync: withdrawAsync } = useContractWrite(withdrawConfig);
 
     useEffect(() => {
         setSubmitAnswerDisabled(
@@ -411,6 +486,70 @@ export const AnswerForm = ({
             cancelled = true;
         };
     }, [requestArbitrationAsync, onTx, t]);
+
+    const handleClaimWinningsSubmit = useCallback(() => {
+        if (!claimWinningsAsync) return;
+        let cancelled = false;
+        const submitWinningsClaim = async () => {
+            if (!cancelled) setClaimingWinnings(true);
+            try {
+                const tx = await claimWinningsAsync();
+                const receipt = await tx.wait();
+
+                onTx({
+                    type: TxType.CUSTOM,
+                    from: receipt.from,
+                    hash: tx.hash,
+                    payload: {
+                        summary: t("label.transaction.winningsClaimed"),
+                    },
+                    receipt,
+                    timestamp: unixTimestamp(new Date()),
+                });
+                if (cancelled) return;
+            } catch (error) {
+                console.error("error claiming winnings", error);
+            } finally {
+                if (!cancelled) setClaimingWinnings(false);
+            }
+        };
+        void submitWinningsClaim();
+        return () => {
+            cancelled = true;
+        };
+    }, [claimWinningsAsync, onTx, t]);
+
+    const handleWithdrawSubmit = useCallback(() => {
+        if (!withdrawAsync) return;
+        let cancelled = false;
+        const submitWithdraw = async () => {
+            if (!cancelled) setWithdrawingWinnings(true);
+            try {
+                const tx = await withdrawAsync();
+                const receipt = await tx.wait();
+
+                onTx({
+                    type: TxType.CUSTOM,
+                    from: receipt.from,
+                    hash: tx.hash,
+                    payload: {
+                        summary: t("label.transaction.winningsWithdrawed"),
+                    },
+                    receipt,
+                    timestamp: unixTimestamp(new Date()),
+                });
+                if (cancelled) return;
+            } catch (error) {
+                console.error("error withdrawing winnings", error);
+            } finally {
+                if (!cancelled) setWithdrawingWinnings(false);
+            }
+        };
+        void submitWithdraw();
+        return () => {
+            cancelled = true;
+        };
+    }, [withdrawAsync, onTx, t]);
 
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
@@ -674,27 +813,67 @@ export const AnswerForm = ({
                             </Button>
                         </div>
                     )}
-                    {finalized && isAnsweredTooSoon(question) && (
-                        <Button
-                            onClick={handleReopenSubmit}
-                            disabled={!reopenAnswerAsync}
-                            loading={submitting || loadingQuestion}
-                            size="small"
-                            className={{ root: "mt-5" }}
-                        >
-                            {t("label.question.form.reopen")}
-                        </Button>
-                    )}
-                    {finalized && !isAnsweredTooSoon(question) && (
-                        <Button
-                            onClick={handleFinalizeOracleSubmit}
-                            disabled={!finalizeOracleAsync || oracle.finalized}
-                            loading={finalizingOracle || loadingQuestion}
-                            size="small"
-                            className={{ root: "mt-5" }}
-                        >
-                            {t("label.question.form.finalize")}
-                        </Button>
+                    {finalized && (
+                        <div className="flex gap-5 mt-5">
+                            {isAnsweredTooSoon(question) && (
+                                <Button
+                                    onClick={handleReopenSubmit}
+                                    disabled={!reopenAnswerAsync}
+                                    loading={submitting || loadingQuestion}
+                                    size="small"
+                                    className={{ root: "mt-5" }}
+                                >
+                                    {t("label.question.form.reopen")}
+                                </Button>
+                            )}
+                            {!isAnsweredTooSoon(question) && (
+                                <Button
+                                    onClick={handleFinalizeOracleSubmit}
+                                    disabled={
+                                        !finalizeOracleAsync || oracle.finalized
+                                    }
+                                    loading={
+                                        finalizingOracle || loadingQuestion
+                                    }
+                                    size="small"
+                                    className={{ root: "mt-5" }}
+                                >
+                                    {t("label.question.form.finalize")}
+                                </Button>
+                            )}
+                            <Button
+                                onClick={handleClaimWinningsSubmit}
+                                disabled={!claimWinningsAsync}
+                                loading={
+                                    claimingWinnings ||
+                                    loadingQuestion ||
+                                    loadingAnswers
+                                }
+                                size="small"
+                                className={{ root: "mt-5" }}
+                            >
+                                {t("label.question.form.claimWinnings")}
+                            </Button>
+                            <Button
+                                onClick={handleWithdrawSubmit}
+                                disabled={
+                                    !withdrawAsync ||
+                                    (!!withdrawableBalance &&
+                                        BigNumber.from(
+                                            withdrawableBalance
+                                        ).isZero())
+                                }
+                                loading={
+                                    withdrawingWinnings ||
+                                    loadingQuestion ||
+                                    loadingAnswers
+                                }
+                                size="small"
+                                className={{ root: "mt-5" }}
+                            >
+                                {t("label.question.form.withdraw")}
+                            </Button>
+                        </div>
                     )}
                 </>
             )}
