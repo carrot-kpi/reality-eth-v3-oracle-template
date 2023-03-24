@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { useIPFSGatewayURL } from "@carrot-kpi/react";
 import { useBlockNumber, useProvider } from "wagmi";
 import { Fetcher } from "../fetcher";
 import { RealityQuestion } from "../page/types";
@@ -14,7 +13,6 @@ export function useWatchRealityQuestion(
 } {
     const provider = useProvider();
     const blockNumber = useBlockNumber();
-    const ipfsGatewayURL = useIPFSGatewayURL();
 
     const [loading, setLoading] = useState(true);
     const [realityQuestion, setOnChainQuestion] =
@@ -23,13 +21,7 @@ export function useWatchRealityQuestion(
     useEffect(() => {
         let cancelled = false;
         const fetchData = async (): Promise<void> => {
-            if (
-                !realityV3Address ||
-                !question ||
-                !questionId ||
-                !ipfsGatewayURL
-            )
-                return;
+            if (!realityV3Address || !question || !questionId) return;
             if (!cancelled) setLoading(true);
             try {
                 const fetched = await Fetcher.fetchQuestion({
@@ -37,7 +29,6 @@ export function useWatchRealityQuestion(
                     realityV3Address,
                     question,
                     questionId,
-                    ipfsGatewayURL,
                 });
                 if (!cancelled) setOnChainQuestion(fetched);
             } catch (error) {
@@ -50,14 +41,7 @@ export function useWatchRealityQuestion(
         return () => {
             cancelled = true;
         };
-    }, [
-        provider,
-        question,
-        questionId,
-        blockNumber.data,
-        ipfsGatewayURL,
-        realityV3Address,
-    ]);
+    }, [provider, question, questionId, blockNumber.data, realityV3Address]);
 
     return { loading, question: realityQuestion };
 }

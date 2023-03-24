@@ -53,7 +53,7 @@ export interface SubgraphResponse {
     historyHash: string;
     user: string;
     bond: string;
-    answer: string;
+    answer?: string;
 }
 
 export const ResponseDataFields = `
@@ -71,8 +71,8 @@ export interface GetResponsesQueryResponse {
 
 export const GetResponsesQuery = `
     query getQuestionResponses($questionId: ID!) {
-        question(id: $id, sortBy, orderBy: timestamp, orderDirection: asc) {
-            responses {
+        question(id: $id) {
+            responses(orderBy: timestamp, orderDirection: asc) {
                 ${ResponseDataFields}
             }
         }

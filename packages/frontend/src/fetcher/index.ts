@@ -29,7 +29,6 @@ class FullFetcher implements IFullFetcher {
         realityV3Address,
         question,
         questionId,
-        ipfsGatewayURL,
     }: FullFetcherFetchQuestionParams): Promise<RealityQuestion | null> {
         const useSubgraph = await this.shouldUseSubgraph({
             provider,
@@ -41,14 +40,12 @@ class FullFetcher implements IFullFetcher {
                   realityV3Address,
                   question,
                   questionId,
-                  ipfsGatewayURL,
               })
             : OnChainFetcher.fetchQuestion({
                   provider,
                   realityV3Address,
                   question,
                   questionId,
-                  ipfsGatewayURL,
               });
     }
 

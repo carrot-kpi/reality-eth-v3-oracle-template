@@ -11,7 +11,6 @@ export interface FetchQuestionParams {
     realityV3Address?: string;
     question?: string;
     questionId?: string;
-    ipfsGatewayURL?: string;
 }
 
 export interface FetchAnswersHistoryParams {

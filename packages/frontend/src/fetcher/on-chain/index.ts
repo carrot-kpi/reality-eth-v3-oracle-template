@@ -41,10 +41,8 @@ class Fetcher implements IPartialFetcher {
         realityV3Address,
         questionId,
         question,
-        ipfsGatewayURL,
     }: FetchQuestionParams): Promise<RealityQuestion | null> {
-        if (!realityV3Address || !question || !questionId || !ipfsGatewayURL)
-            return null;
+        if (!realityV3Address || !question || !questionId) return null;
         const [cid, templateId] = question.split("-");
         if (
             !isCID(cid) ||
