@@ -73,7 +73,7 @@ export interface GetResponsesQueryResponse {
 
 export const GetResponsesQuery = `
     query getQuestionResponses($questionId: ID!) {
-        question(id: $id) {
+        question(id: $questionId) {
             responses(orderBy: timestamp, orderDirection: asc) {
                 ${ResponseDataFields}
             }
