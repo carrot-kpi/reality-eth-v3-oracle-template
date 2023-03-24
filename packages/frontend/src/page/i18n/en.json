@@ -49,5 +49,5 @@
     "label.transaction.oracleFinalized": "Finalized oracle",
     "label.transaction.arbitrationRequested": "Arbitration requested",
     "label.transaction.winningsClaimed": "Claimed winnings",
-    "label.transaction.winningsWithdrawed": "Withdrawed winnings"
+    "label.transaction.winningsWithdrawn": "Withdrawn winnings"
 }

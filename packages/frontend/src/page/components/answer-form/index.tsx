@@ -171,15 +171,6 @@ export const AnswerForm = ({
         watch: true,
     });
 
-    const { data: lastHistoryHash } = useContractRead({
-        address: realityAddress,
-        abi: REALITY_ETH_V3_ABI,
-        functionName: "getHistoryHash",
-        args: [question.id],
-        enabled: !!question && !!question.id,
-        watch: true,
-    });
-
     const { config: submitAnswerConfig } = usePrepareContractWrite({
         address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
@@ -546,7 +537,7 @@ export const AnswerForm = ({
                     from: receipt.from,
                     hash: tx.hash,
                     payload: {
-                        summary: t("label.transaction.winningsWithdrawed"),
+                        summary: t("label.transaction.winningsWithdrawn"),
                     },
                     receipt,
                     timestamp: unixTimestamp(new Date()),
@@ -854,7 +845,9 @@ export const AnswerForm = ({
                                 onClick={handleClaimWinningsSubmit}
                                 disabled={
                                     !claimWinningsAsync ||
-                                    BigNumber.from(lastHistoryHash).isZero()
+                                    BigNumber.from(
+                                        question.historyHash
+                                    ).isZero()
                                 }
                                 loading={claimingWinnings}
                                 size="small"
