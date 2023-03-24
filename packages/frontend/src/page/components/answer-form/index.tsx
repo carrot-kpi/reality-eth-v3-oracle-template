@@ -11,6 +11,7 @@ import {
     Typography,
     Radio,
     RadioGroup,
+    Skeleton,
 } from "@carrot-kpi/ui";
 import { BigNumber, utils } from "ethers";
 import {
@@ -58,6 +59,7 @@ import { OpeningCountdown } from "../opening-countdown";
 import { ChainId, Oracle } from "@carrot-kpi/sdk";
 import { unixTimestamp } from "../../../utils/dates";
 import { useRealityQuestionResponses } from "../../../hooks/useRealityQuestionResponses";
+import { useQuestionContent } from "../../../hooks/useQuestionContent";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -79,6 +81,9 @@ export const AnswerForm = ({
     const { loading: loadingAnswers, responses } = useRealityQuestionResponses(
         realityAddress,
         question.id
+    );
+    const { loading: loadingContent, content } = useQuestionContent(
+        question.content
     );
     // TODO: remove this console log
     console.log({ loadingAnswers, responses });
@@ -163,7 +168,6 @@ export const AnswerForm = ({
 
     const { config: finalizeOracleConfig } = usePrepareContractWrite({
         address: oracle.address,
-        // TODO: use the ABI exported from the SDK
         abi: REALITY_ORACLE_V3_ABI,
         functionName: "finalize",
         enabled: finalized && !oracle.finalized,
@@ -423,7 +427,11 @@ export const AnswerForm = ({
     return (
         <div className="flex flex-col">
             <div className="min-h-[50px] max-h-[400px] overflow-y-auto">
-                <Markdown>{question.resolvedContent}</Markdown>
+                {loadingContent ? (
+                    <Skeleton width="100px" />
+                ) : (
+                    <Markdown>{content}</Markdown>
+                )}
             </div>
             <div className="flex justify-between gap-4 mt-10">
                 <QuestionInfo

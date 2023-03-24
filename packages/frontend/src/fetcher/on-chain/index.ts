@@ -10,7 +10,7 @@ import {
     SupportedChain,
 } from "../../commons";
 import REALITY_ETH_V3_ABI from "../../abis/reality-eth-v3.json";
-import { enforce, isCID, CoreFetcher } from "@carrot-kpi/sdk";
+import { enforce, isCID } from "@carrot-kpi/sdk";
 import {
     RealityResponse,
     OnChainRealityQuestion,
@@ -96,12 +96,6 @@ class Fetcher implements IPartialFetcher {
             historyHash: history_hash,
             templateId,
             content: question,
-            resolvedContent: (
-                await CoreFetcher.fetchContentFromIPFS({
-                    cids: [cid],
-                    ipfsGatewayURL,
-                })
-            )[cid],
             contentHash: content_hash,
             arbitrator,
             timeout,

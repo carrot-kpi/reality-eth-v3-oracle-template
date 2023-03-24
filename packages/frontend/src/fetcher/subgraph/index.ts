@@ -10,7 +10,7 @@ import {
     SUBGRAPH_URL,
     SupportedChain,
 } from "../../commons";
-import { enforce, query, CoreFetcher as SDKCoreFetcher } from "@carrot-kpi/sdk";
+import { enforce, query } from "@carrot-kpi/sdk";
 import { RealityResponse, RealityQuestion } from "../../page/types";
 import { GetQuestionQuery, GetQuestionQueryResponse } from "./queries";
 import { BigNumber } from "ethers";
@@ -44,21 +44,12 @@ class Fetcher implements IPartialFetcher {
         );
         if (!question) return null;
 
-        const splitData = question.data.split("-");
-        if (splitData.length !== 2) return null;
-        const cid = splitData[0];
         return {
             id: question.reopenedBy?.id ? question.reopenedBy.id : question.id,
             reopenedId: question.reopenedBy?.id ? question.id : undefined,
             historyHash: question.historyHash || BYTES32_ZERO,
             templateId: question.template.templateId,
             content: question.data,
-            resolvedContent: (
-                await SDKCoreFetcher.fetchContentFromIPFS({
-                    cids: [cid],
-                    ipfsGatewayURL,
-                })
-            )[cid],
             contentHash: question.contentHash,
             arbitrator: question.arbitrator,
             timeout: parseInt(question.timeout),

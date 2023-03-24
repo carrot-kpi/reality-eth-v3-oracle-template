@@ -25,7 +25,6 @@ export interface RealityQuestion {
     historyHash: string;
     templateId: string;
     content: string;
-    resolvedContent: string;
     contentHash: string;
     arbitrator: string;
     timeout: number;
