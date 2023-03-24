@@ -27,7 +27,7 @@
     "devDependencies": {
         "@carrot-kpi/frontend": "^1.0.0-rc.57",
         "@carrot-kpi/react": "^0.36.3",
-        "@carrot-kpi/sdk": "^1.21.2",
+        "@carrot-kpi/sdk": "^1.22.0",
         "@carrot-kpi/ui": "^0.34.1",
         "@fontsource/ibm-plex-mono": "^4.5.13",
         "@fontsource/inter": "^4.5.15",
