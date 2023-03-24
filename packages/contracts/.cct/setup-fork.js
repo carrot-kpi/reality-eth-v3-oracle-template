@@ -70,18 +70,8 @@ export const setupFork = async (
                 name: "Trusted arbitrator",
                 address: arbitratorContract.address,
             },
-            {
-                name: "ERC20 1",
-                address: testToken1Contract.address,
-            },
-            {
-                name: "ERC20 2",
-                address: testToken2Contract.address,
-            },
         ],
         frontendGlobals: {
-            CCT_ERC20_1_ADDRESS: testToken1Contract.address,
-            CCT_ERC20_2_ADDRESS: testToken2Contract.address,
             CCT_TRUSTED_ARBITRATOR_ADDRESS: arbitratorContract.address,
         },
     };
