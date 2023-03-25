@@ -23,5 +23,5 @@
     "confirm": "Confirm",
     "error.question.empty": "A question is required",
     "error.question.timeout.empty": "The minimum question timeout is {{minimum}} seconds",
-    "error.minimum.bond.empty": "A minimum bond is required"
+    "error.minimum.bond.empty": "A minimum bond is required (it can be 0)"
 }
