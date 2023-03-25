@@ -18,12 +18,33 @@ import {
     ARBITRATORS_BY_CHAIN,
     REALITY_TEMPLATE_OPTIONS,
     TIMEOUT_OPTIONS,
+    MINIMUM_ANSWER_PERIODS_AMOUNT,
 } from "../commons";
 import { OptionWithIcon, State } from "./types";
 import { ArbitratorOption } from "./components/arbitrator-option";
 import dayjs, { Dayjs } from "dayjs";
+import durationPlugin from "dayjs/plugin/duration";
+
+dayjs.extend(durationPlugin);
 
 const stripHtml = (value: string) => value.replace(/(<([^>]+)>)/gi, "");
+
+const checkMinimumQuestionTimeoutWindows = (
+    openingTimestamp: Dayjs,
+    questionTimeoutSeconds: number,
+    kpiTokenExpirationTimestamp: number
+): boolean => {
+    return (
+        openingTimestamp
+            .add(
+                dayjs.duration({
+                    seconds:
+                        questionTimeoutSeconds * MINIMUM_ANSWER_PERIODS_AMOUNT,
+                })
+            )
+            .unix() < kpiTokenExpirationTimestamp
+    );
+};
 
 export const Component = ({
     t,
@@ -80,6 +101,9 @@ export const Component = ({
         state.openingTimestamp ? dayjs.unix(state.openingTimestamp) : null
     );
     const [minimumBond, setMinimumBond] = useState(state.minimumBond || "");
+
+    const [openingTimestampErrorText, setOpeningTimestampErrorText] =
+        useState("");
     const [questionErrorText, setQuestionErrorText] = useState("");
     const [minimumBondErrorText, setMinimumBondErrorText] = useState("");
 
@@ -120,6 +144,12 @@ export const Component = ({
             stripHtml(question).trim() &&
             questionTimeout &&
             openingTimestamp &&
+            (!kpiToken?.expiration ||
+                checkMinimumQuestionTimeoutWindows(
+                    openingTimestamp,
+                    questionTimeout.value as number,
+                    kpiToken.expiration
+                )) &&
             minimumBond &&
             openingTimestamp.isAfter(dayjs())
         ) {
@@ -155,6 +185,7 @@ export const Component = ({
     }, [
         arbitrator,
         chain,
+        kpiToken?.expiration,
         minimumBond,
         onChange,
         openingTimestamp,
@@ -163,6 +194,24 @@ export const Component = ({
         realityTemplateId,
         uploadToIpfs,
     ]);
+
+    useEffect(() => {
+        if (!openingTimestamp || !questionTimeout || !kpiToken?.expiration) {
+            setOpeningTimestampErrorText("");
+        } else {
+            setOpeningTimestampErrorText(
+                !checkMinimumQuestionTimeoutWindows(
+                    openingTimestamp,
+                    questionTimeout.value as number,
+                    kpiToken.expiration
+                )
+                    ? t("error.opening.timestamp.tooSoon", {
+                          periodsAmount: MINIMUM_ANSWER_PERIODS_AMOUNT,
+                      })
+                    : ""
+            );
+        }
+    }, [kpiToken?.expiration, openingTimestamp, questionTimeout, t]);
 
     const handleQuestionChange = useCallback(
         (value: string) => {
@@ -282,6 +331,8 @@ export const Component = ({
                         max={maximumDate}
                         onChange={handleOpeningTimestampChange}
                         value={openingTimestamp?.toDate()}
+                        error={!!openingTimestampErrorText}
+                        errorText={openingTimestampErrorText}
                     />
                 </div>
             </div>

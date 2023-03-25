@@ -2,7 +2,7 @@
     "info": "Need more info on how Reality.eth works? Check out the documentation page ",
     "info.here": "here",
     "label.arbitrator": "Arbitrator:",
-    "info.arbitrator": "Anyone who wants to challenge the final answer but doesn't have enough funds to post it directly can request an arbitrator to step in. Keep in mind the arbitrator can assign a cost for this service.",
+    "info.arbitrator": "Anyone who wants to challenge the final answer but doesn't have enough funds to post it directly can request for an arbitrator to step in. Keep in mind the arbitrator can assign a cost for this service.",
     "label.reality.template": "Result type:",
     "info.reality.template": "The  answer can be either yes or no or a specific number value depending on your needs.",
     "label.question": "Question:",
@@ -31,5 +31,6 @@
     "confirm": "Confirm",
     "error.question.empty": "A question is required",
     "error.question.timeout.empty": "The minimum question timeout is {{minimum}} seconds",
+    "error.opening.timestamp.tooSoon": "At least {{periodsAmount}} full answer windows should be available between the opening timestamp and the KPI token expiration.",
     "error.minimum.bond.empty": "A minimum bond is required (it can be 0)"
 }
