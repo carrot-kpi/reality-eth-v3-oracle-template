@@ -28,6 +28,7 @@ import {
     useNetwork,
     useContractRead,
     useAccount,
+    useBalance,
 } from "wagmi";
 import {
     ANSWERED_TOO_SOON_REALITY_ANSWER,
@@ -115,6 +116,9 @@ export const AnswerForm = ({
 
     const { chain } = useNetwork();
     const { address } = useAccount();
+    const { data: userNativeCurrencyBalance } = useBalance({
+        address,
+    });
 
     const minimumBond = question.bond.isZero()
         ? question.minBond
@@ -346,20 +350,33 @@ export const AnswerForm = ({
                 value.value || "0",
                 chain?.nativeCurrency.decimals
             );
-            setBondErrorText(
-                !value || !value.value || parsedBond.isZero()
-                    ? t("error.bond.empty")
-                    : parsedBond.lt(minimumBond)
-                    ? t("error.bond.insufficient", {
-                          minBond: utils.formatUnits(
-                              minimumBond,
-                              chain?.nativeCurrency.decimals
-                          ),
-                      })
-                    : ""
-            );
+            let bondErrorText = "";
+            if (!value || !value.value || parsedBond.isZero())
+                bondErrorText = t("error.bond.empty");
+            else if (
+                userNativeCurrencyBalance &&
+                parsedBond.gt(userNativeCurrencyBalance.value)
+            )
+                bondErrorText = t("error.bond.notEnoughBalanceInWallet", {
+                    symbol: chain?.nativeCurrency.symbol,
+                });
+            else if (parsedBond.lt(minimumBond))
+                t("error.bond.insufficient", {
+                    minBond: utils.formatUnits(
+                        minimumBond,
+                        chain?.nativeCurrency.decimals
+                    ),
+                    symbol: chain?.nativeCurrency.symbol,
+                });
+            setBondErrorText(bondErrorText);
         },
-        [t, setBondErrorText, minimumBond, chain]
+        [
+            chain?.nativeCurrency.decimals,
+            chain?.nativeCurrency.symbol,
+            t,
+            userNativeCurrencyBalance,
+            minimumBond,
+        ]
     );
 
     const handleSubmit = useCallback(() => {
