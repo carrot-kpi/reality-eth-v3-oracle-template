@@ -119,10 +119,11 @@ export const Component = ({
             stripHtml(question).trim() &&
             questionTimeout &&
             openingTimestamp &&
+            minimumBond &&
             openingTimestamp.isAfter(dayjs())
         ) {
             const formattedMinimumBond = ethers.utils.parseUnits(
-                (minimumBond || 0).toString(),
+                minimumBond,
                 chain.nativeCurrency.decimals
             );
             initializationDataGetter = async () => {
