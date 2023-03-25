@@ -9,6 +9,7 @@ import {
     NumberInput,
     MarkdownInput,
     DateTimeInput,
+    Typography,
 } from "@carrot-kpi/ui";
 import { useDecentralizedStorageUploader } from "@carrot-kpi/react";
 import { useNetwork } from "wagmi";
@@ -190,6 +191,18 @@ export const Component = ({
 
     return (
         <div className="flex flex-col gap-2 w-full">
+            <Typography className={{ root: "mb-2" }}>
+                {t("info")}
+                <a
+                    className="text-orange underline"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    href="https://reality.eth.limo/app/docs/html/index.html"
+                >
+                    {t("info.here")}
+                </a>
+                .
+            </Typography>
             <div className="md:flex md:gap-2">
                 <Select
                     id="arbitrator"
@@ -199,6 +212,11 @@ export const Component = ({
                         inputWrapper: "w-full",
                     }}
                     label={t("label.arbitrator")}
+                    info={
+                        <Typography variant="sm">
+                            {t("info.arbitrator")}
+                        </Typography>
+                    }
                     placeholder={t("placeholder.pick")}
                     onChange={setArbitrator}
                     options={arbitratorsByChain}
@@ -213,6 +231,11 @@ export const Component = ({
                         inputWrapper: "w-full",
                     }}
                     label={t("label.reality.template")}
+                    info={
+                        <Typography variant="sm">
+                            {t("info.reality.template")}
+                        </Typography>
+                    }
                     placeholder={t("placeholder.pick")}
                     onChange={setRealityTemplateId}
                     options={REALITY_TEMPLATE_OPTIONS}
@@ -229,6 +252,11 @@ export const Component = ({
                             inputWrapper: "w-full",
                         }}
                         label={t("label.question.timeout")}
+                        info={
+                            <Typography variant="sm">
+                                {t("info.question.timeout")}
+                            </Typography>
+                        }
                         placeholder={t("placeholder.number")}
                         options={timeoutOptions}
                         onChange={setQuestionTimeout}
@@ -244,6 +272,11 @@ export const Component = ({
                             inputWrapper: "w-full",
                         }}
                         label={t("label.opening.timestamp")}
+                        info={
+                            <Typography variant="sm">
+                                {t("info.opening.timestamp")}
+                            </Typography>
+                        }
                         placeholder={t("placeholder.number")}
                         min={minimumDate}
                         max={maximumDate}
@@ -260,6 +293,11 @@ export const Component = ({
                     inputWrapper: "w-full",
                 }}
                 label={t("label.minimum.bond")}
+                info={
+                    <Typography variant="sm">
+                        {t("info.minimum.bond")}
+                    </Typography>
+                }
                 placeholder={t("placeholder.number")}
                 onValueChange={handleMinimumBondChange}
                 value={minimumBond}
@@ -269,6 +307,9 @@ export const Component = ({
             <MarkdownInput
                 id="question"
                 label={t("label.question")}
+                info={
+                    <Typography variant="sm">{t("info.question")}</Typography>
+                }
                 placeholder={t("placeholder.pick")}
                 onChange={handleQuestionChange}
                 value={question}
