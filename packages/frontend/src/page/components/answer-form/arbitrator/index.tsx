@@ -57,13 +57,13 @@ export const Arbitrator = ({ address }: ArbitratorProps) => {
         <>{arbitrator}</>
     ) : (
         <>
-            <Typography
+            <div
                 ref={setAnchor}
                 onMouseEnter={handleMouseEnter}
                 onMouseLeave={handleMouseLeave}
             >
                 <ArbitratorOption {...arbitrator} />
-            </Typography>
+            </div>
             <Popover
                 open={popoverOpen}
                 anchor={anchor}
