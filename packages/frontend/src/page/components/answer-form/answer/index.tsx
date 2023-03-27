@@ -67,36 +67,34 @@ export const Answer = ({
     }
 
     return (
-        <div className="flex flex-col justify-between gap-3">
-            <div className="flex flex-col md:flex-row justify-between gap-6 md:gap-0 border-black border-b">
-                <AnswerInfo
-                    label={currentAnswerTitle}
-                    className={
-                        !pendingArbitration
-                            ? "border-r border-black"
-                            : undefined
-                    }
-                >
+        <div className="flex flex-col md:flex-row justify-between gap-3 md:gap-0 border-b dark:border-white">
+            <AnswerInfo
+                label={currentAnswerTitle}
+                className={
+                    !pendingArbitration
+                        ? "border-b md:border-r md:border-b-0 dark:border-white"
+                        : undefined
+                }
+            >
+                {loadingQuestion ? (
+                    <Skeleton width="220px" variant="2xl" />
+                ) : (
+                    <Typography>{currentAnswerValue}</Typography>
+                )}
+            </AnswerInfo>
+            {!pendingArbitration && (
+                <AnswerInfo label={t("label.answer.form.bonded")}>
                     {loadingQuestion ? (
-                        <Skeleton width="220px" variant="2xl" />
+                        <Skeleton width="150px" variant="2xl" />
                     ) : (
-                        <Typography>{currentAnswerValue}</Typography>
+                        <Typography>
+                            {`${utils.commify(formattedBond)} ${
+                                nativeCurrency.symbol
+                            }`}
+                        </Typography>
                     )}
                 </AnswerInfo>
-                {!pendingArbitration && (
-                    <AnswerInfo label={t("label.answer.form.bonded")}>
-                        {loadingQuestion ? (
-                            <Skeleton width="150px" variant="2xl" />
-                        ) : (
-                            <Typography>
-                                {`${utils.commify(formattedBond)} ${
-                                    nativeCurrency.symbol
-                                }`}
-                            </Typography>
-                        )}
-                    </AnswerInfo>
-                )}
-            </div>
+            )}
         </div>
     );
 };

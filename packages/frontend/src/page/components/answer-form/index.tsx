@@ -546,45 +546,51 @@ export const AnswerForm = ({
 
     return (
         <div className="flex flex-col">
-            <div className="flex justify-between border-black border-b">
-                <QuestionInfo
-                    label={t("label.question.arbitrator")}
-                    className={{ root: "hidden lg:flex" }}
-                >
-                    <Arbitrator address={question.arbitrator} />
-                </QuestionInfo>
-                <QuestionInfo
-                    label={t("label.question.rewards")}
-                    className={{ root: "hidden sm:flex" }}
-                >
-                    {!question.bounty.isZero() && chain?.id ? (
-                        <>{/* TODO: add rewards when implemented */}</>
-                    ) : (
-                        "-"
-                    )}
-                </QuestionInfo>
-                <QuestionInfo label={t("label.question.timeout")}>
-                    <Typography>
-                        {formatCountDownString(question.timeout)}
-                    </Typography>
-                </QuestionInfo>
-                <QuestionInfo
-                    label={t("label.question.oracleLink")}
-                    className={{ root: "hidden lg:flex" }}
-                >
-                    <a
-                        className="flex gap-1 items-center"
-                        href={formatRealityEthQuestionLink(
-                            question.id,
-                            realityAddress
-                        )}
-                        target="_blank"
-                        rel="noopener noreferrer"
+            <div className="flex flex-col md:flex-row justify-between">
+                <div className="w-full flex border-b dark:border-white">
+                    <QuestionInfo
+                        label={t("label.question.arbitrator")}
+                        // className={{ root: "hidden sm:flex" }}
                     >
-                        <Typography>Reality.eth</Typography>
-                        <ExternalSvg className="w-4 h-4 cursor-pointer" />
-                    </a>
-                </QuestionInfo>
+                        <Arbitrator address={question.arbitrator} />
+                    </QuestionInfo>
+                    <QuestionInfo
+                        label={t("label.question.rewards")}
+                        className={{
+                            root: "border-r-0 md:border-r dark:border-white",
+                        }}
+                    >
+                        {!question.bounty.isZero() && chain?.id ? (
+                            <>{/* TODO: add rewards when implemented */}</>
+                        ) : (
+                            "-"
+                        )}
+                    </QuestionInfo>
+                </div>
+                <div className="w-full flex border-b dark:border-white">
+                    <QuestionInfo label={t("label.question.timeout")}>
+                        <Typography>
+                            {formatCountDownString(question.timeout)}
+                        </Typography>
+                    </QuestionInfo>
+                    <QuestionInfo
+                        label={t("label.question.oracleLink")}
+                        className={{ root: "border-r-0 dark:border-white" }}
+                    >
+                        <a
+                            className="flex gap-1 items-center"
+                            href={formatRealityEthQuestionLink(
+                                question.id,
+                                realityAddress
+                            )}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Typography>Reality.eth</Typography>
+                            <ExternalSvg className="w-4 h-4 cursor-pointer" />
+                        </a>
+                    </QuestionInfo>
+                </div>
             </div>
             {open && (
                 <Answer
@@ -593,7 +599,7 @@ export const AnswerForm = ({
                     loadingQuestion={loadingQuestion}
                 />
             )}
-            <div className="p-6 border-b">
+            <div className="p-6 border-b dark:border-white">
                 <Typography variant="xs" uppercase>
                     {t("label.question.question")}
                 </Typography>
