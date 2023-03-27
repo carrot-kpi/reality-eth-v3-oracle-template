@@ -46,7 +46,6 @@ import {
     isAnswerPendingArbitration,
     isQuestionFinalized,
     numberToByte32,
-    shortenAddress,
 } from "../../../utils";
 import { NumberFormatValue, RealityQuestion } from "../../types";
 import { Answer } from "./answer";
@@ -63,6 +62,7 @@ import { ChainId, Oracle } from "@carrot-kpi/sdk";
 import { unixTimestamp } from "../../../utils/dates";
 import { useRealityQuestionResponses } from "../../../hooks/useRealityQuestionResponses";
 import { useQuestionContent } from "../../../hooks/useQuestionContent";
+import { Arbitrator } from "./arbitrator";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -586,19 +586,12 @@ export const AnswerForm = ({
 
     return (
         <div className="flex flex-col">
-            <div className="min-h-[50px] max-h-[400px] overflow-y-auto">
-                {loadingContent ? (
-                    <Skeleton width="100px" />
-                ) : (
-                    <Markdown>{content}</Markdown>
-                )}
-            </div>
-            <div className="flex justify-between gap-4 mt-10">
+            <div className="flex justify-between border-black border-b">
                 <QuestionInfo
                     label={t("label.question.arbitrator")}
                     className={{ root: "hidden lg:flex" }}
                 >
-                    {shortenAddress(question.arbitrator)}
+                    <Arbitrator address={question.arbitrator} />
                 </QuestionInfo>
                 <QuestionInfo
                     label={t("label.question.rewards")}
@@ -611,7 +604,9 @@ export const AnswerForm = ({
                     )}
                 </QuestionInfo>
                 <QuestionInfo label={t("label.question.timeout")}>
-                    {formatCountDownString(question.timeout)}
+                    <Typography>
+                        {formatCountDownString(question.timeout)}
+                    </Typography>
                 </QuestionInfo>
                 <QuestionInfo
                     label={t("label.question.oracleLink")}
@@ -627,28 +622,49 @@ export const AnswerForm = ({
                         rel="noopener noreferrer"
                     >
                         <Typography>Reality.eth</Typography>
-                        <ExternalSvg className="w-6 h-6 cursor-pointer" />
+                        <ExternalSvg className="w-4 h-4 cursor-pointer" />
                     </a>
                 </QuestionInfo>
             </div>
-            <div className="mt-6">
+            {open && (
                 <Answer
                     t={t}
                     question={question}
                     loadingQuestion={loadingQuestion}
                 />
+            )}
+            <div className="p-6 border-b">
+                <Typography variant="xs" uppercase>
+                    {t("label.question.question")}
+                </Typography>
+                {loadingContent ? (
+                    <Skeleton width="100px" />
+                ) : (
+                    <Markdown>{content}</Markdown>
+                )}
             </div>
-            {!isAnswerPendingArbitration(question) && !finalized && (
-                <Typography
-                    variant="h5"
-                    weight="bold"
-                    className={{ root: "mt-12" }}
-                >
-                    {t("label.question.subtitle")}
+            {!finalized && open && (
+                <Typography className={{ root: "px-6 mt-6" }}>
+                    {isAnswerPendingArbitration(question) ? (
+                        t("label.question.arbitrating.subtitle")
+                    ) : (
+                        <>
+                            {t("label.question.subtitle.1")}
+                            <a
+                                className="text-orange underline"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                href="https://reality.eth.limo/app/docs/html/index.html"
+                            >
+                                {t("label.question.subtitle.2")}
+                            </a>
+                            .
+                        </>
+                    )}
                 </Typography>
             )}
             {open && !isAnswerPendingArbitration(question) && !finalized && (
-                <div className="flex flex-col gap-6 mt-6">
+                <div className="px-6 flex flex-col gap-4 mt-6">
                     {question.templateId === SupportedRealityTemplates.BOOL && (
                         <RadioGroup
                             id="bool-template"
@@ -793,23 +809,21 @@ export const AnswerForm = ({
                             />
                         </div>
                     )}
-                    <div className="mt-3">
-                        <BondInput
-                            t={t}
-                            value={bond}
-                            placeholder={utils.formatUnits(
-                                minimumBond,
-                                chain?.nativeCurrency.decimals
-                            )}
-                            errorText={bondErrorText}
-                            onChange={handleBondChange}
-                            disabled={finalized}
-                        />
-                    </div>
+                    <BondInput
+                        t={t}
+                        value={bond}
+                        placeholder={utils.formatUnits(
+                            minimumBond,
+                            chain?.nativeCurrency.decimals
+                        )}
+                        errorText={bondErrorText}
+                        onChange={handleBondChange}
+                        disabled={finalized}
+                    />
                 </div>
             )}
             {!open && (
-                <div className="flex flex-col gap-2 mt-10">
+                <div className="px-6 pt-6 flex flex-col gap-5">
                     <Typography>{t("label.question.timeLeft")}</Typography>
                     <OpeningCountdown
                         t={t}
@@ -818,87 +832,77 @@ export const AnswerForm = ({
                     />
                 </div>
             )}
-            {!isAnswerPendingArbitration(question) && (
-                <>
-                    {!finalized && (
-                        <div className="flex flex-col md:flex-row gap-5 mt-5">
+            {open &&
+                (!isAnswerPendingArbitration(question) && !finalized ? (
+                    <div className="px-6 flex flex-col md:flex-row gap-5 mt-6">
+                        <Button
+                            onClick={handleSubmit}
+                            disabled={submitAnswerDisabled}
+                            loading={submitting}
+                            size="small"
+                        >
+                            {t("label.question.form.confirm")}
+                        </Button>
+                        <Button
+                            onClick={handleRequestArbitrationSubmit}
+                            disabled={requestArbitrationDisabled}
+                            loading={requestingArbitration}
+                            size="small"
+                        >
+                            {t("label.question.form.requestArbitration")}
+                        </Button>
+                    </div>
+                ) : (
+                    <div className="px-6 flex gap-5 mt-6">
+                        {isAnsweredTooSoon(question) && (
                             <Button
-                                onClick={handleSubmit}
-                                disabled={submitAnswerDisabled}
+                                onClick={handleReopenSubmit}
+                                disabled={!reopenAnswerAsync}
                                 loading={submitting}
                                 size="small"
                             >
-                                {t("label.question.form.confirm")}
+                                {t("label.question.form.reopen")}
                             </Button>
+                        )}
+                        {!isAnsweredTooSoon(question) && (
                             <Button
-                                onClick={handleRequestArbitrationSubmit}
-                                disabled={requestArbitrationDisabled}
-                                loading={requestingArbitration}
+                                onClick={handleFinalizeOracleSubmit}
+                                disabled={
+                                    !finalizeOracleAsync || oracle.finalized
+                                }
+                                loading={finalizingOracle}
                                 size="small"
                             >
-                                {t("label.question.form.requestArbitration")}
+                                {t("label.question.form.finalize")}
                             </Button>
-                        </div>
-                    )}
-                    {finalized && (
-                        <div className="flex gap-5 mt-5">
-                            {isAnsweredTooSoon(question) && (
-                                <Button
-                                    onClick={handleReopenSubmit}
-                                    disabled={!reopenAnswerAsync}
-                                    loading={submitting}
-                                    size="small"
-                                    className={{ root: "mt-5" }}
-                                >
-                                    {t("label.question.form.reopen")}
-                                </Button>
-                            )}
-                            {!isAnsweredTooSoon(question) && (
-                                <Button
-                                    onClick={handleFinalizeOracleSubmit}
-                                    disabled={
-                                        !finalizeOracleAsync || oracle.finalized
-                                    }
-                                    loading={finalizingOracle}
-                                    size="small"
-                                    className={{ root: "mt-5" }}
-                                >
-                                    {t("label.question.form.finalize")}
-                                </Button>
-                            )}
-                            <Button
-                                onClick={handleClaimWinningsSubmit}
-                                disabled={
-                                    !claimWinningsAsync ||
+                        )}
+                        <Button
+                            onClick={handleClaimWinningsSubmit}
+                            disabled={
+                                !claimWinningsAsync ||
+                                BigNumber.from(question.historyHash).isZero()
+                            }
+                            loading={loadingAnswers || claimingWinnings}
+                            size="small"
+                        >
+                            {t("label.question.form.claimWinnings")}
+                        </Button>
+                        <Button
+                            onClick={handleWithdrawSubmit}
+                            disabled={
+                                !withdrawAsync ||
+                                (!!withdrawableBalance &&
                                     BigNumber.from(
-                                        question.historyHash
-                                    ).isZero()
-                                }
-                                loading={loadingAnswers || claimingWinnings}
-                                size="small"
-                                className={{ root: "mt-5" }}
-                            >
-                                {t("label.question.form.claimWinnings")}
-                            </Button>
-                            <Button
-                                onClick={handleWithdrawSubmit}
-                                disabled={
-                                    !withdrawAsync ||
-                                    (!!withdrawableBalance &&
-                                        BigNumber.from(
-                                            withdrawableBalance
-                                        ).isZero())
-                                }
-                                loading={withdrawingWinnings}
-                                size="small"
-                                className={{ root: "mt-5" }}
-                            >
-                                {t("label.question.form.withdraw")}
-                            </Button>
-                        </div>
-                    )}
-                </>
-            )}
+                                        withdrawableBalance
+                                    ).isZero())
+                            }
+                            loading={withdrawingWinnings}
+                            size="small"
+                        >
+                            {t("label.question.form.withdraw")}
+                        </Button>
+                    </div>
+                ))}
         </div>
     );
 };

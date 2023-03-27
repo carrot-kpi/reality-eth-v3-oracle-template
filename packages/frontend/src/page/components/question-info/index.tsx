@@ -11,11 +11,11 @@ interface QuestionInfoProps {
 
 const rootStyles = cva([
     "flex flex-col",
-    "gap-3",
+    "gap-2",
     "w-full",
-    "border border-black",
-    "p-5",
-    "rounded-xxl",
+    "border-black [&:not(:last-child)]:border-r",
+    "px-6",
+    "py-4",
 ]);
 
 export const QuestionInfo = ({
@@ -25,10 +25,10 @@ export const QuestionInfo = ({
 }: QuestionInfoProps): ReactElement => {
     return (
         <div className={rootStyles({ className: className?.root })}>
-            <Typography uppercase variant="lg">
+            <Typography uppercase variant="xs">
                 {label}
             </Typography>
-            <div>{children}</div>
+            {children}
         </div>
     );
 };

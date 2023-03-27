@@ -44,7 +44,7 @@ export const Component = ({
     }
 
     return (
-        <div className="flex flex-col gap-3 px-6 py-12">
+        <div className="flex flex-col gap-3 pb-6">
             <AnswerForm
                 t={t}
                 realityAddress={realityV3Address}
