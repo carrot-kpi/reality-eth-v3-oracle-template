@@ -3,7 +3,7 @@ import {
     useIPFSGatewayURL,
     usePreferDecentralization,
 } from "@carrot-kpi/react";
-import { useProvider } from "wagmi";
+import { useBlockNumber, useProvider } from "wagmi";
 import { Fetcher } from "../fetcher";
 import { RealityResponse } from "../page/types";
 
@@ -14,6 +14,7 @@ export function useRealityQuestionResponses(
     loading: boolean;
     responses: RealityResponse[];
 } {
+    const blockNumber = useBlockNumber();
     const provider = useProvider();
     const ipfsGatewayURL = useIPFSGatewayURL();
     const preferDecentralization = usePreferDecentralization();
@@ -51,6 +52,7 @@ export function useRealityQuestionResponses(
         provider,
         questionId,
         ipfsGatewayURL,
+        blockNumber.data,
         realityV3Address,
         preferDecentralization,
     ]);
