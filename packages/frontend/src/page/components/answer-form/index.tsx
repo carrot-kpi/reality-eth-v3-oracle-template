@@ -778,17 +778,17 @@ export const AnswerForm = ({
                             />
                         </div>
                     )}
-                        <BondInput
-                            t={t}
-                            value={bond}
-                            placeholder={utils.formatUnits(
-                                minimumBond,
-                                chain?.nativeCurrency.decimals
-                            )}
-                            errorText={bondErrorText}
-                            onChange={handleBondChange}
-                            disabled={finalized}
-                        />
+                    <BondInput
+                        t={t}
+                        value={bond}
+                        placeholder={utils.formatUnits(
+                            minimumBond,
+                            chain?.nativeCurrency.decimals
+                        )}
+                        errorText={bondErrorText}
+                        onChange={handleBondChange}
+                        disabled={finalized}
+                    />
                 </div>
             )}
             {!open && (
