@@ -148,3 +148,10 @@ export enum BooleanAnswer {
 // when the question has no answer yet, this is the finalization ts value.
 export const SUBGRAPH_CURRENT_ANSWER_FINALIZATION_TIMESTAMP_NULL_VALUE =
     "2147483647";
+
+// the minimum amount of answer periods (they depend on what question
+// timeout the user picks) that must be available between the opening
+// timestamp and the KPI token expiration. These are to avoid that a
+// KPI token expires before the Reality.eth question has had the time
+// to be answered.
+export const MINIMUM_ANSWER_PERIODS_AMOUNT = 3;

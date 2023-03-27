@@ -1,8 +1,14 @@
 {
+    "info": "Need more info on how Reality.eth works? Check out the documentation page ",
+    "info.here": "here",
     "label.arbitrator": "Arbitrator:",
+    "info.arbitrator": "Anyone who wants to challenge the final answer but doesn't have enough funds to post it directly can request for an arbitrator to step in. Keep in mind the arbitrator can assign a cost for this service.",
     "label.reality.template": "Result type:",
+    "info.reality.template": "The answer can be either yes or no or a specific number value depending on your needs.",
     "label.question": "Question:",
+    "info.question": "What's the question that the oracle should answer?",
     "label.question.timeout": "Question timeout:",
+    "info.question.timeout": "The timeout period dictates for how long a posted answer can be overridden by another answer with a doubled bond. Each new answer resets the countdown period. The final unchallenged answer after the countdown period expires is the winner.",
     "option.question.timeout.1": "30 seconds",
     "option.question.timeout.2": "3 minutes",
     "option.question.timeout.3": "15 minutes",
@@ -17,11 +23,14 @@
     "option.question.timeout.12": "6 days",
     "option.question.timeout.13": "1 week",
     "label.opening.timestamp": "Opening timestamp:",
+    "info.opening.timestamp": "The opening date determines when answers can be posted. If the event has not yet taken place, the opening date should be set to after the event is supposed to happen. A large enough time difference should be there from the opening timestamp and the KPI token expiration date, be careful.",
     "label.minimum.bond": "Minimum bond:",
+    "info.minimum.bond": "The minimum bond (in the chain's native currency) that can be used for the first answer. Be careful with high values as it might price out many answerers.",
     "placeholder.pick": "Pick an option:",
     "placeholder.number": "10",
     "confirm": "Confirm",
     "error.question.empty": "A question is required",
     "error.question.timeout.empty": "The minimum question timeout is {{minimum}} seconds",
-    "error.minimum.bond.empty": "A minimum bond is required"
+    "error.opening.timestamp.tooSoon": "At least {{periodsAmount}} full answer windows should be available between the opening timestamp and the KPI token expiration.",
+    "error.minimum.bond.empty": "A minimum bond is required (it can be 0)"
 }
