@@ -101,8 +101,7 @@ export const AnswerForm = ({
     const [submitting, setSubmitting] = useState(false);
     const [finalizingOracle, setFinalizingOracle] = useState(false);
     const [requestingArbitration, setRequestingArbitration] = useState(false);
-    const [claimingWinnings, setClaimingWinnings] = useState(false);
-    const [withdrawingWinnings, setWithdrawingWinnings] = useState(false);
+    const [claimingAndWithdrawing, setClaimingAndWithdrawing] = useState(false);
     const [moreOptionValue, setMoreOptionValue] = useState({
         invalid: false,
         anweredTooSoon: false,
@@ -238,47 +237,40 @@ export const AnswerForm = ({
             !!chain.id &&
             !finalized &&
             !!disputeFee &&
+            !isAnswerPendingArbitration(question) &&
             !isAnswerMissing(question),
     });
     const { writeAsync: requestArbitrationAsync } = useContractWrite(
         requestArbitrationConfig
     );
 
-    const { config: claimWinningsConfig } = usePrepareContractWrite({
+    const { config: claimMultipleAndWithdrawConfig } = usePrepareContractWrite({
         address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
-        functionName: "claimWinnings",
+        functionName: "claimMultipleAndWithdrawBalance",
         args: [
-            question.id,
+            [question.id],
+            [claimWinningsPayload.historyHashes.length],
             claimWinningsPayload.historyHashes,
             claimWinningsPayload.answerers,
             claimWinningsPayload.bonds,
             claimWinningsPayload.responses,
         ],
         enabled:
+            !!question.id &&
             finalized &&
             !!claimWinningsPayload &&
             claimWinningsPayload.historyHashes.length > 0 &&
             claimWinningsPayload.answerers.length > 0 &&
             claimWinningsPayload.bonds.length > 0 &&
             claimWinningsPayload.responses.length > 0 &&
+            (!BigNumber.from(question.historyHash).isZero() ||
+                !BigNumber.from(withdrawableBalance).isZero()) &&
             !isAnswerMissing(question),
     });
-    const { writeAsync: claimWinningsAsync } =
-        useContractWrite(claimWinningsConfig);
-
-    const { config: withdrawConfig } = usePrepareContractWrite({
-        address: realityAddress,
-        abi: REALITY_ETH_V3_ABI,
-        functionName: "withdraw",
-        args: [],
-        enabled:
-            finalized &&
-            !isAnswerMissing(question) &&
-            !!withdrawableBalance &&
-            !BigNumber.from(withdrawableBalance).isZero(),
-    });
-    const { writeAsync: withdrawAsync } = useContractWrite(withdrawConfig);
+    const { writeAsync: claimMultipleAndWithdrawAsync } = useContractWrite(
+        claimMultipleAndWithdrawConfig
+    );
 
     useEffect(() => {
         setSubmitAnswerDisabled(
@@ -361,7 +353,7 @@ export const AnswerForm = ({
                     symbol: chain?.nativeCurrency.symbol,
                 });
             else if (parsedBond.lt(minimumBond))
-                t("error.bond.insufficient", {
+                bondErrorText = t("error.bond.insufficient", {
                     minBond: utils.formatUnits(
                         minimumBond,
                         chain?.nativeCurrency.decimals
@@ -512,45 +504,13 @@ export const AnswerForm = ({
         };
     }, [requestArbitrationAsync, onTx, t]);
 
-    const handleClaimWinningsSubmit = useCallback(() => {
-        if (!claimWinningsAsync) return;
+    const handleClaimMultipleAndWithdrawSubmit = useCallback(() => {
+        if (!claimMultipleAndWithdrawAsync) return;
         let cancelled = false;
-        const submitWinningsClaim = async () => {
-            if (!cancelled) setClaimingWinnings(true);
+        const submitClaimMultipleAndWithdraw = async () => {
+            if (!cancelled) setClaimingAndWithdrawing(true);
             try {
-                const tx = await claimWinningsAsync();
-                const receipt = await tx.wait();
-
-                onTx({
-                    type: TxType.CUSTOM,
-                    from: receipt.from,
-                    hash: tx.hash,
-                    payload: {
-                        summary: t("label.transaction.winningsClaimed"),
-                    },
-                    receipt,
-                    timestamp: unixTimestamp(new Date()),
-                });
-                if (cancelled) return;
-            } catch (error) {
-                console.error("error claiming winnings", error);
-            } finally {
-                if (!cancelled) setClaimingWinnings(false);
-            }
-        };
-        void submitWinningsClaim();
-        return () => {
-            cancelled = true;
-        };
-    }, [claimWinningsAsync, onTx, t]);
-
-    const handleWithdrawSubmit = useCallback(() => {
-        if (!withdrawAsync) return;
-        let cancelled = false;
-        const submitWithdraw = async () => {
-            if (!cancelled) setWithdrawingWinnings(true);
-            try {
-                const tx = await withdrawAsync();
+                const tx = await claimMultipleAndWithdrawAsync();
                 const receipt = await tx.wait();
 
                 onTx({
@@ -565,16 +525,16 @@ export const AnswerForm = ({
                 });
                 if (cancelled) return;
             } catch (error) {
-                console.error("error withdrawing winnings", error);
+                console.error("error claiming winnings", error);
             } finally {
-                if (!cancelled) setWithdrawingWinnings(false);
+                if (!cancelled) setClaimingAndWithdrawing(false);
             }
         };
-        void submitWithdraw();
+        void submitClaimMultipleAndWithdraw();
         return () => {
             cancelled = true;
         };
-    }, [withdrawAsync, onTx, t]);
+    }, [claimMultipleAndWithdrawAsync, onTx, t]);
 
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
@@ -586,45 +546,51 @@ export const AnswerForm = ({
 
     return (
         <div className="flex flex-col">
-            <div className="flex justify-between border-black border-b">
-                <QuestionInfo
-                    label={t("label.question.arbitrator")}
-                    className={{ root: "hidden lg:flex" }}
-                >
-                    <Arbitrator address={question.arbitrator} />
-                </QuestionInfo>
-                <QuestionInfo
-                    label={t("label.question.rewards")}
-                    className={{ root: "hidden sm:flex" }}
-                >
-                    {!question.bounty.isZero() && chain?.id ? (
-                        <>{/* TODO: add rewards when implemented */}</>
-                    ) : (
-                        "-"
-                    )}
-                </QuestionInfo>
-                <QuestionInfo label={t("label.question.timeout")}>
-                    <Typography>
-                        {formatCountDownString(question.timeout)}
-                    </Typography>
-                </QuestionInfo>
-                <QuestionInfo
-                    label={t("label.question.oracleLink")}
-                    className={{ root: "hidden lg:flex" }}
-                >
-                    <a
-                        className="flex gap-1 items-center"
-                        href={formatRealityEthQuestionLink(
-                            question.id,
-                            realityAddress
-                        )}
-                        target="_blank"
-                        rel="noopener noreferrer"
+            <div className="flex flex-col md:flex-row justify-between">
+                <div className="w-full flex border-b dark:border-white">
+                    <QuestionInfo
+                        label={t("label.question.arbitrator")}
+                        // className={{ root: "hidden sm:flex" }}
                     >
-                        <Typography>Reality.eth</Typography>
-                        <ExternalSvg className="w-4 h-4 cursor-pointer" />
-                    </a>
-                </QuestionInfo>
+                        <Arbitrator address={question.arbitrator} />
+                    </QuestionInfo>
+                    <QuestionInfo
+                        label={t("label.question.rewards")}
+                        className={{
+                            root: "border-r-0 md:border-r dark:border-white",
+                        }}
+                    >
+                        {!question.bounty.isZero() && chain?.id ? (
+                            <>{/* TODO: add rewards when implemented */}</>
+                        ) : (
+                            "-"
+                        )}
+                    </QuestionInfo>
+                </div>
+                <div className="w-full flex border-b dark:border-white">
+                    <QuestionInfo label={t("label.question.timeout")}>
+                        <Typography>
+                            {formatCountDownString(question.timeout)}
+                        </Typography>
+                    </QuestionInfo>
+                    <QuestionInfo
+                        label={t("label.question.oracleLink")}
+                        className={{ root: "border-r-0 dark:border-white" }}
+                    >
+                        <a
+                            className="flex gap-1 items-center"
+                            href={formatRealityEthQuestionLink(
+                                question.id,
+                                realityAddress
+                            )}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            <Typography>Reality.eth</Typography>
+                            <ExternalSvg className="w-4 h-4 cursor-pointer" />
+                        </a>
+                    </QuestionInfo>
+                </div>
             </div>
             {open && (
                 <Answer
@@ -633,7 +599,7 @@ export const AnswerForm = ({
                     loadingQuestion={loadingQuestion}
                 />
             )}
-            <div className="p-6 border-b">
+            <div className="p-6 border-b dark:border-white">
                 <Typography variant="xs" uppercase>
                     {t("label.question.question")}
                 </Typography>
@@ -877,29 +843,21 @@ export const AnswerForm = ({
                             </Button>
                         )}
                         <Button
-                            onClick={handleClaimWinningsSubmit}
+                            onClick={handleClaimMultipleAndWithdrawSubmit}
                             disabled={
-                                !claimWinningsAsync ||
-                                BigNumber.from(question.historyHash).isZero()
-                            }
-                            loading={loadingAnswers || claimingWinnings}
-                            size="small"
-                        >
-                            {t("label.question.form.claimWinnings")}
-                        </Button>
-                        <Button
-                            onClick={handleWithdrawSubmit}
-                            disabled={
-                                !withdrawAsync ||
-                                (!!withdrawableBalance &&
+                                !claimMultipleAndWithdrawAsync ||
+                                BigNumber.from(question.historyHash).isZero() ||
+                                (BigNumber.from(
+                                    question.historyHash
+                                ).isZero() &&
                                     BigNumber.from(
                                         withdrawableBalance
                                     ).isZero())
                             }
-                            loading={withdrawingWinnings}
+                            loading={loadingAnswers || claimingAndWithdrawing}
                             size="small"
                         >
-                            {t("label.question.form.withdraw")}
+                            {t("label.question.form.withdrawWinnings")}
                         </Button>
                     </div>
                 ))}

@@ -13,7 +13,7 @@ const rootStyles = cva([
     "flex flex-col",
     "gap-2",
     "w-full",
-    "border-black [&:not(:last-child)]:border-r",
+    "dark:border-white border-r",
     "px-6",
     "py-4",
 ]);

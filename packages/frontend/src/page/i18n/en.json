@@ -21,8 +21,7 @@
     "label.question.form.requestArbitration": "Request arbitration",
     "label.question.form.reopen": "Reopen",
     "label.question.form.finalize": "Finalize oracle",
-    "label.question.form.claimWinnings": "Claim winnings",
-    "label.question.form.withdraw": "Withdraw winnings",
+    "label.question.form.withdrawWinnings": "Withdraw winnings",
     "label.answer.current": "Current answer",
     "label.answer.final": "Final answer",
     "label.answer.arbitrating": "Awaiting arbitration",
@@ -54,6 +53,5 @@
     "label.transaction.reopenSubmitted": "Reopened question",
     "label.transaction.oracleFinalized": "Finalized oracle",
     "label.transaction.arbitrationRequested": "Arbitration requested",
-    "label.transaction.winningsClaimed": "Claimed winnings",
     "label.transaction.winningsWithdrawn": "Withdrawn winnings"
 }
