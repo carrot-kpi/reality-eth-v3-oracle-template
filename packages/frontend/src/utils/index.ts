@@ -30,6 +30,7 @@ export const isAnswerPendingArbitration = (question: RealityQuestion) => {
 
 export const isQuestionFinalized = (question: RealityQuestion) => {
     return (
+        !question.pendingArbitration &&
         question.finalizationTimestamp !== 0 &&
         question.finalizationTimestamp < dayjs().unix()
     );

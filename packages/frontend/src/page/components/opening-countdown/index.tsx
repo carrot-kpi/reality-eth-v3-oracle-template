@@ -39,25 +39,25 @@ export const OpeningCountdown = ({
     }, [countdown, duration, to]);
 
     return (
-        <div className="flex gap-2 justify-between md:justify-start sm:gap-3 md:gap-5 content-center">
+        <div className="flex gap-3 justify-between md:justify-start sm:gap-3 md:gap-5 content-center">
             <CountdownFrame
                 label={t("label.question.time.days")}
-                timeFrame={duration.format("DD[D]")}
+                timeFrame={duration.format("DD")}
             />
             <VerticalDivider />
             <CountdownFrame
                 label={t("label.question.time.hours")}
-                timeFrame={duration.format("HH[H]")}
+                timeFrame={duration.format("HH")}
             />
             <VerticalDivider />
             <CountdownFrame
                 label={t("label.question.time.minutes")}
-                timeFrame={duration.format("mm[M]")}
+                timeFrame={duration.format("mm")}
             />
             <VerticalDivider />
             <CountdownFrame
                 label={t("label.question.time.seconds")}
-                timeFrame={duration.format("ss[S]")}
+                timeFrame={duration.format("ss")}
                 className={{ root: "hidden sm:flex" }}
             />
         </div>

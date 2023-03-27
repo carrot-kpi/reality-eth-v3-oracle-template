@@ -1,18 +1,21 @@
 import { Typography } from "@carrot-kpi/ui";
+import { cx } from "class-variance-authority";
 import { ReactElement, ReactNode } from "react";
 
 interface AnswerInfoProps {
     label: string;
     children: ReactNode;
+    className?: string;
 }
 
 export const AnswerInfo = ({
     label,
     children,
+    className,
 }: AnswerInfoProps): ReactElement => {
     return (
-        <div className="flex flex-col gap-3 border-l min-w-[240px] border-black dark:border-white pl-4">
-            <Typography variant="lg" uppercase>
+        <div className={cx("flex flex-col w-full gap-2 p-6", className)}>
+            <Typography variant="xs" uppercase>
                 {label}
             </Typography>
             <div>{children}</div>
