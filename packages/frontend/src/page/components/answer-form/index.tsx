@@ -857,7 +857,7 @@ export const AnswerForm = ({
                             loading={loadingAnswers || claimingAndWithdrawing}
                             size="small"
                         >
-                            {t("label.question.form.claimWinningsAndWithdraw")}
+                            {t("label.question.form.withdrawWinnings")}
                         </Button>
                     </div>
                 ))}

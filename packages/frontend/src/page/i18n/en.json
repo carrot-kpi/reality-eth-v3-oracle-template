@@ -21,7 +21,7 @@
     "label.question.form.requestArbitration": "Request arbitration",
     "label.question.form.reopen": "Reopen",
     "label.question.form.finalize": "Finalize oracle",
-    "label.question.form.claimWinningsAndWithdraw": "Claim winnings and withdraw",
+    "label.question.form.withdrawWinnings": "Withdraw winnings",
     "label.answer.current": "Current answer",
     "label.answer.final": "Final answer",
     "label.answer.arbitrating": "Awaiting arbitration",
