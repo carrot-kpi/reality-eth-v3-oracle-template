@@ -543,15 +543,14 @@ export const AnswerForm = ({
         !requestArbitrationAsync ||
         isAnswerMissing(question) ||
         isAnswerPendingArbitration(question);
+    const mostRecentResponseTimestamp =
+        responses.length > 0 ? responses[responses.length - 1].timestamp : 0;
 
     return (
         <div className="flex flex-col">
             <div className="flex flex-col md:flex-row justify-between">
                 <div className="w-full flex border-b dark:border-white">
-                    <QuestionInfo
-                        label={t("label.question.arbitrator")}
-                        // className={{ root: "hidden sm:flex" }}
-                    >
+                    <QuestionInfo label={t("label.question.arbitrator")}>
                         <Arbitrator address={question.arbitrator} />
                     </QuestionInfo>
                     <QuestionInfo
@@ -597,6 +596,10 @@ export const AnswerForm = ({
                     t={t}
                     question={question}
                     loadingQuestion={loadingQuestion}
+                    expectedFinalizationTimestamp={dayjs
+                        .unix(mostRecentResponseTimestamp)
+                        .add(question.timeout, "second")
+                        .unix()}
                 />
             )}
             <div className="p-6 border-b dark:border-white">
@@ -775,17 +778,17 @@ export const AnswerForm = ({
                             />
                         </div>
                     )}
-                    <BondInput
-                        t={t}
-                        value={bond}
-                        placeholder={utils.formatUnits(
-                            minimumBond,
-                            chain?.nativeCurrency.decimals
-                        )}
-                        errorText={bondErrorText}
-                        onChange={handleBondChange}
-                        disabled={finalized}
-                    />
+                        <BondInput
+                            t={t}
+                            value={bond}
+                            placeholder={utils.formatUnits(
+                                minimumBond,
+                                chain?.nativeCurrency.decimals
+                            )}
+                            errorText={bondErrorText}
+                            onChange={handleBondChange}
+                            disabled={finalized}
+                        />
                 </div>
             )}
             {!open && (

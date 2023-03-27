@@ -31,6 +31,8 @@
     "label.answer.form.invalid": "Marked as invalid",
     "label.answer.form.tooSoon": "Answered too soon",
     "label.answer.form.bonded": "Bonded amount",
+    "label.answer.form.finalizingIn": "Finalizing in",
+    "label.answer.form.finalized": "Finalized",
     "label.answer.pendingArbitration": "Question is pending arbitration",
     "label.answer.pendingArbitration.description.1": "This question is pending arbitration.",
     "label.answer.pendingArbitration.description.2": "Please wait for the arbitrator to give the answer.",
