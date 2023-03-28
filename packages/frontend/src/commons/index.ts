@@ -46,10 +46,8 @@ interface TimeoutOption {
     seconds: number;
 }
 
-export const TIMEOUT_OPTIONS: TimeoutOption[] = [];
-// TODO: reenable this in production after we're done with testing
-// if (__DEV__) {
-TIMEOUT_OPTIONS.push(
+// TODO: the shorter values should be disabled in production
+export const TIMEOUT_OPTIONS: TimeoutOption[] = [
     {
         tKey: "option.question.timeout.1",
         seconds: 30,
@@ -61,10 +59,7 @@ TIMEOUT_OPTIONS.push(
     {
         tKey: "option.question.timeout.3",
         seconds: 900,
-    }
-);
-// }
-TIMEOUT_OPTIONS.push(
+    },
     {
         tKey: "option.question.timeout.4",
         seconds: 3_600,
@@ -104,8 +99,8 @@ TIMEOUT_OPTIONS.push(
     {
         tKey: "option.question.timeout.13",
         seconds: 604_800,
-    }
-);
+    },
+];
 
 export enum SupportedRealityTemplates {
     BOOL = "0",
