@@ -2,7 +2,8 @@ import {
     NamespacedTranslateFunction,
     useNativeCurrency,
 } from "@carrot-kpi/react";
-import { Skeleton, Typography } from "@carrot-kpi/ui";
+import { Skeleton, Timer, Typography } from "@carrot-kpi/ui";
+import dayjs from "dayjs";
 import { BigNumber, utils } from "ethers";
 import { formatUnits } from "ethers/lib/utils.js";
 import { ReactElement } from "react";
@@ -23,12 +24,14 @@ interface AnswerProps {
     t: NamespacedTranslateFunction;
     question: RealityQuestion;
     loadingQuestion: boolean;
+    expectedFinalizationTimestamp: number;
 }
 
 export const Answer = ({
     t,
     question,
     loadingQuestion,
+    expectedFinalizationTimestamp,
 }: AnswerProps): ReactElement => {
     const nativeCurrency = useNativeCurrency();
     const finalized = isQuestionFinalized(question);
@@ -43,6 +46,11 @@ export const Answer = ({
     const currentAnswerTitle = finalized
         ? t("label.answer.final")
         : t("label.answer.current");
+    const finalizingInLabel = isAnswerMissing(question)
+        ? "-"
+        : finalized
+        ? t("label.answer.form.finalized")
+        : null;
     let currentAnswerValue = null;
 
     if (loadingQuestion) {
@@ -83,7 +91,10 @@ export const Answer = ({
                 )}
             </AnswerInfo>
             {!pendingArbitration && (
-                <AnswerInfo label={t("label.answer.form.bonded")}>
+                <AnswerInfo
+                    label={t("label.answer.form.bonded")}
+                    className="border-b md:border-r md:border-b-0 dark:border-white"
+                >
                     {loadingQuestion ? (
                         <Skeleton width="150px" variant="2xl" />
                     ) : (
@@ -92,6 +103,23 @@ export const Answer = ({
                                 nativeCurrency.symbol
                             }`}
                         </Typography>
+                    )}
+                </AnswerInfo>
+            )}
+            {!pendingArbitration && (
+                <AnswerInfo label={t("label.answer.form.finalizingIn")}>
+                    {loadingQuestion ? (
+                        <Skeleton width="150px" variant="2xl" />
+                    ) : dayjs
+                          .unix(expectedFinalizationTimestamp)
+                          .isBefore(dayjs()) ? (
+                        <Typography>{finalizingInLabel}</Typography>
+                    ) : (
+                        <Timer
+                            to={expectedFinalizationTimestamp}
+                            seconds
+                            countdown
+                        />
                     )}
                 </AnswerInfo>
             )}

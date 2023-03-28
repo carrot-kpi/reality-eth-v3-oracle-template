@@ -548,10 +548,7 @@ export const AnswerForm = ({
         <div className="flex flex-col">
             <div className="flex flex-col md:flex-row justify-between">
                 <div className="w-full flex border-b dark:border-white">
-                    <QuestionInfo
-                        label={t("label.question.arbitrator")}
-                        // className={{ root: "hidden sm:flex" }}
-                    >
+                    <QuestionInfo label={t("label.question.arbitrator")}>
                         <Arbitrator address={question.arbitrator} />
                     </QuestionInfo>
                     <QuestionInfo
@@ -597,6 +594,9 @@ export const AnswerForm = ({
                     t={t}
                     question={question}
                     loadingQuestion={loadingQuestion}
+                    expectedFinalizationTimestamp={
+                        question.finalizationTimestamp
+                    }
                 />
             )}
             <div className="p-6 border-b dark:border-white">
