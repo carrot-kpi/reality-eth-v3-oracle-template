@@ -543,8 +543,6 @@ export const AnswerForm = ({
         !requestArbitrationAsync ||
         isAnswerMissing(question) ||
         isAnswerPendingArbitration(question);
-    const mostRecentResponseTimestamp =
-        responses.length > 0 ? responses[responses.length - 1].timestamp : 0;
 
     return (
         <div className="flex flex-col">
@@ -596,10 +594,9 @@ export const AnswerForm = ({
                     t={t}
                     question={question}
                     loadingQuestion={loadingQuestion}
-                    expectedFinalizationTimestamp={dayjs
-                        .unix(mostRecentResponseTimestamp)
-                        .add(question.timeout, "second")
-                        .unix()}
+                    expectedFinalizationTimestamp={
+                        question.finalizationTimestamp
+                    }
                 />
             )}
             <div className="p-6 border-b dark:border-white">
