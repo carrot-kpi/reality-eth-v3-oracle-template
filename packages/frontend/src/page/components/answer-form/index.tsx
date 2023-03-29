@@ -549,6 +549,12 @@ export const AnswerForm = ({
 
     return (
         <div className="flex flex-col">
+            {kpiToken.expired && !oracle.finalized && (
+                <div className="p-6 flex gap-3 items-center border-b bg-orange/40 dark:border-white">
+                    <DangerSvg width={36} height={36} />
+                    <Typography>{t("label.question.kpiExpired")}</Typography>
+                </div>
+            )}
             <div className="flex flex-col md:flex-row justify-between">
                 <div className="w-full flex border-b dark:border-white">
                     <QuestionInfo
@@ -622,12 +628,6 @@ export const AnswerForm = ({
                     )}
                 </QuestionInfo>
             </div>
-            {kpiToken.expired && !oracle.finalized && (
-                <div className="p-6 flex gap-3 items-center border-b bg-orange/40 dark:border-white">
-                    <DangerSvg width={36} height={36} />
-                    <Typography>{t("label.question.kpiExpired")}</Typography>
-                </div>
-            )}
             {!finalized && open && (
                 <Typography className={{ root: "px-6 mt-6" }}>
                     {isAnswerPendingArbitration(question) ? (
