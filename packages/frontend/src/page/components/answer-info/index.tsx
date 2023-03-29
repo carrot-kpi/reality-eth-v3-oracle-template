@@ -14,7 +14,7 @@ export const AnswerInfo = ({
     className,
 }: AnswerInfoProps): ReactElement => {
     return (
-        <div className={cx("flex flex-col w-full gap-2 p-6", className)}>
+        <div className={cx("flex flex-col w-full gap-2 py-4 px-6", className)}>
             <Typography variant="xs" uppercase>
                 {label}
             </Typography>
