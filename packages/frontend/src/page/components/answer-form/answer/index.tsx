@@ -3,6 +3,7 @@ import {
     useNativeCurrency,
 } from "@carrot-kpi/react";
 import { Skeleton, Timer, Typography } from "@carrot-kpi/ui";
+import { cva } from "class-variance-authority";
 import { BigNumber, utils } from "ethers";
 import { formatUnits } from "ethers/lib/utils.js";
 import { ReactElement } from "react";
@@ -18,6 +19,36 @@ import {
 } from "../../../../utils";
 import { RealityQuestion } from "../../../types";
 import { AnswerInfo } from "../../answer-info";
+
+const answerBoxStyles = cva(
+    [
+        "w-full",
+        "flex",
+        "flex-col",
+        "md:flex-row",
+        "justify-between",
+        "border-r-0",
+        "dark:border-white",
+    ],
+    {
+        variants: {
+            pendingArbitration: {
+                false: ["md:w-2/3", "md:border-r"],
+            },
+        },
+    }
+);
+
+const bondBoxStyles = cva(
+    ["w-full", "border-b", "md:border-b-0", "dark:border-white"],
+    {
+        variants: {
+            pendingArbitration: {
+                false: ["md:w-1/3"],
+            },
+        },
+    }
+);
 
 interface AnswerProps {
     t: NamespacedTranslateFunction;
@@ -73,7 +104,7 @@ export const Answer = ({
 
     return (
         <div className="flex flex-col md:flex-row justify-between md:gap-0 border-b-0 md:border-b dark:border-white">
-            <div className="w-full md:w-2/3 flex flex-col md:flex-row flex-[2] justify-between border-r-0 md:border-r dark:border-white">
+            <div className={answerBoxStyles({ pendingArbitration })}>
                 <AnswerInfo
                     label={currentAnswerTitle}
                     className={
@@ -109,24 +140,22 @@ export const Answer = ({
                     </AnswerInfo>
                 )}
             </div>
-            <div className="w-full md:w-1/3">
-                {!pendingArbitration && (
-                    <AnswerInfo
-                        label={t("label.answer.form.bonded")}
-                        className="flex-[1.2] border-b md:border-b-0 dark:border-white"
-                    >
-                        {loadingQuestion ? (
-                            <Skeleton width="150px" variant="2xl" />
-                        ) : (
-                            <Typography>
-                                {`${utils.commify(formattedBond)} ${
-                                    nativeCurrency.symbol
-                                }`}
-                            </Typography>
-                        )}
-                    </AnswerInfo>
-                )}
-            </div>
+            {!pendingArbitration && (
+                <AnswerInfo
+                    label={t("label.answer.form.bonded")}
+                    className={bondBoxStyles({ pendingArbitration })}
+                >
+                    {loadingQuestion ? (
+                        <Skeleton width="150px" variant="2xl" />
+                    ) : (
+                        <Typography>
+                            {`${utils.commify(formattedBond)} ${
+                                nativeCurrency.symbol
+                            }`}
+                        </Typography>
+                    )}
+                </AnswerInfo>
+            )}
         </div>
     );
 };
