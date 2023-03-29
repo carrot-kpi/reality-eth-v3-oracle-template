@@ -25,9 +25,9 @@
         "test": "echo 'Fix issues with pnpm and Jest not resolving modules'"
     },
     "devDependencies": {
-        "@carrot-kpi/frontend": "^1.0.0-rc.58",
-        "@carrot-kpi/react": "^0.37.0",
-        "@carrot-kpi/sdk": "^1.23.0",
+        "@carrot-kpi/frontend": "^1.0.0-rc.59",
+        "@carrot-kpi/react": "^0.37.2",
+        "@carrot-kpi/sdk": "^1.23.1",
         "@carrot-kpi/ui": "^0.35.0",
         "@commitlint/cli": "^17.5.1",
         "@fontsource/ibm-plex-mono": "^4.5.13",
@@ -37,7 +37,7 @@
         "@testing-library/react": "^14.0.0",
         "@types/git-rev-sync": "^2.0.0",
         "@types/jest": "^29.0.3",
-        "@types/react": "^18.0.30",
+        "@types/react": "^18.0.31",
         "@types/react-dom": "^18.0.6",
         "autoprefixer": "^10.4.13",
         "chalk": "^5.0.1",
