@@ -2,7 +2,7 @@ import "../global.css";
 
 import { ReactElement, useCallback, useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
-import { OracleCreationFormProps } from "@carrot-kpi/react";
+import { OracleRemoteCreationFormProps } from "@carrot-kpi/react";
 import {
     Select,
     SelectOption,
@@ -51,7 +51,7 @@ export const Component = ({
     state,
     kpiToken,
     onChange,
-}: OracleCreationFormProps<State>): ReactElement => {
+}: OracleRemoteCreationFormProps<State>): ReactElement => {
     const { chain } = useNetwork();
     const uploadToIpfs = useDecentralizedStorageUploader("ipfs");
 

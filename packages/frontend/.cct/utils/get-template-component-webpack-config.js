@@ -1,7 +1,7 @@
 import { dirname, join } from "path";
 import webpack from "webpack";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import postcssOptions from "../../postcss.config.js";
+import tailwindPostCssConfig from "../../tailwind.config.cjs";
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
 import { long as longCommitHash } from "git-rev-sync";
@@ -58,7 +58,23 @@ export const getTemplateComponentWebpackConfig = (
                         {
                             loader: "postcss-loader",
                             options: {
-                                postcssOptions,
+                                postcssOptions: {
+                                    plugins: {
+                                        tailwindcss: {
+                                            config: {
+                                                ...tailwindPostCssConfig,
+                                                important: `#carrot-template-${longCommitHash(
+                                                    __dirname
+                                                )}-${type}`,
+                                            },
+                                        },
+                                        autoprefixer: {},
+                                        ...(process.env.NODE_ENV ===
+                                        "production"
+                                            ? { cssnano: {} }
+                                            : {}),
+                                    },
+                                },
                             },
                         },
                     ],

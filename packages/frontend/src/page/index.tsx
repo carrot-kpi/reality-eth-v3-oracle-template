@@ -1,7 +1,7 @@
 import "../global.css";
 
 import { ReactElement, useEffect, useState } from "react";
-import { OraclePageProps } from "@carrot-kpi/react";
+import { OracleRemotePageProps } from "@carrot-kpi/react";
 import { useWatchRealityQuestion } from "../hooks/useWatchRealityQuestion";
 import { Loader } from "@carrot-kpi/ui";
 import { AnswerForm } from "./components/answer-form";
@@ -11,7 +11,7 @@ export const Component = ({
     t,
     oracle,
     onTx,
-}: OraclePageProps): ReactElement => {
+}: OracleRemotePageProps): ReactElement => {
     const [realityV3Address, setRealityV3Address] = useState("");
     const [questionId, setQuestionId] = useState("");
     const [question, setQuestion] = useState("");

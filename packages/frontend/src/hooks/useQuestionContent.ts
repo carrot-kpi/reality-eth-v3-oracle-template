@@ -1,5 +1,5 @@
 import { useIPFSGatewayURL } from "@carrot-kpi/react";
-import { CoreFetcher } from "@carrot-kpi/sdk";
+import { Fetcher } from "@carrot-kpi/sdk";
 import { useEffect, useState } from "react";
 
 export const useQuestionContent = (rawContent?: string) => {
@@ -18,7 +18,7 @@ export const useQuestionContent = (rawContent?: string) => {
                 if (splitContent.length < 2) return;
                 const cid = splitContent[0];
                 const content = (
-                    await CoreFetcher.fetchContentFromIPFS({
+                    await Fetcher.fetchContentFromIPFS({
                         cids: [cid],
                         ipfsGatewayURL,
                     })
