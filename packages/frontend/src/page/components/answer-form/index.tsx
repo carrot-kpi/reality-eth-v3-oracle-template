@@ -58,16 +58,18 @@ import { infoPopoverStyles, inputStyles } from "./common/styles";
 import { QuestionInfo } from "../question-info";
 import { ReactComponent as ExternalSvg } from "../../../assets/external.svg";
 import { OpeningCountdown } from "../opening-countdown";
-import { ChainId, Oracle } from "@carrot-kpi/sdk";
+import { ChainId, Oracle, ResolvedKPITokenWithData } from "@carrot-kpi/sdk";
 import { unixTimestamp } from "../../../utils/dates";
 import { useRealityQuestionResponses } from "../../../hooks/useRealityQuestionResponses";
 import { useQuestionContent } from "../../../hooks/useQuestionContent";
 import { Arbitrator } from "./arbitrator";
+import { ReactComponent as DangerSvg } from "../../../assets/danger.svg";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
     realityAddress: string;
     oracle: Oracle;
+    kpiToken: ResolvedKPITokenWithData;
     question: RealityQuestion;
     loadingQuestion: boolean;
     onTx: OraclePageProps["onTx"];
@@ -77,6 +79,7 @@ export const AnswerForm = ({
     t,
     realityAddress,
     oracle,
+    kpiToken,
     question,
     loadingQuestion,
     onTx,
@@ -546,30 +549,45 @@ export const AnswerForm = ({
 
     return (
         <div className="flex flex-col">
+            {kpiToken.expired && !oracle.finalized && (
+                <div className="p-6 flex gap-3 items-center border-b bg-orange/40 dark:border-white">
+                    <DangerSvg width={36} height={36} />
+                    <Typography>{t("label.question.kpiExpired")}</Typography>
+                </div>
+            )}
             <div className="flex flex-col md:flex-row justify-between">
                 <div className="w-full flex border-b dark:border-white">
-                    <QuestionInfo label={t("label.question.arbitrator")}>
+                    <QuestionInfo
+                        label={t("label.question.arbitrator")}
+                        className={{
+                            root: "border-r-0 md:border-r dark:border-white",
+                        }}
+                    >
                         <Arbitrator address={question.arbitrator} />
                     </QuestionInfo>
-                    <QuestionInfo
+                    {/* TODO: add rewards when implemented */}
+                    {/* <QuestionInfo
                         label={t("label.question.rewards")}
                         className={{
                             root: "border-r-0 md:border-r dark:border-white",
                         }}
                     >
-                        {!question.bounty.isZero() && chain?.id ? (
-                            <>{/* TODO: add rewards when implemented */}</>
-                        ) : (
-                            "-"
-                        )}
-                    </QuestionInfo>
+                        {!question.bounty.isZero() && chain?.id ? <></> : "-"}
+                    </QuestionInfo> */}
                 </div>
                 <div className="w-full flex border-b dark:border-white">
-                    <QuestionInfo label={t("label.question.timeout")}>
+                    <QuestionInfo
+                        label={t("label.question.timeout")}
+                        className={{
+                            root: "border-r-0 md:border-r dark:border-white",
+                        }}
+                    >
                         <Typography>
                             {formatCountDownString(question.timeout)}
                         </Typography>
                     </QuestionInfo>
+                </div>
+                <div className="w-full flex border-b dark:border-white">
                     <QuestionInfo
                         label={t("label.question.oracleLink")}
                         className={{ root: "border-r-0 dark:border-white" }}
@@ -594,20 +612,21 @@ export const AnswerForm = ({
                     t={t}
                     question={question}
                     loadingQuestion={loadingQuestion}
-                    expectedFinalizationTimestamp={
-                        question.finalizationTimestamp
-                    }
                 />
             )}
-            <div className="p-6 border-b dark:border-white">
-                <Typography variant="xs" uppercase>
-                    {t("label.question.question")}
-                </Typography>
-                {loadingContent ? (
-                    <Skeleton width="100px" />
-                ) : (
-                    <Markdown>{content}</Markdown>
-                )}
+            <div className="border-b dark:border-white">
+                <QuestionInfo
+                    label={t("label.question.question")}
+                    className={{ root: "border-r-0 dark:border-white" }}
+                >
+                    {loadingContent ? (
+                        <Skeleton width="100px" />
+                    ) : (
+                        <Markdown className={{ root: "font-medium" }}>
+                            {content}
+                        </Markdown>
+                    )}
+                </QuestionInfo>
             </div>
             {!finalized && open && (
                 <Typography className={{ root: "px-6 mt-6" }}>

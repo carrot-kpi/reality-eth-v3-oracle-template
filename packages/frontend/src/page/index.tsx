@@ -10,6 +10,7 @@ import { decodeOracleData } from "../utils/data-decoding";
 export const Component = ({
     t,
     oracle,
+    kpiToken,
     onTx,
 }: OracleRemotePageProps): ReactElement => {
     const [realityV3Address, setRealityV3Address] = useState("");
@@ -49,6 +50,7 @@ export const Component = ({
                 t={t}
                 realityAddress={realityV3Address}
                 oracle={oracle}
+                kpiToken={kpiToken}
                 loadingQuestion={loadingRealityQuestion}
                 question={realityQuestion}
                 onTx={onTx}
