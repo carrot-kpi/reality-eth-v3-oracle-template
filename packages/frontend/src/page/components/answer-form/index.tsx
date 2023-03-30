@@ -127,7 +127,7 @@ export const AnswerForm = ({
         : question.bond.mul(2);
 
     const finalBond = useMemo(() => {
-        return !!bond && !!bond.value && !isNaN(Number(bond.value))
+        return !!bond && !!bond.value && !isNaN(parseInt(bond.value))
             ? utils.parseUnits(bond.value, chain?.nativeCurrency.decimals)
             : BigNumber.from("0");
     }, [bond, chain?.nativeCurrency.decimals]);
@@ -342,7 +342,9 @@ export const AnswerForm = ({
             setBond(value);
 
             const parsedBond = utils.parseUnits(
-                value.value && !isNaN(Number(value.value)) ? value.value : "0",
+                value.value && !isNaN(parseInt(value.value))
+                    ? value.value
+                    : "0",
                 chain?.nativeCurrency.decimals
             );
             let bondErrorText = "";
