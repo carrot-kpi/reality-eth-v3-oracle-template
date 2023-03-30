@@ -151,7 +151,7 @@ export const Component = ({
                     kpiToken.expiration
                 )) &&
             minimumBond &&
-            !isNaN(Number(minimumBond)) &&
+            !isNaN(parseInt(minimumBond)) &&
             openingTimestamp.isAfter(dayjs())
         ) {
             const formattedMinimumBond = ethers.utils.parseUnits(
