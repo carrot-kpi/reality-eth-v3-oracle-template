@@ -1,4 +1,5 @@
 import "../global.css";
+import "@carrot-kpi/ui/styles.css";
 
 import { ReactElement, useEffect, useState } from "react";
 import { OracleRemotePageProps } from "@carrot-kpi/react";

@@ -1,4 +1,5 @@
 import "../global.css";
+import "@carrot-kpi/ui/styles.css";
 
 import { ReactElement, useCallback, useEffect, useState } from "react";
 import { BigNumber, ethers } from "ethers";
