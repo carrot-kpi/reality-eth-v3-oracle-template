@@ -103,7 +103,7 @@ export const Answer = ({
     }
 
     return (
-        <div className="flex flex-col md:flex-row justify-between md:gap-0 border-b-0 md:border-b dark:border-white">
+        <div className="flex flex-col md:flex-row justify-between border-b-0 md:border-b dark:border-white">
             <div className={answerBoxStyles({ pendingArbitration })}>
                 <AnswerInfo
                     label={currentAnswerTitle}
