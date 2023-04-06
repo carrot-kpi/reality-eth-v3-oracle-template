@@ -58,7 +58,11 @@ import { infoPopoverStyles, inputStyles } from "./common/styles";
 import { QuestionInfo } from "../question-info";
 import { ReactComponent as ExternalSvg } from "../../../assets/external.svg";
 import { OpeningCountdown } from "../opening-countdown";
-import { ChainId, Oracle, ResolvedKPITokenWithData } from "@carrot-kpi/sdk";
+import {
+    ChainId,
+    ResolvedKPITokenWithData,
+    ResolvedOracleWithData,
+} from "@carrot-kpi/sdk";
 import { unixTimestamp } from "../../../utils/dates";
 import { useRealityQuestionResponses } from "../../../hooks/useRealityQuestionResponses";
 import { useQuestionContent } from "../../../hooks/useQuestionContent";
@@ -68,7 +72,7 @@ import { ReactComponent as DangerSvg } from "../../../assets/danger.svg";
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
     realityAddress: string;
-    oracle: Oracle;
+    oracle: ResolvedOracleWithData;
     kpiToken: ResolvedKPITokenWithData;
     question: RealityQuestion;
     loadingQuestion: boolean;
