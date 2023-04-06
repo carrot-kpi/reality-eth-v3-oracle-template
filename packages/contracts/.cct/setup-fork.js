@@ -7,6 +7,7 @@ import { fileURLToPath } from "url";
 const require = createRequire(fileURLToPath(import.meta.url));
 
 const wrappedNativeCurrencyAbi = require("./abis/native-currency-wrapper.json");
+const trustedRealityV3ArbitratorAbi = require("./abis/trusted-reality-arbitrator-v3");
 const WRAPPED_NATIVE_CURRENCY_ADDRESS = {
     [ChainId.GOERLI]: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6", // weth
     [ChainId.SEPOLIA]: "0xa5ba8636a78bbf1910430d0368c0175ef5a1845b", // weth
@@ -53,6 +54,12 @@ export const setupFork = async (
     );
     const arbitratorContract = await arbitratorFactory.deploy("{}", 0);
     await arbitratorContract.deployed();
+
+    await new Contract(
+        arbitratorContract.address,
+        trustedRealityV3ArbitratorAbi,
+        signer
+    ).setDisputeFee(utils.parseEther("1"));
 
     // give us some wrapped native currency too
     await new Contract(
