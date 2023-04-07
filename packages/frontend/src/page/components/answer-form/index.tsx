@@ -12,6 +12,7 @@ import {
     Radio,
     RadioGroup,
     Skeleton,
+    Popover,
 } from "@carrot-kpi/ui";
 import { BigNumber, utils } from "ethers";
 import {
@@ -97,6 +98,9 @@ export const AnswerForm = ({
     );
 
     const [open, setOpen] = useState(false);
+    const [disputeFeePopoverAnchor, setDisputeFeePopoverAnchor] =
+        useState<HTMLButtonElement | null>(null);
+    const [disputeFeePopoverOpen, setDisputeFeePopoverOpen] = useState(false);
     const [booleanValue, setBooleanValue] = useState<BooleanAnswer | null>(
         null
     );
@@ -553,6 +557,14 @@ export const AnswerForm = ({
         isAnswerMissing(question) ||
         isAnswerPendingArbitration(question);
 
+    const handleRequestArbitrationMouseEnter = useCallback(() => {
+        if (requestArbitrationDisabled) return;
+        setDisputeFeePopoverOpen(true);
+    }, [requestArbitrationDisabled]);
+    const handleRequestArbitrationMouseLeave = useCallback(() => {
+        setDisputeFeePopoverOpen(false);
+    }, []);
+
     return (
         <div className="flex flex-col">
             {kpiToken.expired && !oracle.finalized && (
@@ -836,12 +848,32 @@ export const AnswerForm = ({
                         </Button>
                         <Button
                             onClick={handleRequestArbitrationSubmit}
+                            onMouseEnter={handleRequestArbitrationMouseEnter}
+                            onMouseLeave={handleRequestArbitrationMouseLeave}
                             disabled={requestArbitrationDisabled}
                             loading={requestingArbitration}
                             size="small"
+                            ref={setDisputeFeePopoverAnchor}
                         >
                             {t("label.question.form.requestArbitration")}
                         </Button>
+                        <Popover
+                            anchor={disputeFeePopoverAnchor}
+                            open={disputeFeePopoverOpen}
+                            className={{ root: "px-3 py-2" }}
+                        >
+                            <Typography variant="sm">
+                                {t("label.question.arbitrator.disputeFee", {
+                                    fee: utils.commify(
+                                        utils.formatUnits(
+                                            disputeFee as BigNumber,
+                                            chain?.nativeCurrency.decimals
+                                        )
+                                    ),
+                                    symbol: chain?.nativeCurrency.symbol,
+                                })}
+                            </Typography>
+                        </Popover>
                     </div>
                 ) : (
                     <div className="px-6 flex gap-5 mt-6">
