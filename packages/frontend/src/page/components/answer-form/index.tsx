@@ -857,23 +857,31 @@ export const AnswerForm = ({
                         >
                             {t("label.question.form.requestArbitration")}
                         </Button>
-                        <Popover
-                            anchor={disputeFeePopoverAnchor}
-                            open={disputeFeePopoverOpen}
-                            className={{ root: "px-3 py-2" }}
-                        >
-                            <Typography variant="sm">
-                                {t("label.question.arbitrator.disputeFee", {
-                                    fee: utils.commify(
-                                        utils.formatUnits(
-                                            disputeFee as BigNumber,
-                                            chain?.nativeCurrency.decimals
-                                        )
-                                    ),
-                                    symbol: chain?.nativeCurrency.symbol,
-                                })}
-                            </Typography>
-                        </Popover>
+                        {!!disputeFee &&
+                            !BigNumber.from(disputeFee).isZero() && (
+                                <Popover
+                                    anchor={disputeFeePopoverAnchor}
+                                    open={disputeFeePopoverOpen}
+                                    className={{ root: "px-3 py-2" }}
+                                >
+                                    <Typography variant="sm">
+                                        {t(
+                                            "label.question.arbitrator.disputeFee",
+                                            {
+                                                fee: utils.commify(
+                                                    utils.formatUnits(
+                                                        disputeFee as BigNumber,
+                                                        chain?.nativeCurrency
+                                                            .decimals
+                                                    )
+                                                ),
+                                                symbol: chain?.nativeCurrency
+                                                    .symbol,
+                                            }
+                                        )}
+                                    </Typography>
+                                </Popover>
+                            )}
                     </div>
                 ) : (
                     <div className="px-6 flex gap-5 mt-6">
