@@ -227,7 +227,7 @@ export const AnswerForm = ({
         address: oracle.address,
         abi: REALITY_ORACLE_V3_ABI,
         functionName: "finalize",
-        enabled: finalized && !oracle.finalized,
+        enabled: finalized && !oracle.finalized && !isAnsweredTooSoon(question),
     });
     const { writeAsync: finalizeOracleAsync } =
         useContractWrite(finalizeOracleConfig);
