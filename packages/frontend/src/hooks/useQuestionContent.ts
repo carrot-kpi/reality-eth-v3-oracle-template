@@ -2,7 +2,7 @@ import { useIPFSGatewayURL } from "@carrot-kpi/react";
 import { Fetcher } from "@carrot-kpi/sdk";
 import { useEffect, useState } from "react";
 
-export const useQuestionContent = (rawContent?: string) => {
+export function useQuestionContent(rawContent?: string) {
     const ipfsGatewayURL = useIPFSGatewayURL();
 
     const [loading, setLoading] = useState(false);
@@ -40,4 +40,4 @@ export const useQuestionContent = (rawContent?: string) => {
     }, [ipfsGatewayURL, rawContent]);
 
     return { loading, content };
-};
+}

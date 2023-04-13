@@ -2,10 +2,10 @@ import { Popover, Typography } from "@carrot-kpi/ui";
 import { useCallback, useEffect, useState } from "react";
 import { useNetwork } from "wagmi";
 import { ARBITRATORS_BY_CHAIN, SupportedChain } from "../../../../commons";
-import { OptionWithIcon } from "../../../../creation-form/types";
+import { OptionForArbitrator } from "../../../../creation-form/types";
 import { shortenAddress } from "../../../../utils";
 
-const ArbitratorOption = ({ label, icon: Icon }: OptionWithIcon) => {
+const ArbitratorOption = ({ label, icon: Icon }: OptionForArbitrator) => {
     return (
         <div className="flex items-center">
             <Icon className="w-7 h-7 mr-2" />
@@ -23,7 +23,7 @@ export const Arbitrator = ({ address }: ArbitratorProps) => {
     const [anchor, setAnchor] = useState<HTMLDivElement | null>();
 
     const [popoverOpen, setPopoverOpen] = useState(false);
-    const [arbitrator, setArbitrator] = useState<string | OptionWithIcon>("");
+    const [arbitrator, setArbitrator] = useState<string | OptionForArbitrator>("");
 
     useEffect(() => {
         if (chain && ARBITRATORS_BY_CHAIN[chain.id as SupportedChain]) {
