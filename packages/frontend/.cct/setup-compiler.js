@@ -8,7 +8,8 @@ export const setupCompiler = (
     globals,
     writableStream,
     firstCompilation,
-    type
+    type,
+    frontendPort
 ) => {
     return new Promise((resolve) => {
         compiler.hooks.invalid.tap("invalid", () => {
@@ -61,7 +62,7 @@ export const setupCompiler = (
                 return;
             }
 
-            printInstructions(writableStream, globals);
+            printInstructions(writableStream, globals, null, frontendPort);
         });
     });
 };

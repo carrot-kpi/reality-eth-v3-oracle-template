@@ -3,7 +3,6 @@ import HtmlWebpackPlugin from "html-webpack-plugin";
 import { join, dirname } from "path";
 import webpack from "webpack";
 import { fileURLToPath } from "url";
-import { long as longCommitHash } from "git-rev-sync";
 
 import postcssOptions from "../postcss.config.js";
 import { setupCompiler } from "./setup-compiler.js";
@@ -107,46 +106,53 @@ export const startPlayground = async (
         ),
     ]);
 
+    // initialize the webpack dev servers
+    const coreApplicationDevServer = new WebpackDevServer(
+        {
+            port: "auto",
+            open: true,
+            compress: true,
+        },
+        coreApplicationCompiler
+    );
+
+    await coreApplicationDevServer.start();
+    const { port: coreApplicationPort } =
+        coreApplicationDevServer.server.address();
+
+    const templateApplicationDevServer = new WebpackDevServer(
+        {
+            port: "auto",
+            open: false,
+            compress: true,
+            headers: {
+                "Access-Control-Allow-Origin": `http://localhost:${coreApplicationPort}`,
+            },
+        },
+        templateApplicationCompiler
+    );
+
+    await templateApplicationDevServer.start();
+    const { port: templateApplicationPort } =
+        templateApplicationDevServer.server.address();
+
     // setup the applications compilers hooks
     const coreCompilerPromise = setupCompiler(
         coreApplicationCompiler,
         globals,
         writableStream,
         coreFirstCompilation,
-        "CORE"
+        "CORE",
+        coreApplicationPort
     );
     const templateCompilerPromise = setupCompiler(
         templateApplicationCompiler,
         globals,
         writableStream,
         templateFirstCompilation,
-        "TEMPLATE"
+        "TEMPLATE",
+        templateApplicationPort
     );
-
-    // initialize the webpack dev servers
-    const coreApplicationDevServer = new WebpackDevServer(
-        {
-            port: 9000,
-            open: true,
-            compress: true,
-        },
-        coreApplicationCompiler
-    );
-    const templateApplicationDevServer = new WebpackDevServer(
-        {
-            port: 9002,
-            open: false,
-            compress: true,
-            headers: {
-                "Access-Control-Allow-Origin": "http://localhost:9000",
-            },
-        },
-        templateApplicationCompiler
-    );
-
-    // run the applications
-    await coreApplicationDevServer.start();
-    await templateApplicationDevServer.start();
 
     // wait for the applications to be fully started
     await Promise.all([coreCompilerPromise, templateCompilerPromise]);
