@@ -84,22 +84,11 @@ export const Component = ({
         );
     const [question, setQuestion] = useState(state.question || "");
 
-    let questionTimeoutFromExternalState: SelectOption | null = null;
-    if (state.questionTimeout) {
-        const optionFromExternalState = TIMEOUT_OPTIONS.find(
-            (option) => option.seconds === state.questionTimeout
-        );
-        if (optionFromExternalState)
-            questionTimeoutFromExternalState = {
-                label: t(optionFromExternalState.tKey),
-                value: optionFromExternalState.seconds,
-            };
-    }
-    const [questionTimeout, setQuestionTimeout] = useState(
-        questionTimeoutFromExternalState
+    const [questionTimeout, setQuestionTimeout] = useState<SelectOption | null>(
+        null
     );
     const [openingTimestamp, setOpeningTimestamp] = useState<Dayjs | null>(
-        state.openingTimestamp ? dayjs.unix(state.openingTimestamp) : null
+        null
     );
     const [minimumBond, setMinimumBond] = useState(state.minimumBond || "");
 
@@ -110,6 +99,23 @@ export const Component = ({
 
     const [minimumDate, setMinimumDate] = useState(new Date());
     const [maximumDate, setMaximumDate] = useState(new Date());
+
+    useEffect(() => {
+        if (!state.questionTimeout) return;
+        const optionFromExternalState = TIMEOUT_OPTIONS.find(
+            (option) => option.seconds === state.questionTimeout
+        );
+        if (!optionFromExternalState) return;
+        setQuestionTimeout({
+            label: t(optionFromExternalState.tKey),
+            value: optionFromExternalState.seconds,
+        });
+    }, [state.questionTimeout, t]);
+
+    useEffect(() => {
+        if (!state.openingTimestamp) return;
+        setOpeningTimestamp(dayjs.unix(state.openingTimestamp));
+    }, [state.openingTimestamp]);
 
     useEffect(() => {
         if (kpiToken?.expiration)
