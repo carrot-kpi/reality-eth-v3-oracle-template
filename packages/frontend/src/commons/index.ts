@@ -1,7 +1,7 @@
 import { ChainId } from "@carrot-kpi/sdk";
 import { SelectOption } from "@carrot-kpi/ui";
 import { ReactComponent as CarrotIcon } from "../assets/carrot.svg";
-import { OptionWithIcon } from "../creation-form/types";
+import { OptionForArbitrator } from "../creation-form/types";
 
 export type SupportedChain = Extract<ChainId, ChainId.SEPOLIA | ChainId.GNOSIS>;
 export const SupportedChain: Record<SupportedChain, SupportedChain> = {
@@ -18,7 +18,10 @@ export const TRUSTED_REALITY_ARBITRATORS: Record<ChainId, string> = {
         : "0x96073897873796d1950B1B04Fe2Ead8E0CA34914",
 };
 
-export const ARBITRATORS_BY_CHAIN: Record<SupportedChain, OptionWithIcon[]> = {
+export const ARBITRATORS_BY_CHAIN: Record<
+    SupportedChain,
+    OptionForArbitrator[]
+> = {
     [ChainId.SEPOLIA]: [
         {
             value: TRUSTED_REALITY_ARBITRATORS[ChainId.SEPOLIA],

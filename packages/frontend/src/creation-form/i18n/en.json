@@ -26,7 +26,7 @@
     "info.opening.timestamp": "The opening date determines when answers can be posted. If the event has not yet taken place, the opening date should be set to after the event is supposed to happen. A large enough time difference should be there from the opening timestamp and the KPI token expiration date, be careful.",
     "label.minimum.bond": "Minimum bond:",
     "info.minimum.bond": "The minimum bond (in the chain's native currency) that can be used for the first answer. Be careful with high values as it might price out many answerers.",
-    "placeholder.pick": "Pick an option:",
+    "placeholder.pick": "Pick an option",
     "placeholder.number": "10",
     "confirm": "Confirm",
     "error.question.empty": "A question is required",

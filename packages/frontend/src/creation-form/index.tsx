@@ -1,7 +1,7 @@
 import "../global.css";
 import "@carrot-kpi/ui/styles.css";
 
-import { ReactElement, useCallback, useEffect, useState } from "react";
+import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
 import { BigNumber, ethers } from "ethers";
 import { OracleRemoteCreationFormProps } from "@carrot-kpi/react";
 import {
@@ -21,10 +21,11 @@ import {
     TIMEOUT_OPTIONS,
     MINIMUM_ANSWER_PERIODS_AMOUNT,
 } from "../commons";
-import { OptionWithIcon, State } from "./types";
+import { OptionForArbitrator, State } from "./types";
 import { ArbitratorOption } from "./components/arbitrator-option";
 import dayjs, { Dayjs } from "dayjs";
 import durationPlugin from "dayjs/plugin/duration";
+import { useArbitratorsDisputeFee } from "../hooks/useArbitratorsDisputeFee";
 
 dayjs.extend(durationPlugin);
 
@@ -56,10 +57,32 @@ export const Component = ({
     const { chain } = useNetwork();
     const uploadToIpfs = useDecentralizedStorageUploader("ipfs");
 
-    const arbitratorsByChain =
-        !chain || !(chain.id in SupportedChain)
-            ? []
-            : ARBITRATORS_BY_CHAIN[chain.id as SupportedChain];
+    const arbitratorAddresses = useMemo(
+        () =>
+            !chain || !(chain.id in SupportedChain)
+                ? []
+                : ARBITRATORS_BY_CHAIN[chain.id as SupportedChain].map(
+                      (arbitrator) => arbitrator.value.toString()
+                  ),
+        [chain]
+    );
+
+    const { fees: arbitratorDisputeFees } =
+        useArbitratorsDisputeFee(arbitratorAddresses);
+
+    const arbitratorsByChain = useMemo(
+        () =>
+            !chain || !(chain.id in SupportedChain)
+                ? []
+                : ARBITRATORS_BY_CHAIN[chain.id as SupportedChain].map(
+                      (arbitrator) => ({
+                          ...arbitrator,
+                          disputeFee: arbitratorDisputeFees[arbitrator.value],
+                      })
+                  ),
+        [chain, arbitratorDisputeFees]
+    );
+
     const timeoutOptions = TIMEOUT_OPTIONS.map((option) => {
         return {
             label: t(option.tKey),
@@ -67,7 +90,7 @@ export const Component = ({
         };
     });
 
-    const [arbitrator, setArbitrator] = useState<OptionWithIcon | null>(
+    const [arbitrator, setArbitrator] = useState<OptionForArbitrator | null>(
         state.arbitrator
             ? arbitratorsByChain.find(
                   (option) => option.value === state.arbitrator
@@ -260,46 +283,50 @@ export const Component = ({
                 </a>
                 .
             </Typography>
-            <div className="md:flex md:gap-2">
-                <Select
-                    id="arbitrator"
-                    className={{
-                        root: "w-full",
-                        input: "w-full",
-                        inputWrapper: "w-full",
-                    }}
-                    label={t("label.arbitrator")}
-                    info={
-                        <Typography variant="sm">
-                            {t("info.arbitrator")}
-                        </Typography>
-                    }
-                    placeholder={t("placeholder.pick")}
-                    onChange={setArbitrator}
-                    options={arbitratorsByChain}
-                    renderOption={ArbitratorOption}
-                    value={arbitrator}
-                />
-                <Select
-                    id="reality-template"
-                    className={{
-                        root: "w-full",
-                        input: "w-full",
-                        inputWrapper: "w-full",
-                    }}
-                    label={t("label.reality.template")}
-                    info={
-                        <Typography variant="sm">
-                            {t("info.reality.template")}
-                        </Typography>
-                    }
-                    placeholder={t("placeholder.pick")}
-                    onChange={setRealityTemplateId}
-                    options={REALITY_TEMPLATE_OPTIONS}
-                    value={realityTemplateId}
-                />
+            <div className="flex flex-col gap-2 md:flex-row">
+                <div className="w-full md:w-2/3">
+                    <Select
+                        id="arbitrator"
+                        className={{
+                            root: "w-full",
+                            input: "w-full",
+                            inputWrapper: "w-full",
+                        }}
+                        label={t("label.arbitrator")}
+                        info={
+                            <Typography variant="sm">
+                                {t("info.arbitrator")}
+                            </Typography>
+                        }
+                        placeholder={t("placeholder.pick")}
+                        onChange={setArbitrator}
+                        options={arbitratorsByChain}
+                        renderOption={ArbitratorOption}
+                        value={arbitrator}
+                    />
+                </div>
+                <div className="w-full md:w-1/3">
+                    <Select
+                        id="reality-template"
+                        className={{
+                            root: "w-full",
+                            input: "w-full",
+                            inputWrapper: "w-full",
+                        }}
+                        label={t("label.reality.template")}
+                        info={
+                            <Typography variant="sm">
+                                {t("info.reality.template")}
+                            </Typography>
+                        }
+                        placeholder={t("placeholder.pick")}
+                        onChange={setRealityTemplateId}
+                        options={REALITY_TEMPLATE_OPTIONS}
+                        value={realityTemplateId}
+                    />
+                </div>
             </div>
-            <div className="md:flex md:gap-2">
+            <div className="flex flex-col gap-2 md:flex-row">
                 <div className="md:w-1/2">
                     <Select
                         id="question-timeout"
