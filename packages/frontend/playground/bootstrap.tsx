@@ -44,6 +44,6 @@ createRoot(document.getElementById("root")!).render(
             }) as Connector,
         ]}
         ipfsGatewayURL={CCT_IPFS_GATEWAY_URL}
-        oracleTemplateBaseURL="http://localhost:9002"
+        oracleTemplateBaseURL={CCT_TEMPLATE_URL}
     />
 );
