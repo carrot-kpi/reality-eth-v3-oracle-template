@@ -1,27 +1,23 @@
 import { dirname, join } from "path";
 import webpack from "webpack";
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
-import tailwindPostCssConfig from "../../tailwind.config.cjs";
 import { fileURLToPath } from "url";
 import { createRequire } from "module";
-import { long as longCommitHash } from "git-rev-sync";
+import { createHash } from "crypto";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const require = createRequire(import.meta.url);
-const shared = require("@carrot-kpi/frontend/shared-dependencies.json");
+const shared = require("@carrot-kpi/host-frontend/shared-dependencies.json");
 
-export const getTemplateComponentWebpackConfig = (
-    type,
-    componentPath,
-    i18nPath,
-    globals,
-    outDir
-) => {
+const hash = createHash("sha256");
+hash.update(Date.now().toString());
+
+const POSTCSS_PREFIX = `carrot-template-${hash.digest("hex").slice(0, 32)}`;
+
+export const getTemplateComponentWebpackConfig = (type, globals, outDir) => {
     if (type !== "page" && type !== "creationForm")
         throw new Error("type must either be creationForm or page");
-
-    const uniqueName = `${longCommitHash(join(__dirname, "../../"))}${type}`;
 
     const devMode = !!!outDir;
     return {
@@ -35,9 +31,9 @@ export const getTemplateComponentWebpackConfig = (
         stats: devMode ? "none" : undefined,
         entry: join(__dirname, "../../src"),
         output: {
+            publicPath: "auto",
             clean: true,
             ...(!!outDir ? { path: outDir } : {}),
-            uniqueName,
         },
         resolve: {
             fallback: devMode
@@ -61,12 +57,10 @@ export const getTemplateComponentWebpackConfig = (
                                 postcssOptions: {
                                     plugins: {
                                         tailwindcss: {},
-                                        "postcss-prefix-selector": {
-                                            prefix: `#carrot-template-${longCommitHash(
-                                                __dirname
-                                            )}-${type}`,
-                                        },
                                         autoprefixer: {},
+                                        "postcss-prefix-selector": {
+                                            prefix: `#${POSTCSS_PREFIX}`,
+                                        },
                                         ...(process.env.NODE_ENV ===
                                         "production"
                                             ? { cssnano: {} }
@@ -75,30 +69,6 @@ export const getTemplateComponentWebpackConfig = (
                                 },
                             },
                         },
-                    ],
-                },
-                {
-                    test: /\.svg/,
-                    use: [
-                        {
-                            loader: "@svgr/webpack",
-                            options: {
-                                prettier: false,
-                                svgoConfig: {
-                                    plugins: [
-                                        {
-                                            name: "preset-default",
-                                            params: {
-                                                overrides: {
-                                                    removeViewBox: false,
-                                                },
-                                            },
-                                        },
-                                    ],
-                                },
-                            },
-                        },
-                        "url-loader",
                     ],
                 },
             ],
@@ -110,18 +80,26 @@ export const getTemplateComponentWebpackConfig = (
             // TODO: further globals might be passed by carrot-scripts??
             new webpack.DefinePlugin({
                 ...globals,
-                __DEV__: devMode ? JSON.stringify(true) : JSON.stringify(false),
+                __ROOT_ID__: JSON.stringify(POSTCSS_PREFIX),
+                __DEV__: JSON.stringify(!!devMode),
             }),
             new MiniCssExtractPlugin(),
             new webpack.container.ModuleFederationPlugin({
-                name: devMode ? `${type}/remoteEntry` : "remoteEntry",
-                library: {
-                    type: "window",
-                    name: uniqueName,
-                },
+                name: type,
+                filename: devMode ? `${type}/remoteEntry.js` : "remoteEntry.js",
                 exposes: {
-                    "./component": componentPath,
-                    "./i18n": i18nPath,
+                    "./component": join(
+                        __dirname,
+                        `./${
+                            type === "page" ? "page" : "creation-form"
+                        }-wrapper.tsx`
+                    ),
+                    "./i18n": join(
+                        __dirname,
+                        `../../src/${
+                            type === "page" ? "page" : "creation-form"
+                        }/i18n/index.ts`
+                    ),
                 },
                 shared,
             }),

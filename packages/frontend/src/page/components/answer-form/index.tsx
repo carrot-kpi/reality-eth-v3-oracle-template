@@ -30,6 +30,7 @@ import {
     useContractRead,
     useAccount,
     useBalance,
+    Address,
 } from "wagmi";
 import {
     ANSWERED_TOO_SOON_REALITY_ANSWER,
@@ -57,7 +58,7 @@ import { BondInput } from "./bond-input";
 import dayjs from "dayjs";
 import { infoPopoverStyles, inputStyles } from "./common/styles";
 import { QuestionInfo } from "../question-info";
-import { ReactComponent as ExternalSvg } from "../../../assets/external.svg";
+import External from "../../../assets/external";
 import { OpeningCountdown } from "../opening-countdown";
 import {
     ChainId,
@@ -68,7 +69,7 @@ import { unixTimestamp } from "../../../utils/dates";
 import { useRealityQuestionResponses } from "../../../hooks/useRealityQuestionResponses";
 import { useQuestionContent } from "../../../hooks/useQuestionContent";
 import { Arbitrator } from "./arbitrator";
-import { ReactComponent as DangerSvg } from "../../../assets/danger.svg";
+import Danger from "../../../assets/danger";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -174,15 +175,17 @@ export const AnswerForm = ({
     const { data: disputeFee } = useContractRead({
         address:
             !!chain && chain.id
-                ? TRUSTED_REALITY_ARBITRATORS[chain.id as ChainId]
-                : "",
+                ? (TRUSTED_REALITY_ARBITRATORS[chain.id as ChainId] as
+                      | Address
+                      | undefined)
+                : undefined,
         abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
         functionName: "getDisputeFee",
         enabled: !!chain && !!chain.id,
     });
 
     const { data: withdrawableBalance } = useContractRead({
-        address: realityAddress,
+        address: realityAddress as Address,
         abi: REALITY_ETH_V3_ABI,
         functionName: "balanceOf",
         args: [address],
@@ -191,7 +194,7 @@ export const AnswerForm = ({
     });
 
     const { config: submitAnswerConfig } = usePrepareContractWrite({
-        address: realityAddress,
+        address: realityAddress as Address,
         abi: REALITY_ETH_V3_ABI,
         functionName: "submitAnswer",
         args: [question.id, answer, BigNumber.from(0)],
@@ -205,7 +208,7 @@ export const AnswerForm = ({
 
     const finalized = isQuestionFinalized(question);
     const { config: reopenQuestionConfig } = usePrepareContractWrite({
-        address: realityAddress,
+        address: realityAddress as Address,
         abi: REALITY_ETH_V3_ABI,
         functionName: "reopenQuestion",
         args: [
@@ -224,7 +227,7 @@ export const AnswerForm = ({
         useContractWrite(reopenQuestionConfig);
 
     const { config: finalizeOracleConfig } = usePrepareContractWrite({
-        address: oracle.address,
+        address: oracle.address as Address,
         abi: REALITY_ORACLE_V3_ABI,
         functionName: "finalize",
         enabled: finalized && !oracle.finalized && !isAnsweredTooSoon(question),
@@ -235,8 +238,8 @@ export const AnswerForm = ({
     const { config: requestArbitrationConfig } = usePrepareContractWrite({
         address:
             !!chain && chain.id
-                ? TRUSTED_REALITY_ARBITRATORS[chain.id as ChainId]
-                : "",
+                ? (TRUSTED_REALITY_ARBITRATORS[chain.id as ChainId] as Address)
+                : undefined,
         abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
         functionName: "requestArbitration",
         args: [question.id, BigNumber.from(0)],
@@ -256,7 +259,7 @@ export const AnswerForm = ({
     );
 
     const { config: claimMultipleAndWithdrawConfig } = usePrepareContractWrite({
-        address: realityAddress,
+        address: realityAddress as Address,
         abi: REALITY_ETH_V3_ABI,
         functionName: "claimMultipleAndWithdrawBalance",
         args: [
@@ -569,7 +572,7 @@ export const AnswerForm = ({
         <div className="flex flex-col">
             {kpiToken.expired && !oracle.finalized && (
                 <div className="p-6 flex gap-3 items-center border-b bg-orange/40 dark:border-white">
-                    <DangerSvg width={36} height={36} />
+                    <Danger width={36} height={36} />
                     <Typography>{t("label.question.kpiExpired")}</Typography>
                 </div>
             )}
@@ -620,7 +623,7 @@ export const AnswerForm = ({
                             rel="noopener noreferrer"
                         >
                             <Typography>Reality.eth</Typography>
-                            <ExternalSvg className="w-4 h-4 cursor-pointer" />
+                            <External className="w-4 h-4 cursor-pointer" />
                         </a>
                     </QuestionInfo>
                 </div>

@@ -3,12 +3,11 @@
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 import { rm, writeFile } from "fs/promises";
-import { long as longCommitHash } from "git-rev-sync";
 import chalk from "chalk";
 import ora from "ora";
 import { createRequire } from "module";
-import { existsSync } from "fs";
 import webpack from "webpack";
+import { existsSync } from "fs";
 import { getTemplateComponentWebpackConfig } from "../.cct/utils/get-template-component-webpack-config.js";
 import { formatWebpackMessages } from "../.cct/utils/format-webpack-messages.js";
 
@@ -21,7 +20,6 @@ const main = async () => {
     const outDir = join(__dirname, "../dist");
 
     let spinner = ora();
-    const commitHash = longCommitHash(join(__dirname, "../"));
 
     spinner = ora(`Removing previous ${chalk.blue("dist")} folder`);
     const dist = join(__dirname, "../dist");
@@ -35,15 +33,11 @@ const main = async () => {
             [
                 getTemplateComponentWebpackConfig(
                     "creationForm",
-                    join(__dirname, "../src/creation-form/index.tsx"),
-                    join(__dirname, "../src/creation-form/i18n/index.ts"),
                     {},
                     join(dist, "creationForm")
                 ),
                 getTemplateComponentWebpackConfig(
                     "page",
-                    join(__dirname, "../src/page/index.tsx"),
-                    join(__dirname, "../src/page/i18n/index.ts"),
                     {},
                     join(dist, "page")
                 ),
@@ -56,7 +50,7 @@ const main = async () => {
                     console.log();
                     console.log(error.message || error);
                     console.log();
-                    process.exit(0);
+                    process.exit(1);
                 }
 
                 const statsData = stats.toJson({
@@ -74,7 +68,7 @@ const main = async () => {
                     );
                     console.log();
                     console.log(messages.errors.join("\n\n"));
-                    process.exit(0);
+                    process.exit(1);
                 }
 
                 if (messages.warnings.length) {
@@ -96,13 +90,9 @@ const main = async () => {
     spinner.succeed(`${chalk.blue("Federated modules")} successfully built`);
 
     spinner = ora(`Building ${chalk.blue("base.json")}`);
-    const partialBase = require("../src/base.json");
     await writeFile(
         join(outDir, "base.json"),
-        JSON.stringify({
-            ...partialBase,
-            commitHash,
-        })
+        JSON.stringify(require("../src/base.json"))
     );
     spinner.succeed(`${chalk.blue("base.json")} built`);
 };

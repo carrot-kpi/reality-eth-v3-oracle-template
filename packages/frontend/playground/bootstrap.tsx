@@ -5,9 +5,9 @@ import "@fontsource/inter/400.css";
 import "@fontsource/inter/500.css";
 import "@fontsource/inter/700.css";
 import "@carrot-kpi/ui/styles.css";
-import "@carrot-kpi/frontend/styles.css";
+import "@carrot-kpi/host-frontend/styles.css";
 
-import { CarrotConnector, Root } from "@carrot-kpi/frontend";
+import { CarrotConnector, Root } from "@carrot-kpi/host-frontend";
 import { createRoot } from "react-dom/client";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import { Connector } from "wagmi";
