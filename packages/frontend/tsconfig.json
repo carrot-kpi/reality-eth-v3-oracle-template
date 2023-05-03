@@ -5,7 +5,7 @@
         "./tests/**/*.ts",
         "./tests/**/*.tsx",
         "./playground/*.tsx",
-        "./custom.d.ts"
+        "./.cct/**/*.tsx"
     ],
     "exclude": ["node_modules"],
     "compilerOptions": {
