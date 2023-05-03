@@ -1,4 +1,4 @@
-import { useContractReads, useNetwork } from "wagmi";
+import { Address, useContractReads, useNetwork } from "wagmi";
 import TRUSTED_REALITY_ARBITRATOR_V3_ABI from "../abis/trusted-reality-arbitrator-v3.json";
 import { BigNumber, utils } from "ethers";
 import { useEffect, useState } from "react";
@@ -16,7 +16,7 @@ export function useArbitratorsDisputeFee(
     const { chain } = useNetwork();
     const { data: fees, isLoading: loading } = useContractReads({
         contracts: addresses.map((address) => ({
-            address,
+            address: address as Address,
             abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
             functionName: "getDisputeFee",
         })),

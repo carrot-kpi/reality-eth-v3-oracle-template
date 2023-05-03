@@ -15,9 +15,9 @@
         "codegen-chain-specific-contracts": "./codegen-chain-specific-contracts.js"
     },
     "devDependencies": {
-        "@carrot-kpi/sdk": "^1.23.1",
+        "@carrot-kpi/sdk": "^1.24.1",
         "ethers": "^5.7.2",
-        "prettier": "^2.8.7",
+        "prettier": "^2.8.8",
         "prettier-plugin-solidity": "^1.1.3",
         "solhint-plugin-prettier": "^0.0.5"
     }

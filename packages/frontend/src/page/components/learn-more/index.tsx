@@ -2,7 +2,7 @@ import { NamespacedTranslateFunction } from "@carrot-kpi/react";
 import { Button, Typography } from "@carrot-kpi/ui";
 import { ReactElement } from "react";
 import { REALITY_WEBSITE } from "../../../commons";
-import { ReactComponent as ExternalSvg } from "../../../assets/external.svg";
+import External from "../../../assets/external";
 
 interface LearnMoreProps {
     t: NamespacedTranslateFunction;
@@ -17,7 +17,7 @@ export const LearnMore = ({ t }: LearnMoreProps): ReactElement => {
                 target="_blank"
                 rel="noopener noreferrer"
                 size="xsmall"
-                icon={ExternalSvg}
+                icon={External}
                 iconPlacement="right"
             >
                 Reality

@@ -35,15 +35,11 @@ const main = async () => {
             [
                 getTemplateComponentWebpackConfig(
                     "creationForm",
-                    join(__dirname, "../src/creation-form/index.tsx"),
-                    join(__dirname, "../src/creation-form/i18n/index.ts"),
                     {},
                     join(dist, "creationForm")
                 ),
                 getTemplateComponentWebpackConfig(
                     "page",
-                    join(__dirname, "../src/page/index.tsx"),
-                    join(__dirname, "../src/page/i18n/index.ts"),
                     {},
                     join(dist, "page")
                 ),

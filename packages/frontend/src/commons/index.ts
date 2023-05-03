@@ -1,6 +1,6 @@
 import { ChainId } from "@carrot-kpi/sdk";
 import { SelectOption } from "@carrot-kpi/ui";
-import { ReactComponent as CarrotIcon } from "../assets/carrot.svg";
+import CarrotIcon from "../assets/carrot";
 import { OptionForArbitrator } from "../creation-form/types";
 
 export type SupportedChain = Extract<ChainId, ChainId.SEPOLIA | ChainId.GNOSIS>;

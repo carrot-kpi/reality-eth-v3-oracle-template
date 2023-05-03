@@ -11,7 +11,7 @@ import { getTemplateComponentWebpackConfig } from "./utils/get-template-componen
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const require = createRequire(import.meta.url);
-const shared = require("@carrot-kpi/frontend/shared-dependencies.json");
+const shared = require("@carrot-kpi/host-frontend/shared-dependencies.json");
 
 export const startPlayground = async (
     forkedNetworkChainId,
@@ -24,18 +24,8 @@ export const startPlayground = async (
     const templateFirstCompilation = true;
 
     const templateCompiler = webpack([
-        getTemplateComponentWebpackConfig(
-            "creationForm",
-            join(__dirname, "../src/creation-form/index.tsx"),
-            join(__dirname, "../src/creation-form/i18n/index.ts"),
-            globals
-        ),
-        getTemplateComponentWebpackConfig(
-            "page",
-            join(__dirname, "../src/page/index.tsx"),
-            join(__dirname, "../src/page/i18n/index.ts"),
-            globals
-        ),
+        getTemplateComponentWebpackConfig("creationForm", globals),
+        getTemplateComponentWebpackConfig("page", globals),
     ]);
 
     const templateDevServer = new WebpackDevServer(
@@ -74,30 +64,6 @@ export const startPlayground = async (
                                 postcssOptions,
                             },
                         },
-                    ],
-                },
-                {
-                    test: /\.svg/,
-                    use: [
-                        {
-                            loader: "@svgr/webpack",
-                            options: {
-                                prettier: false,
-                                svgoConfig: {
-                                    plugins: [
-                                        {
-                                            name: "preset-default",
-                                            params: {
-                                                overrides: {
-                                                    removeViewBox: false,
-                                                },
-                                            },
-                                        },
-                                    ],
-                                },
-                            },
-                        },
-                        "url-loader",
                     ],
                 },
             ],
