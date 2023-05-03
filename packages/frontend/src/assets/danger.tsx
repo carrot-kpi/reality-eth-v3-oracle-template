@@ -1,6 +1,6 @@
-import { SVGIcon } from "./types";
+import { SVGIconProps } from "./types";
 
-const Danger = (props: SVGIcon) => {
+const Danger = (props: SVGIconProps) => {
     return (
         <svg
             width="24"

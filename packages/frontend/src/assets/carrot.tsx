@@ -1,6 +1,6 @@
-import { SVGIcon } from "./types";
+import { SVGIconProps } from "./types";
 
-const Carrot = (props: SVGIcon) => {
+const Carrot = (props: SVGIconProps) => {
     return (
         <svg
             width="126"
