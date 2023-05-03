@@ -2,5 +2,6 @@
     "name": "Reality.eth v3 oracle",
     "description": "A Carrot v1 oracle leveraging Reality.eth's crowdsourced oracle.",
     "tags": ["reality", "eth", "crowdsourced"],
-    "repository": "https://github.com/carrot-kpi/reality-eth-v3-oracle-template"
+    "repository": "https://github.com/carrot-kpi/reality-eth-v3-oracle-template",
+    "stagingURL": "https://reality-eth-v3-oracle-template.staging.carrot-kpi.io"
 }
