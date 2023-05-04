@@ -18,8 +18,8 @@
         "prepare": "husky install"
     },
     "devDependencies": {
-        "@commitlint/cli": "^17.6.1",
-        "@commitlint/config-conventional": "^17.6.1",
+        "@commitlint/cli": "^17.6.3",
+        "@commitlint/config-conventional": "^17.6.3",
         "carrot-scripts": "0.15.6",
         "husky": "^8.0.3",
         "prettier": "^2.8.8",
