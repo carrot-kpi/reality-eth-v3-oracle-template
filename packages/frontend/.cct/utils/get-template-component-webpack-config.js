@@ -13,7 +13,7 @@ const shared = require("@carrot-kpi/host-frontend/shared-dependencies.json");
 const hash = createHash("sha256");
 hash.update(Date.now().toString());
 
-const POSTCSS_PREFIX = `carrot-template-${hash.digest("hex").slice(0, 32)}`;
+const UNIQUE_ID = `carrot-template-${hash.digest("hex").slice(0, 32)}`;
 
 export const getTemplateComponentWebpackConfig = (type, globals, outDir) => {
     if (type !== "page" && type !== "creationForm")
@@ -34,6 +34,7 @@ export const getTemplateComponentWebpackConfig = (type, globals, outDir) => {
             publicPath: "auto",
             clean: true,
             ...(!!outDir ? { path: outDir } : {}),
+            uniqueName: UNIQUE_ID,
         },
         resolve: {
             fallback: devMode
@@ -59,7 +60,7 @@ export const getTemplateComponentWebpackConfig = (type, globals, outDir) => {
                                         tailwindcss: {},
                                         autoprefixer: {},
                                         "postcss-prefix-selector": {
-                                            prefix: `#${POSTCSS_PREFIX}`,
+                                            prefix: `#${UNIQUE_ID}`,
                                         },
                                         ...(process.env.NODE_ENV ===
                                         "production"
@@ -80,7 +81,7 @@ export const getTemplateComponentWebpackConfig = (type, globals, outDir) => {
             // TODO: further globals might be passed by carrot-scripts??
             new webpack.DefinePlugin({
                 ...globals,
-                __ROOT_ID__: JSON.stringify(POSTCSS_PREFIX),
+                __ROOT_ID__: JSON.stringify(UNIQUE_ID),
                 __DEV__: JSON.stringify(!!devMode),
             }),
             new MiniCssExtractPlugin(),
