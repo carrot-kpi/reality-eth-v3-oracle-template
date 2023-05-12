@@ -3,13 +3,14 @@
 import { dirname, join } from "path";
 import { readFile, writeFile } from "fs/promises";
 import { fileURLToPath } from "url";
+import { ChainId } from "@carrot-kpi/sdk";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const REALITYV3_ADDRESS = {
-    5: "0x6F80C5cBCF9FbC2dA2F0675E56A5900BB70Df72f",
-    11155111: "0x64a0745EF9d3772d9739D9350873eD3703bE45eC",
-    100: "0xE78996A233895bE74a66F451f1019cA9734205cc",
+    [ChainId.SEPOLIA]: "0x64a0745EF9d3772d9739D9350873eD3703bE45eC",
+    [ChainId.GNOSIS]: "0xE78996A233895bE74a66F451f1019cA9734205cc",
+    [ChainId.ARBITRUM_GOERLI]: "0x14a6748192aBC6E10CA694Ae07bDd4327D6c7A51",
 };
 
 const [, , chainId] = process.argv;
