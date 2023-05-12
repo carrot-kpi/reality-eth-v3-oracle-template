@@ -1,9 +1,9 @@
 import "@fontsource/ibm-plex-mono/400.css";
 import "@fontsource/ibm-plex-mono/500.css";
 import "@fontsource/ibm-plex-mono/700.css";
-import "@fontsource/inter/400.css";
-import "@fontsource/inter/500.css";
-import "@fontsource/inter/700.css";
+import "@carrot-kpi/switzer-font/400.css";
+import "@carrot-kpi/switzer-font/500.css";
+import "@carrot-kpi/switzer-font/700.css";
 import "@carrot-kpi/ui/styles.css";
 import "@carrot-kpi/host-frontend/styles.css";
 
