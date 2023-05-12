@@ -3,13 +3,14 @@ import { SelectOption } from "@carrot-kpi/ui";
 import CarrotIcon from "../assets/carrot";
 import { OptionForArbitrator } from "../creation-form/types";
 
+// TODO: add arbitrum goerli to supported chains
 export type SupportedChain = Extract<ChainId, ChainId.SEPOLIA | ChainId.GNOSIS>;
 export const SupportedChain: Record<SupportedChain, SupportedChain> = {
     [ChainId.SEPOLIA]: ChainId.SEPOLIA,
     [ChainId.GNOSIS]: ChainId.GNOSIS,
 } as const;
 
-export const TRUSTED_REALITY_ARBITRATORS: Record<ChainId, string> = {
+export const TRUSTED_REALITY_ARBITRATORS: Record<SupportedChain, string> = {
     [ChainId.GNOSIS]: __DEV__
         ? CCT_TRUSTED_ARBITRATOR_ADDRESS
         : "0xe37AA274d1bb3815b63cd13064dE443423F74316",
