@@ -37,6 +37,7 @@ import {
     BooleanAnswer,
     BYTES32_ZERO,
     INVALID_REALITY_ANSWER,
+    SupportedChain,
     SupportedRealityTemplates,
     TRUSTED_REALITY_ARBITRATORS,
 } from "../../../commons";
@@ -61,7 +62,6 @@ import { QuestionInfo } from "../question-info";
 import External from "../../../assets/external";
 import { OpeningCountdown } from "../opening-countdown";
 import {
-    ChainId,
     ResolvedKPITokenWithData,
     ResolvedOracleWithData,
 } from "@carrot-kpi/sdk";
@@ -175,7 +175,7 @@ export const AnswerForm = ({
     const { data: disputeFee } = useContractRead({
         address:
             !!chain && chain.id
-                ? (TRUSTED_REALITY_ARBITRATORS[chain.id as ChainId] as
+                ? (TRUSTED_REALITY_ARBITRATORS[chain.id as SupportedChain] as
                       | Address
                       | undefined)
                 : undefined,
@@ -238,7 +238,9 @@ export const AnswerForm = ({
     const { config: requestArbitrationConfig } = usePrepareContractWrite({
         address:
             !!chain && chain.id
-                ? (TRUSTED_REALITY_ARBITRATORS[chain.id as ChainId] as Address)
+                ? (TRUSTED_REALITY_ARBITRATORS[
+                      chain.id as SupportedChain
+                  ] as Address)
                 : undefined,
         abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
         functionName: "requestArbitration",
