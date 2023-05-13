@@ -8,7 +8,7 @@ import {
     BYTES32_ZERO,
     SUBGRAPH_CURRENT_ANSWER_FINALIZATION_TIMESTAMP_NULL_VALUE,
     SUBGRAPH_URL,
-    SupportedChain,
+    SupportedChainId,
 } from "../../commons";
 import { enforce, query } from "@carrot-kpi/sdk";
 import { RealityResponse, RealityQuestion } from "../../page/types";
@@ -22,7 +22,10 @@ import { BigNumber } from "ethers";
 
 class Fetcher implements IPartialFetcher {
     public supportedInChain({ chainId }: SupportedInChainParams): boolean {
-        return !!SUBGRAPH_URL[chainId];
+        return (
+            chainId in SupportedChainId &&
+            !!SUBGRAPH_URL[chainId as unknown as SupportedChainId]
+        );
     }
 
     public async fetchQuestion({
@@ -34,10 +37,10 @@ class Fetcher implements IPartialFetcher {
 
         const { chainId } = await provider.getNetwork();
         enforce(
-            chainId in SupportedChain,
+            chainId in SupportedChainId,
             `unsupported chain with id ${chainId}`
         );
-        const subgraphURL = SUBGRAPH_URL[chainId as SupportedChain];
+        const subgraphURL = SUBGRAPH_URL[chainId as SupportedChainId];
         enforce(!!subgraphURL, `no subgraph available in chain ${chainId}`);
         const { question } = await query<GetQuestionQueryResponse>(
             subgraphURL,
@@ -80,10 +83,10 @@ class Fetcher implements IPartialFetcher {
 
         const { chainId } = await provider.getNetwork();
         enforce(
-            chainId in SupportedChain,
+            chainId in SupportedChainId,
             `unsupported chain with id ${chainId}`
         );
-        const subgraphURL = SUBGRAPH_URL[chainId as SupportedChain];
+        const subgraphURL = SUBGRAPH_URL[chainId as SupportedChainId];
         enforce(!!subgraphURL, `no subgraph available in chain ${chainId}`);
         const { question } = await query<GetResponsesQueryResponse>(
             subgraphURL,

@@ -1,9 +1,9 @@
 import { Provider } from "@ethersproject/providers";
 import { RealityResponse, RealityQuestion } from "../../page/types";
-import { SupportedChain } from "../../commons";
+import { ChainId } from "@carrot-kpi/sdk";
 
 export interface SupportedInChainParams {
-    chainId: SupportedChain;
+    chainId: ChainId;
 }
 
 export interface FetchQuestionParams {

@@ -1,7 +1,7 @@
 import { Popover, Typography } from "@carrot-kpi/ui";
 import { useCallback, useEffect, useState } from "react";
 import { useNetwork } from "wagmi";
-import { ARBITRATORS_BY_CHAIN, SupportedChain } from "../../../../commons";
+import { ARBITRATORS_BY_CHAIN, SupportedChainId } from "../../../../commons";
 import { OptionForArbitrator } from "../../../../creation-form/types";
 import { shortenAddress } from "../../../../utils";
 
@@ -28,10 +28,14 @@ export const Arbitrator = ({ address }: ArbitratorProps) => {
     );
 
     useEffect(() => {
-        if (chain && ARBITRATORS_BY_CHAIN[chain.id as SupportedChain]) {
+        if (
+            chain &&
+            chain.id in SupportedChainId &&
+            ARBITRATORS_BY_CHAIN[chain.id as SupportedChainId]
+        ) {
             const lowerCaseAddress = address.toLowerCase();
             const foundArbitrator = ARBITRATORS_BY_CHAIN[
-                chain.id as SupportedChain
+                chain.id as SupportedChainId
             ].find((arbitratorOption) => {
                 return (
                     (arbitratorOption.value as string).toLowerCase() ===

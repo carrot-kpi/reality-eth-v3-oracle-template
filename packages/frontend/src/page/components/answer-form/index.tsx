@@ -37,7 +37,7 @@ import {
     BooleanAnswer,
     BYTES32_ZERO,
     INVALID_REALITY_ANSWER,
-    SupportedChain,
+    SupportedChainId,
     SupportedRealityTemplates,
     TRUSTED_REALITY_ARBITRATORS,
 } from "../../../commons";
@@ -174,8 +174,8 @@ export const AnswerForm = ({
 
     const { data: disputeFee } = useContractRead({
         address:
-            !!chain && chain.id
-                ? (TRUSTED_REALITY_ARBITRATORS[chain.id as SupportedChain] as
+            !!chain && chain.id && chain.id in SupportedChainId
+                ? (TRUSTED_REALITY_ARBITRATORS[chain.id as SupportedChainId] as
                       | Address
                       | undefined)
                 : undefined,
@@ -237,9 +237,9 @@ export const AnswerForm = ({
 
     const { config: requestArbitrationConfig } = usePrepareContractWrite({
         address:
-            !!chain && chain.id
+            !!chain && chain.id && chain.id in SupportedChainId
                 ? (TRUSTED_REALITY_ARBITRATORS[
-                      chain.id as SupportedChain
+                      chain.id as SupportedChainId
                   ] as Address)
                 : undefined,
         abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,

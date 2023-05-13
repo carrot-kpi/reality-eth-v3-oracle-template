@@ -15,7 +15,7 @@ import {
 import { useDecentralizedStorageUploader } from "@carrot-kpi/react";
 import { useNetwork } from "wagmi";
 import {
-    SupportedChain,
+    SupportedChainId,
     ARBITRATORS_BY_CHAIN,
     REALITY_TEMPLATE_OPTIONS,
     TIMEOUT_OPTIONS,
@@ -59,9 +59,9 @@ export const Component = ({
 
     const arbitratorAddresses = useMemo(
         () =>
-            !chain || !(chain.id in SupportedChain)
+            !chain || !(chain.id in SupportedChainId)
                 ? []
-                : ARBITRATORS_BY_CHAIN[chain.id as SupportedChain].map(
+                : ARBITRATORS_BY_CHAIN[chain.id as SupportedChainId].map(
                       (arbitrator) => arbitrator.value.toString()
                   ),
         [chain]
@@ -72,9 +72,9 @@ export const Component = ({
 
     const arbitratorsByChain = useMemo(
         () =>
-            !chain || !(chain.id in SupportedChain)
+            !chain || !(chain.id in SupportedChainId)
                 ? []
-                : ARBITRATORS_BY_CHAIN[chain.id as SupportedChain].map(
+                : ARBITRATORS_BY_CHAIN[chain.id as SupportedChainId].map(
                       (arbitrator) => ({
                           ...arbitrator,
                           disputeFee: arbitratorDisputeFees[arbitrator.value],

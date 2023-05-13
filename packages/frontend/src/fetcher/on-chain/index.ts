@@ -7,7 +7,7 @@ import {
 import {
     BYTES32_ZERO,
     REALITY_TEMPLATE_OPTIONS,
-    SupportedChain,
+    SupportedChainId,
 } from "../../commons";
 import REALITY_ETH_V3_ABI from "../../abis/reality-eth-v3.json";
 import { enforce, isCID } from "@carrot-kpi/sdk";
@@ -55,7 +55,7 @@ class Fetcher implements IPartialFetcher {
 
         const { chainId } = await provider.getNetwork();
         enforce(
-            chainId in SupportedChain,
+            chainId in SupportedChainId,
             `unsupported chain with id ${chainId}`
         );
         const realityContract = new Contract(
@@ -115,7 +115,7 @@ class Fetcher implements IPartialFetcher {
         if (!realityV3Address || !questionId) return [];
         const { chainId } = await provider.getNetwork();
         enforce(
-            chainId in SupportedChain,
+            chainId in SupportedChainId,
             `unsupported chain with id ${chainId}`
         );
         const realityContract = new Contract(

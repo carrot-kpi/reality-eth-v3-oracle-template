@@ -4,44 +4,44 @@ import CarrotIcon from "../assets/carrot";
 import { OptionForArbitrator } from "../creation-form/types";
 
 // TODO: add arbitrum goerli to supported chains
-export enum SupportedChain {
+export enum SupportedChainId {
     GNOSIS = ChainId.GNOSIS,
     SEPOLIA = ChainId.SEPOLIA,
 }
 
-export const TRUSTED_REALITY_ARBITRATORS: Record<SupportedChain, string> = {
-    [SupportedChain.GNOSIS]: __DEV__
+export const TRUSTED_REALITY_ARBITRATORS: Record<SupportedChainId, string> = {
+    [SupportedChainId.GNOSIS]: __DEV__
         ? CCT_TRUSTED_ARBITRATOR_ADDRESS
         : "0xe37AA274d1bb3815b63cd13064dE443423F74316",
-    [SupportedChain.SEPOLIA]: __DEV__
+    [SupportedChainId.SEPOLIA]: __DEV__
         ? CCT_TRUSTED_ARBITRATOR_ADDRESS
         : "0x96073897873796d1950B1B04Fe2Ead8E0CA34914",
 };
 
 export const ARBITRATORS_BY_CHAIN: Record<
-    SupportedChain,
+    SupportedChainId,
     OptionForArbitrator[]
 > = {
-    [SupportedChain.SEPOLIA]: [
+    [SupportedChainId.SEPOLIA]: [
         {
-            value: TRUSTED_REALITY_ARBITRATORS[SupportedChain.SEPOLIA],
+            value: TRUSTED_REALITY_ARBITRATORS[SupportedChainId.SEPOLIA],
             label: "Carrot guild",
             icon: CarrotIcon,
         },
     ],
-    [SupportedChain.GNOSIS]: [
+    [SupportedChainId.GNOSIS]: [
         {
-            value: TRUSTED_REALITY_ARBITRATORS[SupportedChain.GNOSIS],
+            value: TRUSTED_REALITY_ARBITRATORS[SupportedChainId.GNOSIS],
             label: "Carrot guild",
             icon: CarrotIcon,
         },
     ],
 };
 
-export const SUBGRAPH_URL: Record<SupportedChain, string | null> = {
-    [SupportedChain.GNOSIS]:
+export const SUBGRAPH_URL: Record<SupportedChainId, string | null> = {
+    [SupportedChainId.GNOSIS]:
         "https://api.thegraph.com/subgraphs/name/realityeth/realityeth-xdai",
-    [SupportedChain.SEPOLIA]: null,
+    [SupportedChainId.SEPOLIA]: null,
 };
 
 interface TimeoutOption {
