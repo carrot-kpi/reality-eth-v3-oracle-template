@@ -106,8 +106,8 @@ export const TIMEOUT_OPTIONS: TimeoutOption[] = [
 ];
 
 export enum SupportedRealityTemplates {
-    BOOL = "0",
-    UINT = "1",
+    BOOL,
+    UINT,
 }
 
 export const REALITY_DAPP_ENDPOINT = "https://reality.eth.link/app/index.html";

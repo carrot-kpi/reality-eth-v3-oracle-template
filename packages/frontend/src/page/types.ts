@@ -1,4 +1,4 @@
-import { BigNumber } from "ethers";
+import { type Address } from "viem";
 
 export interface NumberFormatValue {
     formattedValue: string;
@@ -12,35 +12,35 @@ export interface OnChainRealityQuestion {
     timeout: number;
     finalize_ts: number;
     is_pending_arbitration: boolean;
-    bounty: BigNumber;
+    bounty: bigint;
     best_answer: string;
     history_hash: string;
-    bond: BigNumber;
-    min_bond: BigNumber;
+    bond: bigint;
+    min_bond: bigint;
 }
 
 export interface RealityQuestion {
     id: string;
     reopenedId?: string;
     historyHash: string;
-    templateId: string;
+    templateId: number;
     content: string;
     contentHash: string;
-    arbitrator: string;
+    arbitrator: Address;
     timeout: number;
     openingTimestamp: number;
     finalizationTimestamp: number;
     pendingArbitration: boolean;
-    bounty: BigNumber;
+    bounty: bigint;
     bestAnswer: string;
-    bond: BigNumber;
-    minBond: BigNumber;
+    bond: bigint;
+    minBond: bigint;
 }
 
 export interface RealityResponse {
     hash: string;
     answerer: string;
-    bond: BigNumber;
+    bond: bigint;
     answer: string;
-    timestamp: number;
+    timestamp: bigint;
 }

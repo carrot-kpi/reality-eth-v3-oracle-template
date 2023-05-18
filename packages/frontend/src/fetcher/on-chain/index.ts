@@ -1,4 +1,3 @@
-import { Contract } from "@ethersproject/contracts";
 import {
     FetchAnswersHistoryParams,
     FetchQuestionParams,
@@ -9,26 +8,30 @@ import {
     REALITY_TEMPLATE_OPTIONS,
     SupportedChainId,
 } from "../../commons";
-import REALITY_ETH_V3_ABI from "../../abis/reality-eth-v3.json";
+import REALITY_ETH_V3_ABI from "../../abis/reality-eth-v3";
 import { enforce, isCID } from "@carrot-kpi/sdk";
 import {
     RealityResponse,
     OnChainRealityQuestion,
     RealityQuestion,
 } from "../../page/types";
-import { BigNumber, utils } from "ethers";
-import { defaultAbiCoder } from "ethers/lib/utils.js";
+import {
+    decodeAbiParameters,
+    getContract,
+    keccak256,
+    parseAbiItem,
+    toHex,
+} from "viem";
+import { type Address } from "viem";
 
-const LOGS_BLOCKS_SIZE = __DEV__ ? 10 : 10_000;
-const NEW_QUESTION_LOG_TOPIC = utils.solidityKeccak256(
-    ["string"],
-    [
-        "LogNewQuestion(bytes32,address,uint256,string,bytes32,address,uint32,uint32,uint256,uint256)",
-    ]
+const LOGS_BLOCKS_SIZE = __DEV__ ? 10n : 10_000n;
+const NEW_QUESTION_LOG_TOPIC = keccak256(
+    toHex(
+        "LogNewQuestion(bytes32,address,uint256,string,bytes32,address,uint32,uint32,uint256,uint256)"
+    )
 );
-const NEW_ANSWER_LOG_TOPIC = utils.solidityKeccak256(
-    ["string"],
-    ["LogNewAnswer(bytes32,bytes32,bytes32,address,uint256,uint256,bool)"]
+const NEW_ANSWER_LOG_TOPIC = keccak256(
+    toHex("LogNewAnswer(bytes32,bytes32,bytes32,address,uint256,uint256,bool)")
 );
 
 class Fetcher implements IPartialFetcher {
@@ -37,7 +40,7 @@ class Fetcher implements IPartialFetcher {
     }
 
     public async fetchQuestion({
-        provider,
+        nodeClient,
         realityV3Address,
         questionId,
         question,
@@ -53,22 +56,23 @@ class Fetcher implements IPartialFetcher {
         )
             return null;
 
-        const { chainId } = await provider.getNetwork();
+        const chainId = await nodeClient.getChainId();
         enforce(
             chainId in SupportedChainId,
             `unsupported chain with id ${chainId}`
         );
-        const realityContract = new Contract(
-            realityV3Address,
-            REALITY_ETH_V3_ABI,
-            provider
-        );
+        const realityContract = getContract({
+            abi: REALITY_ETH_V3_ABI,
+            address: realityV3Address as `0x${string}`,
+            publicClient: nodeClient,
+        });
 
         // in case the question has been reopened, let's directly fetch the latest reopening
         let finalQuestionId = questionId;
-        const reopenedQuestionId = await realityContract.reopened_questions(
-            questionId
-        );
+        const reopenedQuestionId =
+            await realityContract.read.reopened_questions([
+                questionId as `0x${string}`,
+            ]);
         if (reopenedQuestionId && reopenedQuestionId !== BYTES32_ZERO)
             finalQuestionId = reopenedQuestionId;
 
@@ -84,18 +88,18 @@ class Fetcher implements IPartialFetcher {
             history_hash,
             bond,
             min_bond,
-        } = (await realityContract.questions(
-            finalQuestionId
-        )) as OnChainRealityQuestion;
+        } = (await realityContract.read.questions([
+            finalQuestionId as `0x${string}`,
+        ])) as unknown as OnChainRealityQuestion;
 
         return {
             id: finalQuestionId,
             reopenedId: questionId === finalQuestionId ? undefined : questionId,
             historyHash: history_hash,
-            templateId,
+            templateId: Number(templateId),
             content: question,
             contentHash: content_hash,
-            arbitrator,
+            arbitrator: arbitrator as Address,
             timeout,
             openingTimestamp: opening_ts,
             finalizationTimestamp: finalize_ts,
@@ -108,62 +112,70 @@ class Fetcher implements IPartialFetcher {
     }
 
     public async fetchAnswersHistory({
-        provider,
+        nodeClient,
         realityV3Address,
         questionId,
     }: FetchAnswersHistoryParams): Promise<RealityResponse[]> {
         if (!realityV3Address || !questionId) return [];
-        const { chainId } = await provider.getNetwork();
+        const chainId = await nodeClient.getChainId();
         enforce(
             chainId in SupportedChainId,
             `unsupported chain with id ${chainId}`
         );
-        const realityContract = new Contract(
-            realityV3Address,
-            REALITY_ETH_V3_ABI,
-            provider
-        );
 
-        let toBlock = await provider.getBlockNumber();
+        let toBlock = await nodeClient.getBlockNumber();
         let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
         const answersFromLogs: RealityResponse[] = [];
         try {
             while (true) {
-                const logs = await provider.getLogs({
-                    address: realityContract.address,
+                // FIXME: check if this implementation still works properly
+                const newAnwersEventLogs = await nodeClient.getLogs({
+                    address: realityV3Address as `0x${string}`,
+                    event: parseAbiItem(
+                        "event LogNewAnswer(bytes32,bytes32,bytes32,address,uint256,uint256,bool)"
+                    ),
                     fromBlock,
                     toBlock,
-                    topics: [
-                        [NEW_ANSWER_LOG_TOPIC, NEW_QUESTION_LOG_TOPIC],
-                        questionId,
-                    ],
                 });
+                const newQuestionEventLogs = await nodeClient.getLogs({
+                    address: realityV3Address as `0x${string}`,
+                    event: parseAbiItem(
+                        "event LogNewQuestion(bytes32,address,uint256,string,bytes32,address,uint32,uint32,uint256,uint256)"
+                    ),
+                    fromBlock,
+                    toBlock,
+                });
+                newQuestionEventLogs;
+
+                const logs = [...newAnwersEventLogs, ...newQuestionEventLogs];
                 let shouldBreak = false;
                 for (const log of logs) {
+                    // FIXME: is this condition still valid
                     if (log.topics[0] === NEW_ANSWER_LOG_TOPIC) {
                         // Event params: bytes32 answer, bytes32 indexed question_id, bytes32 history_hash, address indexed user, uint256 bond, uint256 ts, bool is_commitment
-                        const [answerer] = defaultAbiCoder.decode(
-                            ["address"],
-                            log.topics[2]
+                        const [answerer] = decodeAbiParameters(
+                            [{ type: "address", name: "answerer" }],
+                            log.topics[2] as `0x${string}`
                         );
                         const [answer, hash, bond, timestamp] =
-                            defaultAbiCoder.decode(
+                            decodeAbiParameters(
                                 [
-                                    "bytes32",
-                                    "bytes32",
-                                    "uint256",
-                                    "uint256",
-                                    "bool",
+                                    { type: "bytes32", name: "answer" },
+                                    { type: "bytes32", name: "hash" },
+                                    { type: "uint256", name: "bond" },
+                                    { type: "uint256", name: "timestamp" },
+                                    { type: "bool", name: "commitment" },
                                 ],
-                                log.data
+                                log.data as `0x${string}`
                             );
                         answersFromLogs.push({
                             answerer,
                             bond,
                             hash,
                             answer,
-                            timestamp: (timestamp as BigNumber).toNumber(),
+                            timestamp: timestamp,
                         });
+                        // FIXME: is this condition still valid
                     } else if (log.topics[0] === NEW_QUESTION_LOG_TOPIC)
                         shouldBreak = true;
                 }
@@ -175,7 +187,7 @@ class Fetcher implements IPartialFetcher {
             console.warn("error while fetching question logs", error);
         }
         return answersFromLogs.sort((a, b) => {
-            return a.timestamp - b.timestamp;
+            return Number(a.timestamp - b.timestamp);
         });
     }
 }

@@ -18,7 +18,7 @@ import {
     GetResponsesQuery,
     GetResponsesQueryResponse,
 } from "./queries";
-import { BigNumber } from "ethers";
+import { type Address } from "viem";
 
 class Fetcher implements IPartialFetcher {
     public supportedInChain({ chainId }: SupportedInChainParams): boolean {
@@ -29,13 +29,13 @@ class Fetcher implements IPartialFetcher {
     }
 
     public async fetchQuestion({
-        provider,
+        nodeClient,
         realityV3Address,
         questionId,
     }: FetchQuestionParams): Promise<RealityQuestion | null> {
         if (!questionId || !realityV3Address) return null;
 
-        const { chainId } = await provider.getNetwork();
+        const chainId = await nodeClient.getChainId();
         enforce(
             chainId in SupportedChainId,
             `unsupported chain with id ${chainId}`
@@ -55,33 +55,33 @@ class Fetcher implements IPartialFetcher {
             id: question.reopenedBy?.id ? question.reopenedBy.id : question.id,
             reopenedId: question.reopenedBy?.id ? question.id : undefined,
             historyHash: question.historyHash || BYTES32_ZERO,
-            templateId: question.template.templateId,
+            templateId: Number(question.template.templateId),
             content: question.data,
             contentHash: question.contentHash,
-            arbitrator: question.arbitrator,
-            timeout: parseInt(question.timeout),
-            openingTimestamp: parseInt(question.openingTimestamp),
+            arbitrator: question.arbitrator as Address,
+            timeout: Number(question.timeout),
+            openingTimestamp: Number(question.openingTimestamp),
             finalizationTimestamp:
                 question.currentScheduledFinalizationTimestamp ===
                 SUBGRAPH_CURRENT_ANSWER_FINALIZATION_TIMESTAMP_NULL_VALUE
                     ? 0
-                    : parseInt(question.currentScheduledFinalizationTimestamp),
+                    : Number(question.currentScheduledFinalizationTimestamp),
             pendingArbitration: question.isPendingArbitration,
-            bounty: BigNumber.from(question.bounty),
+            bounty: BigInt(question.bounty),
             bestAnswer: question.currentAnswer || BYTES32_ZERO,
-            bond: BigNumber.from(question.currentAnswerBond),
-            minBond: BigNumber.from(question.minBond),
+            bond: BigInt(question.currentAnswerBond),
+            minBond: BigInt(question.minBond),
         };
     }
 
     public async fetchAnswersHistory({
         realityV3Address,
         questionId,
-        provider,
+        nodeClient,
     }: FetchAnswersHistoryParams): Promise<RealityResponse[]> {
         if (!realityV3Address || !questionId) return [];
 
-        const { chainId } = await provider.getNetwork();
+        const chainId = await nodeClient.getChainId();
         enforce(
             chainId in SupportedChainId,
             `unsupported chain with id ${chainId}`
@@ -108,9 +108,9 @@ class Fetcher implements IPartialFetcher {
             responses.push({
                 answer,
                 answerer: rawResponse.user,
-                bond: BigNumber.from(rawResponse.bond),
+                bond: BigInt(rawResponse.bond),
                 hash: rawResponse.historyHash,
-                timestamp: parseInt(rawResponse.timestamp),
+                timestamp: BigInt(rawResponse.timestamp),
             });
         }
         return responses;

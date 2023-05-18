@@ -1,4 +1,5 @@
-import { ethers } from "ethers";
+import { decodeAbiParameters } from "viem";
+import { type Address } from "viem";
 
 interface DecodedData {
     realityV3Address: string;
@@ -7,11 +8,14 @@ interface DecodedData {
 }
 
 export const decodeOracleData = (data: string): DecodedData | null => {
-    const [realityV3Address, questionId, question] =
-        ethers.utils.defaultAbiCoder.decode(
-            ["address", "bytes32", "string"],
-            data
-        ) as [string, string, string];
+    const [realityV3Address, questionId, question] = decodeAbiParameters(
+        [
+            { type: "address", name: "realityV3Address" },
+            { typr: "bytes32", name: "question" },
+            { type: "string", name: "questionId" },
+        ],
+        data as Address
+    ) as [string, string, string];
     return {
         realityV3Address,
         question,

@@ -1,4 +1,4 @@
-import { providers } from "ethers";
+import { type PublicClient } from "wagmi";
 import { RealityResponse, RealityQuestion } from "../page/types";
 import {
     FullFetcherFetchAnswersHistoryParams,
@@ -12,37 +12,37 @@ export * from "./abstraction";
 
 class FullFetcher implements IFullFetcher {
     private async shouldUseSubgraph({
-        provider,
+        nodeClient,
         preferDecentralization,
     }: {
-        provider: providers.Provider;
+        nodeClient: PublicClient;
         preferDecentralization?: boolean;
     }) {
         if (preferDecentralization) return false;
-        const { chainId } = await provider.getNetwork();
+        const chainId = await nodeClient.getChainId();
         return SubgraphFetcher.supportedInChain({ chainId });
     }
 
     public async fetchQuestion({
         preferDecentralization,
-        provider,
+        nodeClient,
         realityV3Address,
         question,
         questionId,
     }: FullFetcherFetchQuestionParams): Promise<RealityQuestion | null> {
         const useSubgraph = await this.shouldUseSubgraph({
-            provider,
+            nodeClient,
             preferDecentralization,
         });
         return useSubgraph
             ? SubgraphFetcher.fetchQuestion({
-                  provider,
+                  nodeClient,
                   realityV3Address,
                   question,
                   questionId,
               })
             : OnChainFetcher.fetchQuestion({
-                  provider,
+                  nodeClient,
                   realityV3Address,
                   question,
                   questionId,
@@ -51,22 +51,22 @@ class FullFetcher implements IFullFetcher {
 
     public async fetchAnswersHistory({
         preferDecentralization,
-        provider,
+        nodeClient,
         realityV3Address,
         questionId,
     }: FullFetcherFetchAnswersHistoryParams): Promise<RealityResponse[]> {
         const useSubgraph = await this.shouldUseSubgraph({
-            provider,
+            nodeClient,
             preferDecentralization,
         });
         return useSubgraph
             ? SubgraphFetcher.fetchAnswersHistory({
-                  provider,
+                  nodeClient,
                   realityV3Address,
                   questionId,
               })
             : OnChainFetcher.fetchAnswersHistory({
-                  provider,
+                  nodeClient,
                   realityV3Address,
                   questionId,
               });

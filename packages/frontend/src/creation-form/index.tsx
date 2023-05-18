@@ -2,7 +2,6 @@ import "../global.css";
 import "@carrot-kpi/ui/styles.css";
 
 import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
-import { BigNumber, ethers } from "ethers";
 import { OracleRemoteCreationFormProps } from "@carrot-kpi/react";
 import {
     Select,
@@ -26,6 +25,7 @@ import { ArbitratorOption } from "./components/arbitrator-option";
 import dayjs, { Dayjs } from "dayjs";
 import durationPlugin from "dayjs/plugin/duration";
 import { useArbitratorsDisputeFee } from "../hooks/useArbitratorsDisputeFee";
+import { encodeAbiParameters, parseUnits } from "viem";
 
 dayjs.extend(durationPlugin);
 
@@ -184,32 +184,31 @@ export const Component = ({
             !isNaN(parseInt(minimumBond)) &&
             openingTimestamp.isAfter(dayjs())
         ) {
-            const formattedMinimumBond = ethers.utils.parseUnits(
-                minimumBond,
+            const formattedMinimumBond = parseUnits(
+                minimumBond as `${number}`,
                 chain.nativeCurrency.decimals
             );
             initializationDataGetter = async () => {
                 const questionCid = await uploadToIpfs(question);
-                const initializationData = ethers.utils.defaultAbiCoder.encode(
+                const initializationData = encodeAbiParameters(
                     [
-                        "address",
-                        "uint256",
-                        "string",
-                        "uint32",
-                        "uint32",
-                        "uint256",
+                        { type: "address", name: "arbitratorAddress" },
+                        { type: "uint256", name: "realityTemplateId" },
+                        { type: "string", name: "questionIdentifier" },
+                        { type: "uint32", name: "questionTimeout" },
+                        { type: "uint32", name: "openingTimestamp" },
+                        { type: "uint256", name: "minimumBond" },
                     ],
                     [
-                        arbitrator.value,
-                        realityTemplateId.value,
+                        arbitrator.value as `0x${string}`,
+                        BigInt(realityTemplateId.value),
                         `${questionCid}-${realityTemplateId.value}`,
-                        questionTimeout.value,
+                        Number(questionTimeout.value),
                         openingTimestamp.unix(),
                         formattedMinimumBond,
                     ]
                 );
-                const value = BigNumber.from(0);
-                return { data: initializationData, value };
+                return { data: initializationData, value: 0n };
             };
         }
         onChange(newState, initializationDataGetter);
