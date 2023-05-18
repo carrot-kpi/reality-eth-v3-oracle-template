@@ -30,9 +30,7 @@ export const CountdownFrame = ({
             >
                 {timeFrame}
             </Typography>
-            <Typography uppercase variant="md">
-                {label}
-            </Typography>
+            <Typography uppercase>{label}</Typography>
         </div>
     );
 };
