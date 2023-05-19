@@ -18,20 +18,16 @@ import {
 import {
     decodeAbiParameters,
     getContract,
-    keccak256,
+    getEventSelector,
     parseAbiItem,
-    toHex,
 } from "viem";
-import { type Hex } from "viem";
 
 const LOGS_BLOCKS_SIZE = __DEV__ ? 10n : 5_000n;
-const NEW_QUESTION_LOG_TOPIC = keccak256(
-    toHex(
-        "LogNewQuestion(bytes32,address,uint256,string,bytes32,address,uint32,uint32,uint256,uint256)"
-    )
+const NEW_QUESTION_LOG_TOPIC = getEventSelector(
+    "LogNewQuestion(bytes32,address,uint256,string,bytes32,address,uint32,uint32,uint256,uint256)"
 );
-const NEW_ANSWER_LOG_TOPIC = keccak256(
-    toHex("LogNewAnswer(bytes32,bytes32,bytes32,address,uint256,uint256,bool)")
+const NEW_ANSWER_LOG_TOPIC = getEventSelector(
+    "LogNewAnswer(bytes32,bytes32,bytes32,address,uint256,uint256,bool)"
 );
 
 class Fetcher implements IPartialFetcher {
