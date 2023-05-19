@@ -147,10 +147,14 @@ class Fetcher implements IPartialFetcher {
                 let shouldBreak = false;
                 for (const log of logs) {
                     if (log.topics[0] === NEW_ANSWER_LOG_TOPIC) {
+                        if (!log.topics[2]) {
+                            continue;
+                        }
+
                         // Event params: bytes32 answer, bytes32 indexed question_id, bytes32 history_hash, address indexed user, uint256 bond, uint256 ts, bool is_commitment
                         const [answerer] = decodeAbiParameters(
                             [{ type: "address", name: "answerer" }],
-                            log.topics[2] as Hex
+                            log.topics[2]
                         );
                         const [answer, hash, bond, timestamp] =
                             decodeAbiParameters(
