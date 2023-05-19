@@ -10,7 +10,6 @@ import "@carrot-kpi/host-frontend/styles.css";
 import { CarrotConnector, Root } from "@carrot-kpi/host-frontend";
 import { createRoot } from "react-dom/client";
 import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
-import { Connector } from "wagmi";
 import * as chains from "wagmi/chains";
 
 const forkedChain = Object.values(chains).find(
@@ -38,12 +37,12 @@ createRoot(document.getElementById("root")!).render(
                 chains: supportedChains,
                 options: {
                     rpcURL: CCT_RPC_URL,
-                    chainId: CCT_CHAIN_ID,
                     privateKey: CCT_DEPLOYMENT_ACCOUNT_PRIVATE_KEY,
                 },
-            }) as Connector,
+            }),
         ]}
         ipfsGatewayURL={CCT_IPFS_GATEWAY_URL}
         oracleTemplateBaseURL={CCT_TEMPLATE_URL}
+        templateId={CCT_TEMPLATE_ID}
     />
 );

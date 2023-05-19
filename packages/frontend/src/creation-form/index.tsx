@@ -2,7 +2,6 @@ import "../global.css";
 import "@carrot-kpi/ui/styles.css";
 
 import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
-import { BigNumber, ethers } from "ethers";
 import { OracleRemoteCreationFormProps } from "@carrot-kpi/react";
 import {
     Select,
@@ -26,6 +25,8 @@ import { ArbitratorOption } from "./components/arbitrator-option";
 import dayjs, { Dayjs } from "dayjs";
 import durationPlugin from "dayjs/plugin/duration";
 import { useArbitratorsDisputeFee } from "../hooks/useArbitratorsDisputeFee";
+import { encodeAbiParameters, parseUnits } from "viem";
+import { type Address } from "viem";
 
 dayjs.extend(durationPlugin);
 
@@ -62,7 +63,7 @@ export const Component = ({
             !chain || !(chain.id in SupportedChainId)
                 ? []
                 : ARBITRATORS_BY_CHAIN[chain.id as SupportedChainId].map(
-                      (arbitrator) => arbitrator.value.toString()
+                      (arbitrator) => arbitrator.value.toString() as Address
                   ),
         [chain]
     );
@@ -156,14 +157,16 @@ export const Component = ({
     // onChange will also receive an initialization bundle getter function
     // when data is valid.
     useEffect(() => {
-        const newState = {
-            arbitrator: arbitrator ? (arbitrator.value as string) : undefined,
+        const newState: State = {
+            arbitrator: arbitrator ? (arbitrator.value as Address) : null,
             realityTemplateId: realityTemplateId
-                ? (realityTemplateId.value as string)
-                : undefined,
+                ? (realityTemplateId.value as number)
+                : null,
             question,
-            questionTimeout: questionTimeout?.value as number,
-            openingTimestamp: openingTimestamp?.unix(),
+            questionTimeout: questionTimeout
+                ? (questionTimeout.value as number)
+                : null,
+            openingTimestamp: openingTimestamp ? openingTimestamp.unix() : null,
             minimumBond,
         };
         let initializationDataGetter = undefined;
@@ -184,32 +187,31 @@ export const Component = ({
             !isNaN(parseInt(minimumBond)) &&
             openingTimestamp.isAfter(dayjs())
         ) {
-            const formattedMinimumBond = ethers.utils.parseUnits(
-                minimumBond,
+            const formattedMinimumBond = parseUnits(
+                minimumBond as `${number}`,
                 chain.nativeCurrency.decimals
             );
             initializationDataGetter = async () => {
                 const questionCid = await uploadToIpfs(question);
-                const initializationData = ethers.utils.defaultAbiCoder.encode(
+                const initializationData = encodeAbiParameters(
                     [
-                        "address",
-                        "uint256",
-                        "string",
-                        "uint32",
-                        "uint32",
-                        "uint256",
+                        { type: "address", name: "arbitratorAddress" },
+                        { type: "uint256", name: "realityTemplateId" },
+                        { type: "string", name: "questionIdentifier" },
+                        { type: "uint32", name: "questionTimeout" },
+                        { type: "uint32", name: "openingTimestamp" },
+                        { type: "uint256", name: "minimumBond" },
                     ],
                     [
-                        arbitrator.value,
-                        realityTemplateId.value,
+                        arbitrator.value as Address,
+                        BigInt(realityTemplateId.value),
                         `${questionCid}-${realityTemplateId.value}`,
-                        questionTimeout.value,
+                        questionTimeout.value as number,
                         openingTimestamp.unix(),
                         formattedMinimumBond,
                     ]
                 );
-                const value = BigNumber.from(0);
-                return { data: initializationData, value };
+                return { data: initializationData, value: 0n };
             };
         }
         onChange(newState, initializationDataGetter);

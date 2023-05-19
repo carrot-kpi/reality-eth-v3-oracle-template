@@ -3,18 +3,19 @@ import {
     useIPFSGatewayURL,
     usePreferDecentralization,
 } from "@carrot-kpi/react";
-import { useProvider } from "wagmi";
+import { usePublicClient } from "wagmi";
 import { Fetcher } from "../fetcher";
 import { RealityResponse } from "../page/types";
+import type { Address, Hex } from "viem";
 
 export function useRealityQuestionResponses(
-    realityV3Address?: string,
-    questionId?: string
+    realityV3Address?: Address,
+    questionId?: Hex
 ): {
     loading: boolean;
     responses: RealityResponse[];
 } {
-    const provider = useProvider();
+    const publicClient = usePublicClient();
     const ipfsGatewayURL = useIPFSGatewayURL();
     const preferDecentralization = usePreferDecentralization();
 
@@ -29,7 +30,7 @@ export function useRealityQuestionResponses(
             try {
                 const fetched = await Fetcher.fetchAnswersHistory({
                     preferDecentralization,
-                    provider,
+                    publicClient,
                     realityV3Address,
                     questionId,
                 });
@@ -48,7 +49,7 @@ export function useRealityQuestionResponses(
             cancelled = true;
         };
     }, [
-        provider,
+        publicClient,
         questionId,
         ipfsGatewayURL,
         realityV3Address,

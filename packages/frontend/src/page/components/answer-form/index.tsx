@@ -2,6 +2,7 @@ import {
     NamespacedTranslateFunction,
     OraclePageProps,
     TxType,
+    useNativeCurrency,
 } from "@carrot-kpi/react";
 import {
     Button,
@@ -14,7 +15,6 @@ import {
     Skeleton,
     Popover,
 } from "@carrot-kpi/ui";
-import { BigNumber, utils } from "ethers";
 import {
     ChangeEvent,
     ReactElement,
@@ -30,7 +30,7 @@ import {
     useContractRead,
     useAccount,
     useBalance,
-    Address,
+    usePublicClient,
 } from "wagmi";
 import {
     ANSWERED_TOO_SOON_REALITY_ANSWER,
@@ -52,9 +52,9 @@ import {
 } from "../../../utils";
 import { NumberFormatValue, RealityQuestion } from "../../types";
 import { Answer } from "./answer";
-import REALITY_ETH_V3_ABI from "../../../abis/reality-eth-v3.json";
-import REALITY_ORACLE_V3_ABI from "../../../abis/reality-oracle-v3.json";
-import TRUSTED_REALITY_ARBITRATOR_V3_ABI from "../../../abis/trusted-reality-arbitrator-v3.json";
+import REALITY_ETH_V3_ABI from "../../../abis/reality-eth-v3";
+import REALITY_ORACLE_V3_ABI from "../../../abis/reality-oracle-v3";
+import TRUSTED_REALITY_ARBITRATOR_V3_ABI from "../../../abis/trusted-reality-arbitrator-v3";
 import { BondInput } from "./bond-input";
 import dayjs from "dayjs";
 import { infoPopoverStyles, inputStyles } from "./common/styles";
@@ -70,10 +70,12 @@ import { useRealityQuestionResponses } from "../../../hooks/useRealityQuestionRe
 import { useQuestionContent } from "../../../hooks/useQuestionContent";
 import { Arbitrator } from "./arbitrator";
 import Danger from "../../../assets/danger";
+import { formatUnits, parseUnits, zeroAddress } from "viem";
+import type { Hex, Hash, Address } from "viem";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
-    realityAddress: string;
+    realityAddress: Address;
     oracle: ResolvedOracleWithData;
     kpiToken: ResolvedKPITokenWithData;
     question: RealityQuestion;
@@ -90,6 +92,8 @@ export const AnswerForm = ({
     loadingQuestion,
     onTx,
 }: AnswerFormProps): ReactElement => {
+    const publicClient = usePublicClient();
+
     const { loading: loadingAnswers, responses } = useRealityQuestionResponses(
         realityAddress,
         question.id
@@ -126,29 +130,29 @@ export const AnswerForm = ({
     const [bondErrorText, setBondErrorText] = useState("");
 
     const { chain } = useNetwork();
+    const nativeCurrency = useNativeCurrency();
     const { address } = useAccount();
     const { data: userNativeCurrencyBalance } = useBalance({
         address,
     });
 
-    const minimumBond = question.bond.isZero()
-        ? question.minBond
-        : question.bond.mul(2);
+    const minimumBond =
+        question.bond === 0n ? question.minBond : question.bond * 2n;
 
     const finalBond = useMemo(() => {
         return !!bond && !!bond.value && !isNaN(parseInt(bond.value))
-            ? utils.parseUnits(bond.value, chain?.nativeCurrency.decimals)
-            : BigNumber.from("0");
-    }, [bond, chain?.nativeCurrency.decimals]);
+            ? parseUnits(bond.value as `${number}`, nativeCurrency.decimals)
+            : 0n;
+    }, [bond, nativeCurrency.decimals]);
 
     const claimWinningsPayload = useMemo(() => {
         const payload = responses.reduce(
             (
                 accumulator: {
-                    historyHashes: string[];
-                    answerers: string[];
-                    bonds: BigNumber[];
-                    responses: string[];
+                    historyHashes: Hash[];
+                    answerers: Address[];
+                    bonds: bigint[];
+                    responses: Hex[];
                 },
                 answer
             ) => {
@@ -185,49 +189,48 @@ export const AnswerForm = ({
     });
 
     const { data: withdrawableBalance } = useContractRead({
-        address: realityAddress as Address,
+        address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "balanceOf",
-        args: [address],
+        args: address && [address],
         enabled: !!address,
         watch: true,
     });
 
     const { config: submitAnswerConfig } = usePrepareContractWrite({
-        address: realityAddress as Address,
+        address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "submitAnswer",
-        args: [question.id, answer, BigNumber.from(0)],
-        overrides: {
-            value: finalBond,
-        },
-        enabled: !!answer && !!finalBond && finalBond.gte(minimumBond),
+        args: [question.id, answer as Hex, 0n],
+        value: finalBond,
+        enabled: !!answer && !!finalBond && finalBond >= minimumBond,
     });
     const { writeAsync: postAnswerAsync } =
         useContractWrite(submitAnswerConfig);
 
     const finalized = isQuestionFinalized(question);
     const { config: reopenQuestionConfig } = usePrepareContractWrite({
-        address: realityAddress as Address,
+        address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "reopenQuestion",
         args: [
-            question.templateId,
+            BigInt(question.templateId),
             question.content,
             question.arbitrator,
             question.timeout,
             question.openingTimestamp,
-            question.id,
+            BigInt(question.id),
             question.minBond,
             question.reopenedId || question.id,
         ],
+        value: 0n,
         enabled: finalized && isAnsweredTooSoon(question),
     });
     const { writeAsync: reopenAnswerAsync } =
         useContractWrite(reopenQuestionConfig);
 
     const { config: finalizeOracleConfig } = usePrepareContractWrite({
-        address: oracle.address as Address,
+        address: oracle.address,
         abi: REALITY_ORACLE_V3_ABI,
         functionName: "finalize",
         enabled: finalized && !oracle.finalized && !isAnsweredTooSoon(question),
@@ -238,16 +241,12 @@ export const AnswerForm = ({
     const { config: requestArbitrationConfig } = usePrepareContractWrite({
         address:
             !!chain && chain.id && chain.id in SupportedChainId
-                ? (TRUSTED_REALITY_ARBITRATORS[
-                      chain.id as SupportedChainId
-                  ] as Address)
+                ? TRUSTED_REALITY_ARBITRATORS[chain.id as SupportedChainId]
                 : undefined,
         abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
         functionName: "requestArbitration",
-        args: [question.id, BigNumber.from(0)],
-        overrides: {
-            value: disputeFee ? BigNumber.from(disputeFee) : undefined,
-        },
+        args: [question.id, 0n],
+        value: disputeFee || 0n,
         enabled:
             !!chain &&
             !!chain.id &&
@@ -261,12 +260,12 @@ export const AnswerForm = ({
     );
 
     const { config: claimMultipleAndWithdrawConfig } = usePrepareContractWrite({
-        address: realityAddress as Address,
+        address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "claimMultipleAndWithdrawBalance",
         args: [
             [question.id],
-            [claimWinningsPayload.historyHashes.length],
+            [BigInt(claimWinningsPayload.historyHashes.length)],
             claimWinningsPayload.historyHashes,
             claimWinningsPayload.answerers,
             claimWinningsPayload.bonds,
@@ -280,8 +279,8 @@ export const AnswerForm = ({
             claimWinningsPayload.answerers.length > 0 &&
             claimWinningsPayload.bonds.length > 0 &&
             claimWinningsPayload.responses.length > 0 &&
-            (!BigNumber.from(question.historyHash).isZero() ||
-                !BigNumber.from(withdrawableBalance).isZero()) &&
+            (BigInt(question.historyHash) !== 0n ||
+                withdrawableBalance !== 0n) &&
             !isAnswerMissing(question),
     });
     const { writeAsync: claimMultipleAndWithdrawAsync } = useContractWrite(
@@ -291,7 +290,7 @@ export const AnswerForm = ({
     useEffect(() => {
         setSubmitAnswerDisabled(
             !answer ||
-                (!!finalBond && finalBond.lt(minimumBond)) ||
+                (!!finalBond && finalBond < minimumBond) ||
                 !postAnswerAsync
         );
     }, [answer, finalBond, minimumBond, postAnswerAsync]);
@@ -319,7 +318,7 @@ export const AnswerForm = ({
         if (!isNaN(parseFloat(numberValue.value)))
             return setAnswer(
                 numberToByte32(
-                    utils.parseUnits(numberValue.value, 18).toString()
+                    parseUnits(numberValue.value as `${number}`, 18).toString()
                 )
             );
     }, [
@@ -354,35 +353,32 @@ export const AnswerForm = ({
         (value: NumberFormatValue) => {
             setBond(value);
 
-            const parsedBond = utils.parseUnits(
+            const parsedBond = parseUnits(
                 value.value && !isNaN(parseInt(value.value))
-                    ? value.value
-                    : "0",
-                chain?.nativeCurrency.decimals
+                    ? (value.value as `${number}`)
+                    : ("0" as `${number}`),
+                nativeCurrency.decimals
             );
             let bondErrorText = "";
-            if (!value || !value.value || parsedBond.isZero())
+            if (!value || !value.value || parsedBond === 0n)
                 bondErrorText = t("error.bond.empty");
             else if (
                 userNativeCurrencyBalance &&
-                parsedBond.gt(userNativeCurrencyBalance.value)
+                parsedBond > userNativeCurrencyBalance.value
             )
                 bondErrorText = t("error.bond.notEnoughBalanceInWallet", {
-                    symbol: chain?.nativeCurrency.symbol,
+                    symbol: nativeCurrency.symbol,
                 });
-            else if (parsedBond.lt(minimumBond))
+            else if (parsedBond < minimumBond)
                 bondErrorText = t("error.bond.insufficient", {
-                    minBond: utils.formatUnits(
-                        minimumBond,
-                        chain?.nativeCurrency.decimals
-                    ),
-                    symbol: chain?.nativeCurrency.symbol,
+                    minBond: formatUnits(minimumBond, nativeCurrency.decimals),
+                    symbol: nativeCurrency.symbol,
                 });
             setBondErrorText(bondErrorText);
         },
         [
-            chain?.nativeCurrency.decimals,
-            chain?.nativeCurrency.symbol,
+            nativeCurrency.decimals,
+            nativeCurrency.symbol,
             t,
             userNativeCurrencyBalance,
             minimumBond,
@@ -396,21 +392,27 @@ export const AnswerForm = ({
             if (!cancelled) setSubmitting(true);
             try {
                 const tx = await postAnswerAsync();
-                const receipt = await tx.wait();
-
+                const receipt = await publicClient.waitForTransactionReceipt({
+                    hash: tx.hash,
+                });
                 onTx({
                     type: TxType.CUSTOM,
                     from: receipt.from,
                     hash: tx.hash,
                     payload: {
                         summary: t("label.transaction.answerSubmitted", {
-                            bond: utils.commify(
-                                utils.formatUnits(BigNumber.from(finalBond), 18)
-                            ),
+                            /* FIXME: reintroduce commify to make number easier to read */
+                            bond: formatUnits(finalBond, 18),
                             symbol: chain?.nativeCurrency.symbol,
                         }),
                     },
-                    receipt,
+                    receipt: {
+                        ...receipt,
+                        to: receipt.to || zeroAddress,
+                        contractAddress: receipt.contractAddress || zeroAddress,
+                        blockNumber: Number(receipt.blockNumber),
+                        status: receipt.status === "success" ? 1 : 0,
+                    },
                     timestamp: unixTimestamp(new Date()),
                 });
             } catch (error) {
@@ -423,7 +425,14 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [postAnswerAsync, onTx, t, finalBond, chain?.nativeCurrency.symbol]);
+    }, [
+        postAnswerAsync,
+        onTx,
+        t,
+        finalBond,
+        chain?.nativeCurrency.symbol,
+        publicClient,
+    ]);
 
     const handleReopenSubmit = useCallback(() => {
         if (!reopenAnswerAsync) return;
@@ -432,7 +441,9 @@ export const AnswerForm = ({
             if (!cancelled) setSubmitting(true);
             try {
                 const tx = await reopenAnswerAsync();
-                const receipt = await tx.wait();
+                const receipt = await publicClient.waitForTransactionReceipt({
+                    hash: tx.hash,
+                });
 
                 onTx({
                     type: TxType.CUSTOM,
@@ -441,7 +452,13 @@ export const AnswerForm = ({
                     payload: {
                         summary: t("label.transaction.reopenSubmitted"),
                     },
-                    receipt,
+                    receipt: {
+                        ...receipt,
+                        to: receipt.to || zeroAddress,
+                        contractAddress: receipt.contractAddress || zeroAddress,
+                        blockNumber: Number(receipt.blockNumber),
+                        status: receipt.status === "success" ? 1 : 0,
+                    },
                     timestamp: unixTimestamp(new Date()),
                 });
             } catch (error) {
@@ -457,7 +474,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [reopenAnswerAsync, onTx, t]);
+    }, [reopenAnswerAsync, onTx, t, publicClient]);
 
     const handleFinalizeOracleSubmit = useCallback(() => {
         if (!finalizeOracleAsync) return;
@@ -466,7 +483,9 @@ export const AnswerForm = ({
             if (!cancelled) setFinalizingOracle(true);
             try {
                 const tx = await finalizeOracleAsync();
-                const receipt = await tx.wait();
+                const receipt = await publicClient.waitForTransactionReceipt({
+                    hash: tx.hash,
+                });
 
                 onTx({
                     type: TxType.CUSTOM,
@@ -475,7 +494,13 @@ export const AnswerForm = ({
                     payload: {
                         summary: t("label.transaction.oracleFinalized"),
                     },
-                    receipt,
+                    receipt: {
+                        ...receipt,
+                        to: receipt.to || zeroAddress,
+                        contractAddress: receipt.contractAddress || zeroAddress,
+                        blockNumber: Number(receipt.blockNumber),
+                        status: receipt.status === "success" ? 1 : 0,
+                    },
                     timestamp: unixTimestamp(new Date()),
                 });
             } catch (error) {
@@ -488,7 +513,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [finalizeOracleAsync, onTx, t]);
+    }, [finalizeOracleAsync, onTx, t, publicClient]);
 
     const handleRequestArbitrationSubmit = useCallback(() => {
         if (!requestArbitrationAsync) return;
@@ -497,7 +522,9 @@ export const AnswerForm = ({
             if (!cancelled) setRequestingArbitration(true);
             try {
                 const tx = await requestArbitrationAsync();
-                const receipt = await tx.wait();
+                const receipt = await publicClient.waitForTransactionReceipt({
+                    hash: tx.hash,
+                });
 
                 onTx({
                     type: TxType.CUSTOM,
@@ -506,7 +533,13 @@ export const AnswerForm = ({
                     payload: {
                         summary: t("label.transaction.arbitrationRequested"),
                     },
-                    receipt,
+                    receipt: {
+                        ...receipt,
+                        to: receipt.to || zeroAddress,
+                        contractAddress: receipt.contractAddress || zeroAddress,
+                        blockNumber: Number(receipt.blockNumber),
+                        status: receipt.status === "success" ? 1 : 0,
+                    },
                     timestamp: unixTimestamp(new Date()),
                 });
                 if (cancelled) return;
@@ -520,7 +553,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [requestArbitrationAsync, onTx, t]);
+    }, [requestArbitrationAsync, onTx, t, publicClient]);
 
     const handleClaimMultipleAndWithdrawSubmit = useCallback(() => {
         if (!claimMultipleAndWithdrawAsync) return;
@@ -529,7 +562,9 @@ export const AnswerForm = ({
             if (!cancelled) setClaimingAndWithdrawing(true);
             try {
                 const tx = await claimMultipleAndWithdrawAsync();
-                const receipt = await tx.wait();
+                const receipt = await publicClient.waitForTransactionReceipt({
+                    hash: tx.hash,
+                });
 
                 onTx({
                     type: TxType.CUSTOM,
@@ -538,7 +573,13 @@ export const AnswerForm = ({
                     payload: {
                         summary: t("label.transaction.winningsWithdrawn"),
                     },
-                    receipt,
+                    receipt: {
+                        ...receipt,
+                        to: receipt.to || zeroAddress,
+                        contractAddress: receipt.contractAddress || zeroAddress,
+                        blockNumber: Number(receipt.blockNumber),
+                        status: receipt.status === "success" ? 1 : 0,
+                    },
                     timestamp: unixTimestamp(new Date()),
                 });
                 if (cancelled) return;
@@ -552,7 +593,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [claimMultipleAndWithdrawAsync, onTx, t]);
+    }, [claimMultipleAndWithdrawAsync, onTx, t, publicClient]);
 
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
@@ -820,9 +861,9 @@ export const AnswerForm = ({
                     <BondInput
                         t={t}
                         value={bond}
-                        placeholder={utils.formatUnits(
+                        placeholder={formatUnits(
                             minimumBond,
-                            chain?.nativeCurrency.decimals
+                            nativeCurrency.decimals
                         )}
                         errorText={bondErrorText}
                         onChange={handleBondChange}
@@ -862,31 +903,24 @@ export const AnswerForm = ({
                         >
                             {t("label.question.form.requestArbitration")}
                         </Button>
-                        {!!disputeFee &&
-                            !BigNumber.from(disputeFee).isZero() && (
-                                <Popover
-                                    anchor={disputeFeePopoverAnchor}
-                                    open={disputeFeePopoverOpen}
-                                    className={{ root: "px-3 py-2" }}
-                                >
-                                    <Typography variant="sm">
-                                        {t(
-                                            "label.question.arbitrator.disputeFee",
-                                            {
-                                                fee: utils.commify(
-                                                    utils.formatUnits(
-                                                        disputeFee as BigNumber,
-                                                        chain?.nativeCurrency
-                                                            .decimals
-                                                    )
-                                                ),
-                                                symbol: chain?.nativeCurrency
-                                                    .symbol,
-                                            }
-                                        )}
-                                    </Typography>
-                                </Popover>
-                            )}
+                        {!!disputeFee && disputeFee !== 0n && (
+                            <Popover
+                                anchor={disputeFeePopoverAnchor}
+                                open={disputeFeePopoverOpen}
+                                className={{ root: "px-3 py-2" }}
+                            >
+                                <Typography variant="sm">
+                                    {t("label.question.arbitrator.disputeFee", {
+                                        /* FIXME: reintroduce commify to make number easier to read */
+                                        fee: formatUnits(
+                                            disputeFee,
+                                            nativeCurrency.decimals
+                                        ),
+                                        symbol: chain?.nativeCurrency.symbol,
+                                    })}
+                                </Typography>
+                            </Popover>
+                        )}
                     </div>
                 ) : (
                     <div className="px-6 flex gap-5 mt-6">
@@ -916,13 +950,9 @@ export const AnswerForm = ({
                             onClick={handleClaimMultipleAndWithdrawSubmit}
                             disabled={
                                 !claimMultipleAndWithdrawAsync ||
-                                BigNumber.from(question.historyHash).isZero() ||
-                                (BigNumber.from(
-                                    question.historyHash
-                                ).isZero() &&
-                                    BigNumber.from(
-                                        withdrawableBalance
-                                    ).isZero())
+                                BigInt(question.historyHash) === 0n ||
+                                (BigInt(question.historyHash) === 0n &&
+                                    withdrawableBalance === 0n)
                             }
                             loading={loadingAnswers || claimingAndWithdrawing}
                             size="small"

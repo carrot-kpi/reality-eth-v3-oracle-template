@@ -4,8 +4,6 @@ import {
 } from "@carrot-kpi/react";
 import { Skeleton, Timer, Typography } from "@carrot-kpi/ui";
 import { cva } from "class-variance-authority";
-import { BigNumber, utils } from "ethers";
-import { formatUnits } from "ethers/lib/utils.js";
 import { ReactElement } from "react";
 import { BYTES32_ZERO } from "../../../../commons";
 import {
@@ -19,6 +17,7 @@ import {
 } from "../../../../utils";
 import { RealityQuestion } from "../../../types";
 import { AnswerInfo } from "../../answer-info";
+import { formatUnits } from "viem";
 
 const answerBoxStyles = cva(
     [
@@ -93,9 +92,10 @@ export const Answer = ({
                 ? t("label.answer.form.no")
                 : t("label.answer.form.yes");
     } else if (purelyNumerical) {
-        currentAnswerValue = utils.commify(
-            formatUnits(BigNumber.from(question.bestAnswer), 18)
-        );
+        {
+            /* FIXME: reintroduce commify to make number easier to read */
+        }
+        currentAnswerValue = formatUnits(BigInt(question.bestAnswer), 18);
     } else if (invalid) {
         currentAnswerValue = t("label.answer.form.invalid");
     } else if (answeredTooSoon) {
@@ -131,8 +131,9 @@ export const Answer = ({
                         ) : !!finalizingInLabel ? (
                             <Typography>{finalizingInLabel}</Typography>
                         ) : (
+                            // TODO: Timer could support bigint values
                             <Timer
-                                to={question.finalizationTimestamp}
+                                to={Number(question.finalizationTimestamp)}
                                 seconds
                                 countdown
                             />
@@ -149,9 +150,8 @@ export const Answer = ({
                         <Skeleton width="150px" variant="2xl" />
                     ) : (
                         <Typography>
-                            {`${utils.commify(formattedBond)} ${
-                                nativeCurrency.symbol
-                            }`}
+                            {/* FIXME: reintroduce commify to make number easier to read */}
+                            {`${formattedBond} ${nativeCurrency.symbol}`}
                         </Typography>
                     )}
                 </AnswerInfo>

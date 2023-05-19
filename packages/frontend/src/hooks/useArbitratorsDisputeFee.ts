@@ -1,7 +1,8 @@
-import { Address, useContractReads, useNetwork } from "wagmi";
-import TRUSTED_REALITY_ARBITRATOR_V3_ABI from "../abis/trusted-reality-arbitrator-v3.json";
-import { BigNumber, utils } from "ethers";
+import { useContractReads, useNetwork } from "wagmi";
+import TRUSTED_REALITY_ARBITRATOR_V3_ABI from "../abis/trusted-reality-arbitrator-v3";
 import { useEffect, useState } from "react";
+import { formatUnits } from "viem";
+import { type Address } from "viem";
 
 interface ArbitratorsDiputeFee {
     fees: {
@@ -11,12 +12,12 @@ interface ArbitratorsDiputeFee {
 }
 
 export function useArbitratorsDisputeFee(
-    addresses: string[]
+    addresses: Address[]
 ): ArbitratorsDiputeFee {
     const { chain } = useNetwork();
     const { data: fees, isLoading: loading } = useContractReads({
         contracts: addresses.map((address) => ({
-            address: address as Address,
+            address,
             abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
             functionName: "getDisputeFee",
         })),
@@ -30,11 +31,11 @@ export function useArbitratorsDisputeFee(
         if (!chain) return;
         if (!fees) return;
         setArbitratorsDisputeFee(
-            (fees as BigNumber[]).reduce((accumulator, current, index) => {
+            fees.reduce((accumulator, current, index) => {
                 return {
                     ...(accumulator as object),
-                    [addresses[index]]: utils.formatUnits(
-                        current,
+                    [addresses[index]]: formatUnits(
+                        current.result as bigint,
                         chain?.nativeCurrency.decimals
                     ),
                 };

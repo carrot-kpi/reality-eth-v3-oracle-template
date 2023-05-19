@@ -1,28 +1,12 @@
-import { ChainId } from "@carrot-kpi/sdk";
 import { execSync } from "child_process";
-import { Contract, ContractFactory, utils } from "ethers";
 import { createRequire } from "module";
 import { fileURLToPath } from "url";
+import { getContract, parseUnits } from "viem";
 
 const require = createRequire(fileURLToPath(import.meta.url));
 
-const wrappedNativeCurrencyAbi = require("./abis/native-currency-wrapper.json");
-const trustedRealityV3ArbitratorAbi = require("./abis/trusted-reality-arbitrator-v3");
-const WRAPPED_NATIVE_CURRENCY_ADDRESS = {
-    [ChainId.GOERLI]: "0xB4FBF271143F4FBf7B91A5ded31805e42b2208d6", // weth
-    [ChainId.SEPOLIA]: "0xa5ba8636a78bbf1910430d0368c0175ef5a1845b", // weth
-    [ChainId.GNOSIS]: "0xe91D153E0b41518A2Ce8Dd3D7944Fa863463a97d", // wxdai
-};
-
-export const setupFork = async (
-    factory,
-    kpiTokensManager,
-    _oraclesManager,
-    _multicall,
-    predictedTemplateId,
-    signer
-) => {
-    const chainId = await signer.getChainId();
+export const setupFork = async ({ nodeClient, walletClient }) => {
+    const chainId = await nodeClient.getChainId();
     execSync(
         `node ./packages/contracts/codegen-chain-specific-contracts.js ${chainId}`,
         { stdio: "ignore" }
@@ -32,54 +16,110 @@ export const setupFork = async (
     // deploy template
     const {
         abi: templateAbi,
-        bytecode: templateBytecode,
+        bytecode: { object: templateBytecode },
     } = require(`../out/RealityV3Oracle${chainId}.sol/RealityV3Oracle.json`);
-    const templateFactory = new ContractFactory(
-        templateAbi,
-        templateBytecode,
-        signer
-    );
-    const templateContract = await templateFactory.deploy();
-    await templateContract.deployed();
+
+    const { contractAddress: templateAddress } =
+        await nodeClient.getTransactionReceipt({
+            hash: await walletClient.deployContract({
+                abi: templateAbi,
+                bytecode: templateBytecode,
+            }),
+        });
 
     // deploy arbitrator
     const {
         abi: arbitratorAbi,
-        bytecode: arbitratorBytecode,
+        bytecode: { object: arbitratorBytecode },
     } = require(`../out/TrustedRealityV3Arbitrator${chainId}.sol/TrustedRealityV3Arbitrator.json`);
-    const arbitratorFactory = new ContractFactory(
-        arbitratorAbi,
-        arbitratorBytecode,
-        signer
-    );
-    const arbitratorContract = await arbitratorFactory.deploy("{}", 0);
-    await arbitratorContract.deployed();
 
-    await new Contract(
-        arbitratorContract.address,
-        trustedRealityV3ArbitratorAbi,
-        signer
-    ).setDisputeFee(utils.parseEther("1"));
+    const { contractAddress: arbitratorAddress } =
+        await nodeClient.getTransactionReceipt({
+            hash: await walletClient.deployContract({
+                abi: arbitratorAbi,
+                bytecode: arbitratorBytecode,
+                args: ["{}", 0],
+            }),
+        });
 
-    // give us some wrapped native currency too
-    await new Contract(
-        WRAPPED_NATIVE_CURRENCY_ADDRESS[chainId],
-        wrappedNativeCurrencyAbi,
-        signer
-    ).deposit({
-        value: utils.parseEther("1"),
+    const arbitratorContract = getContract({
+        abi: arbitratorAbi,
+        address: arbitratorAddress,
+        publicClient: nodeClient,
+        walletClient: walletClient,
     });
 
+    // set a minimum arbitration fee
+    await arbitratorContract.write.setDisputeFee([parseUnits("1", 18)]);
+
+    // FIXME: This ONLY works because the ERC20 KPI token template manually adds the tokens on the default token list when running in dev mode.
+    // It relies on a dev-only logic present in another template.
+
+    // deploy test erc20 tokens
+    const {
+        abi: erc20Abi,
+        bytecode: { object: erc20Bytecode },
+    } = require("../out/ERC20PresetMinterPauser.sol/ERC20PresetMinterPauser.json");
+    const { contractAddress: tst1Address } =
+        await nodeClient.getTransactionReceipt({
+            hash: await walletClient.deployContract({
+                abi: erc20Abi,
+                bytecode: erc20Bytecode,
+                args: ["Test token 1", "TST1"],
+            }),
+        });
+    const tst1Contract = getContract({
+        abi: erc20Abi,
+        address: tst1Address,
+        publicClient: nodeClient,
+        walletClient: walletClient,
+    });
+
+    const { contractAddress: tst2Address } =
+        await nodeClient.getTransactionReceipt({
+            hash: await walletClient.deployContract({
+                abi: erc20Abi,
+                bytecode: erc20Bytecode,
+                args: ["Test token 2", "TST2"],
+            }),
+        });
+    const tst2Contract = getContract({
+        abi: erc20Abi,
+        address: tst2Address,
+        publicClient: nodeClient,
+        walletClient: walletClient,
+    });
+
+    // mint some test erc20 tokens to signer
+    await tst1Contract.write.mint([
+        walletClient.account.address,
+        parseUnits("100", 18),
+    ]);
+    await tst2Contract.write.mint([
+        walletClient.account.address,
+        parseUnits("100", 18),
+    ]);
+
     return {
-        templateContract,
+        templateAddress,
         customContracts: [
             {
                 name: "Trusted arbitrator",
-                address: arbitratorContract.address,
+                address: arbitratorAddress,
+            },
+            {
+                name: "ERC20 1",
+                address: tst1Address,
+            },
+            {
+                name: "ERC20 2",
+                address: tst2Address,
             },
         ],
         frontendGlobals: {
             CCT_TRUSTED_ARBITRATOR_ADDRESS: arbitratorContract.address,
+            CCT_ERC20_1_ADDRESS: tst1Address,
+            CCT_ERC20_2_ADDRESS: tst2Address,
         },
     };
 };

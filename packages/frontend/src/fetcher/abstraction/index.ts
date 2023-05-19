@@ -1,28 +1,29 @@
-import { Provider } from "@ethersproject/providers";
+import { type PublicClient } from "wagmi";
 import { RealityResponse, RealityQuestion } from "../../page/types";
 import { ChainId } from "@carrot-kpi/sdk";
+import type { Address, Hex } from "viem";
 
 export interface SupportedInChainParams {
     chainId: ChainId;
 }
 
 export interface FetchQuestionParams {
-    provider: Provider;
-    realityV3Address?: string;
+    publicClient: PublicClient;
+    realityV3Address?: Address;
     question?: string;
-    questionId?: string;
+    questionId?: Hex;
 }
 
 export interface FetchAnswersHistoryParams {
-    provider: Provider;
-    realityV3Address?: string;
-    questionId?: string;
+    publicClient: PublicClient;
+    realityV3Address?: Address;
+    questionId?: Hex;
 }
 
 export interface FetchAnswersHistoryParams {
-    provider: Provider;
-    realityV3Address?: string;
-    questionId?: string;
+    publicClient: PublicClient;
+    realityV3Address?: Address;
+    questionId?: Hex;
 }
 
 export interface IPartialFetcher {

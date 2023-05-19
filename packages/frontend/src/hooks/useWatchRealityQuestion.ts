@@ -1,18 +1,19 @@
 import { usePreferDecentralization } from "@carrot-kpi/react";
 import { useEffect, useState } from "react";
-import { useBlockNumber, useProvider } from "wagmi";
+import { useBlockNumber, usePublicClient } from "wagmi";
 import { Fetcher } from "../fetcher";
 import { RealityQuestion } from "../page/types";
+import type { Address, Hex } from "viem";
 
 export function useWatchRealityQuestion(
-    realityV3Address?: string,
-    questionId?: string,
+    realityV3Address?: Address,
+    questionId?: Hex,
     question?: string
 ): {
     loading: boolean;
     question: RealityQuestion | null;
 } {
-    const provider = useProvider();
+    const publicClient = usePublicClient();
     const blockNumber = useBlockNumber();
     const preferDecentralization = usePreferDecentralization();
 
@@ -28,7 +29,7 @@ export function useWatchRealityQuestion(
             try {
                 const fetched = await Fetcher.fetchQuestion({
                     preferDecentralization,
-                    provider,
+                    publicClient,
                     realityV3Address,
                     question,
                     questionId,
@@ -45,7 +46,7 @@ export function useWatchRealityQuestion(
             cancelled = true;
         };
     }, [
-        provider,
+        publicClient,
         question,
         questionId,
         blockNumber.data,
