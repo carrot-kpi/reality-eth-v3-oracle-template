@@ -1,16 +1,18 @@
+import type { Address, Hash, Hex } from "viem";
+
 export interface SubgraphQuestion {
-    id: string;
+    id: Hex;
     data: string;
-    template: { templateId: string };
-    contentHash: string;
-    arbitrator: string;
+    template: { templateId: number };
+    contentHash: Hash;
+    arbitrator: Address;
     openingTimestamp: string;
     timeout: string;
     currentScheduledFinalizationTimestamp: string;
     isPendingArbitration: boolean;
     bounty: string;
     currentAnswer?: string;
-    historyHash?: string;
+    historyHash?: Hash;
     currentAnswerBond: string;
     minBond: string;
 }
@@ -50,10 +52,10 @@ export const GetQuestionQuery = `
 `;
 
 export interface SubgraphResponse {
-    historyHash: string;
-    user: string;
+    historyHash: Hash;
+    user: Address;
     bond: string;
-    answer?: string;
+    answer?: Hex;
     timestamp: string;
 }
 

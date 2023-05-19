@@ -1,4 +1,4 @@
-import { type Address } from "viem";
+import type { Hex, Address, Hash } from "viem";
 
 export interface NumberFormatValue {
     formattedValue: string;
@@ -6,26 +6,26 @@ export interface NumberFormatValue {
 }
 
 export interface OnChainRealityQuestion {
-    content_hash: string;
-    arbitrator: string;
+    content_hash: Hash;
+    arbitrator: Address;
     opening_ts: number;
     timeout: number;
     finalize_ts: number;
     is_pending_arbitration: boolean;
     bounty: bigint;
     best_answer: string;
-    history_hash: string;
+    history_hash: Hash;
     bond: bigint;
     min_bond: bigint;
 }
 
 export interface RealityQuestion {
-    id: string;
-    reopenedId?: string;
-    historyHash: string;
+    id: Hex;
+    reopenedId?: Hex;
+    historyHash: Hash;
     templateId: number;
     content: string;
-    contentHash: string;
+    contentHash: Hash;
     arbitrator: Address;
     timeout: number;
     openingTimestamp: number;
@@ -38,9 +38,9 @@ export interface RealityQuestion {
 }
 
 export interface RealityResponse {
-    hash: string;
-    answerer: string;
+    hash: Hash;
+    answerer: Address;
     bond: bigint;
-    answer: string;
+    answer: Hex;
     timestamp: bigint;
 }

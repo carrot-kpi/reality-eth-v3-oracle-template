@@ -22,7 +22,7 @@ import {
     parseAbiItem,
     toHex,
 } from "viem";
-import { type Address } from "viem";
+import { type Hex } from "viem";
 
 const LOGS_BLOCKS_SIZE = __DEV__ ? 10n : 10_000n;
 const NEW_QUESTION_LOG_TOPIC = keccak256(
@@ -63,16 +63,14 @@ class Fetcher implements IPartialFetcher {
         );
         const realityContract = getContract({
             abi: REALITY_ETH_V3_ABI,
-            address: realityV3Address as `0x${string}`,
+            address: realityV3Address,
             publicClient: nodeClient,
         });
 
         // in case the question has been reopened, let's directly fetch the latest reopening
         let finalQuestionId = questionId;
         const reopenedQuestionId =
-            await realityContract.read.reopened_questions([
-                questionId as `0x${string}`,
-            ]);
+            await realityContract.read.reopened_questions([questionId]);
         if (reopenedQuestionId && reopenedQuestionId !== BYTES32_ZERO)
             finalQuestionId = reopenedQuestionId;
 
@@ -89,7 +87,7 @@ class Fetcher implements IPartialFetcher {
             bond,
             min_bond,
         } = (await realityContract.read.questions([
-            finalQuestionId as `0x${string}`,
+            finalQuestionId,
         ])) as unknown as OnChainRealityQuestion;
 
         return {
@@ -99,7 +97,7 @@ class Fetcher implements IPartialFetcher {
             templateId: Number(templateId),
             content: question,
             contentHash: content_hash,
-            arbitrator: arbitrator as Address,
+            arbitrator,
             timeout,
             openingTimestamp: opening_ts,
             finalizationTimestamp: finalize_ts,
@@ -130,7 +128,7 @@ class Fetcher implements IPartialFetcher {
             while (true) {
                 // FIXME: check if this implementation still works properly
                 const newAnwersEventLogs = await nodeClient.getLogs({
-                    address: realityV3Address as `0x${string}`,
+                    address: realityV3Address,
                     event: parseAbiItem(
                         "event LogNewAnswer(bytes32,bytes32,bytes32,address,uint256,uint256,bool)"
                     ),
@@ -138,7 +136,7 @@ class Fetcher implements IPartialFetcher {
                     toBlock,
                 });
                 const newQuestionEventLogs = await nodeClient.getLogs({
-                    address: realityV3Address as `0x${string}`,
+                    address: realityV3Address,
                     event: parseAbiItem(
                         "event LogNewQuestion(bytes32,address,uint256,string,bytes32,address,uint32,uint32,uint256,uint256)"
                     ),
@@ -155,7 +153,7 @@ class Fetcher implements IPartialFetcher {
                         // Event params: bytes32 answer, bytes32 indexed question_id, bytes32 history_hash, address indexed user, uint256 bond, uint256 ts, bool is_commitment
                         const [answerer] = decodeAbiParameters(
                             [{ type: "address", name: "answerer" }],
-                            log.topics[2] as `0x${string}`
+                            log.topics[2] as Hex
                         );
                         const [answer, hash, bond, timestamp] =
                             decodeAbiParameters(
@@ -166,7 +164,7 @@ class Fetcher implements IPartialFetcher {
                                     { type: "uint256", name: "timestamp" },
                                     { type: "bool", name: "commitment" },
                                 ],
-                                log.data as `0x${string}`
+                                log.data
                             );
                         answersFromLogs.push({
                             answerer,

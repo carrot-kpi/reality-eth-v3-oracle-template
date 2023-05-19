@@ -18,7 +18,6 @@ import {
     GetResponsesQuery,
     GetResponsesQueryResponse,
 } from "./queries";
-import { type Address } from "viem";
 
 class Fetcher implements IPartialFetcher {
     public supportedInChain({ chainId }: SupportedInChainParams): boolean {
@@ -58,7 +57,7 @@ class Fetcher implements IPartialFetcher {
             templateId: Number(question.template.templateId),
             content: question.data,
             contentHash: question.contentHash,
-            arbitrator: question.arbitrator as Address,
+            arbitrator: question.arbitrator,
             timeout: Number(question.timeout),
             openingTimestamp: Number(question.openingTimestamp),
             finalizationTimestamp:

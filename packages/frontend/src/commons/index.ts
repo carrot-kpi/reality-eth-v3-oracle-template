@@ -2,6 +2,7 @@ import { ChainId } from "@carrot-kpi/sdk";
 import { SelectOption } from "@carrot-kpi/ui";
 import CarrotIcon from "../assets/carrot";
 import { OptionForArbitrator } from "../creation-form/types";
+import { type Address } from "viem";
 
 // TODO: add arbitrum goerli to supported chains
 export enum SupportedChainId {
@@ -9,12 +10,12 @@ export enum SupportedChainId {
     SEPOLIA = ChainId.SEPOLIA,
 }
 
-export const TRUSTED_REALITY_ARBITRATORS: Record<SupportedChainId, string> = {
+export const TRUSTED_REALITY_ARBITRATORS: Record<SupportedChainId, Address> = {
     [SupportedChainId.GNOSIS]: __DEV__
-        ? CCT_TRUSTED_ARBITRATOR_ADDRESS
+        ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
         : "0xe37AA274d1bb3815b63cd13064dE443423F74316",
     [SupportedChainId.SEPOLIA]: __DEV__
-        ? CCT_TRUSTED_ARBITRATOR_ADDRESS
+        ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
         : "0x96073897873796d1950B1B04Fe2Ead8E0CA34914",
 };
 

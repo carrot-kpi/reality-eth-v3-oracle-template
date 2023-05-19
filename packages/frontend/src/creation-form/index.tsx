@@ -26,6 +26,7 @@ import dayjs, { Dayjs } from "dayjs";
 import durationPlugin from "dayjs/plugin/duration";
 import { useArbitratorsDisputeFee } from "../hooks/useArbitratorsDisputeFee";
 import { encodeAbiParameters, parseUnits } from "viem";
+import { type Address } from "viem";
 
 dayjs.extend(durationPlugin);
 
@@ -62,7 +63,7 @@ export const Component = ({
             !chain || !(chain.id in SupportedChainId)
                 ? []
                 : ARBITRATORS_BY_CHAIN[chain.id as SupportedChainId].map(
-                      (arbitrator) => arbitrator.value.toString()
+                      (arbitrator) => arbitrator.value.toString() as Address
                   ),
         [chain]
     );
@@ -156,14 +157,16 @@ export const Component = ({
     // onChange will also receive an initialization bundle getter function
     // when data is valid.
     useEffect(() => {
-        const newState = {
-            arbitrator: arbitrator ? (arbitrator.value as string) : undefined,
+        const newState: State = {
+            arbitrator: arbitrator ? (arbitrator.value as Address) : null,
             realityTemplateId: realityTemplateId
-                ? (realityTemplateId.value as string)
-                : undefined,
+                ? (realityTemplateId.value as number)
+                : null,
             question,
-            questionTimeout: questionTimeout?.value as number,
-            openingTimestamp: openingTimestamp?.unix(),
+            questionTimeout: questionTimeout
+                ? (questionTimeout.value as number)
+                : null,
+            openingTimestamp: openingTimestamp ? openingTimestamp.unix() : null,
             minimumBond,
         };
         let initializationDataGetter = undefined;
@@ -200,10 +203,10 @@ export const Component = ({
                         { type: "uint256", name: "minimumBond" },
                     ],
                     [
-                        arbitrator.value as `0x${string}`,
+                        arbitrator.value as Address,
                         BigInt(realityTemplateId.value),
                         `${questionCid}-${realityTemplateId.value}`,
-                        Number(questionTimeout.value),
+                        questionTimeout.value as number,
                         openingTimestamp.unix(),
                         formattedMinimumBond,
                     ]

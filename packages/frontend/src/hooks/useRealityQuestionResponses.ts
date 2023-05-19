@@ -6,10 +6,11 @@ import {
 import { usePublicClient } from "wagmi";
 import { Fetcher } from "../fetcher";
 import { RealityResponse } from "../page/types";
+import type { Address, Hex } from "viem";
 
 export function useRealityQuestionResponses(
-    realityV3Address?: string,
-    questionId?: string
+    realityV3Address?: Address,
+    questionId?: Hex
 ): {
     loading: boolean;
     responses: RealityResponse[];

@@ -1,6 +1,7 @@
 import { type PublicClient } from "wagmi";
 import { RealityResponse, RealityQuestion } from "../../page/types";
 import { ChainId } from "@carrot-kpi/sdk";
+import type { Address, Hex } from "viem";
 
 export interface SupportedInChainParams {
     chainId: ChainId;
@@ -8,21 +9,21 @@ export interface SupportedInChainParams {
 
 export interface FetchQuestionParams {
     nodeClient: PublicClient;
-    realityV3Address?: string;
+    realityV3Address?: Address;
     question?: string;
-    questionId?: string;
+    questionId?: Hex;
 }
 
 export interface FetchAnswersHistoryParams {
     nodeClient: PublicClient;
-    realityV3Address?: string;
-    questionId?: string;
+    realityV3Address?: Address;
+    questionId?: Hex;
 }
 
 export interface FetchAnswersHistoryParams {
     nodeClient: PublicClient;
-    realityV3Address?: string;
-    questionId?: string;
+    realityV3Address?: Address;
+    questionId?: Hex;
 }
 
 export interface IPartialFetcher {

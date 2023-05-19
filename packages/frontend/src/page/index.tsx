@@ -7,6 +7,7 @@ import { useWatchRealityQuestion } from "../hooks/useWatchRealityQuestion";
 import { Loader } from "@carrot-kpi/ui";
 import { AnswerForm } from "./components/answer-form";
 import { decodeOracleData } from "../utils/data-decoding";
+import type { Hex, Address } from "viem";
 
 export const Component = ({
     t,
@@ -14,8 +15,8 @@ export const Component = ({
     kpiToken,
     onTx,
 }: OracleRemotePageProps): ReactElement => {
-    const [realityV3Address, setRealityV3Address] = useState("");
-    const [questionId, setQuestionId] = useState("");
+    const [realityV3Address, setRealityV3Address] = useState<Address>("0x");
+    const [questionId, setQuestionId] = useState<Hex>();
     const [question, setQuestion] = useState("");
 
     useEffect(() => {

@@ -1,7 +1,8 @@
-import { type Address, useContractReads, useNetwork } from "wagmi";
+import { useContractReads, useNetwork } from "wagmi";
 import TRUSTED_REALITY_ARBITRATOR_V3_ABI from "../abis/trusted-reality-arbitrator-v3";
 import { useEffect, useState } from "react";
 import { formatUnits } from "viem";
+import { type Address } from "viem";
 
 interface ArbitratorsDiputeFee {
     fees: {
@@ -11,12 +12,12 @@ interface ArbitratorsDiputeFee {
 }
 
 export function useArbitratorsDisputeFee(
-    addresses: string[]
+    addresses: Address[]
 ): ArbitratorsDiputeFee {
     const { chain } = useNetwork();
     const { data: fees, isLoading: loading } = useContractReads({
         contracts: addresses.map((address) => ({
-            address: address as Address,
+            address,
             abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
             functionName: "getDisputeFee",
         })),

@@ -30,7 +30,6 @@ import {
     useContractRead,
     useAccount,
     useBalance,
-    type Address,
     usePublicClient,
 } from "wagmi";
 import {
@@ -72,10 +71,11 @@ import { useQuestionContent } from "../../../hooks/useQuestionContent";
 import { Arbitrator } from "./arbitrator";
 import Danger from "../../../assets/danger";
 import { formatUnits, parseUnits, zeroAddress } from "viem";
+import type { Hex, Hash, Address } from "viem";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
-    realityAddress: string;
+    realityAddress: Address;
     oracle: ResolvedOracleWithData;
     kpiToken: ResolvedKPITokenWithData;
     question: RealityQuestion;
@@ -149,10 +149,10 @@ export const AnswerForm = ({
         const payload = responses.reduce(
             (
                 accumulator: {
-                    historyHashes: string[];
-                    answerers: string[];
+                    historyHashes: Hash[];
+                    answerers: Address[];
                     bonds: bigint[];
-                    responses: string[];
+                    responses: Hex[];
                 },
                 answer
             ) => {
@@ -189,7 +189,7 @@ export const AnswerForm = ({
     });
 
     const { data: withdrawableBalance } = useContractRead({
-        address: realityAddress as Address,
+        address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "balanceOf",
         args: address && [address],
@@ -198,10 +198,10 @@ export const AnswerForm = ({
     });
 
     const { config: submitAnswerConfig } = usePrepareContractWrite({
-        address: realityAddress as Address,
+        address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "submitAnswer",
-        args: [question.id as Address, answer as Address, 0n],
+        args: [question.id, answer as Hex, 0n],
         value: finalBond,
         enabled: !!answer && !!finalBond && finalBond >= minimumBond,
     });
@@ -210,7 +210,7 @@ export const AnswerForm = ({
 
     const finalized = isQuestionFinalized(question);
     const { config: reopenQuestionConfig } = usePrepareContractWrite({
-        address: realityAddress as Address,
+        address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "reopenQuestion",
         args: [
@@ -221,7 +221,7 @@ export const AnswerForm = ({
             question.openingTimestamp,
             BigInt(question.id),
             question.minBond,
-            (question.reopenedId || question.id) as Address,
+            question.reopenedId || question.id,
         ],
         value: 0n,
         enabled: finalized && isAnsweredTooSoon(question),
@@ -230,7 +230,7 @@ export const AnswerForm = ({
         useContractWrite(reopenQuestionConfig);
 
     const { config: finalizeOracleConfig } = usePrepareContractWrite({
-        address: oracle.address as Address,
+        address: oracle.address,
         abi: REALITY_ORACLE_V3_ABI,
         functionName: "finalize",
         enabled: finalized && !oracle.finalized && !isAnsweredTooSoon(question),
@@ -241,13 +241,11 @@ export const AnswerForm = ({
     const { config: requestArbitrationConfig } = usePrepareContractWrite({
         address:
             !!chain && chain.id && chain.id in SupportedChainId
-                ? (TRUSTED_REALITY_ARBITRATORS[
-                      chain.id as SupportedChainId
-                  ] as Address)
+                ? TRUSTED_REALITY_ARBITRATORS[chain.id as SupportedChainId]
                 : undefined,
         abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
         functionName: "requestArbitration",
-        args: [question.id as Address, 0n],
+        args: [question.id, 0n],
         value: disputeFee || 0n,
         enabled:
             !!chain &&
@@ -262,16 +260,16 @@ export const AnswerForm = ({
     );
 
     const { config: claimMultipleAndWithdrawConfig } = usePrepareContractWrite({
-        address: realityAddress as Address,
+        address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "claimMultipleAndWithdrawBalance",
         args: [
-            [question.id as Address],
+            [question.id],
             [BigInt(claimWinningsPayload.historyHashes.length)],
-            claimWinningsPayload.historyHashes as Address[],
-            claimWinningsPayload.answerers as Address[],
+            claimWinningsPayload.historyHashes,
+            claimWinningsPayload.answerers,
             claimWinningsPayload.bonds,
-            claimWinningsPayload.responses as Address[],
+            claimWinningsPayload.responses,
         ],
         enabled:
             !!question.id &&

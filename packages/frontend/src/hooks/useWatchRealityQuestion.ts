@@ -3,10 +3,11 @@ import { useEffect, useState } from "react";
 import { useBlockNumber, usePublicClient } from "wagmi";
 import { Fetcher } from "../fetcher";
 import { RealityQuestion } from "../page/types";
+import type { Address, Hex } from "viem";
 
 export function useWatchRealityQuestion(
-    realityV3Address?: string,
-    questionId?: string,
+    realityV3Address?: Address,
+    questionId?: Hex,
     question?: string
 ): {
     loading: boolean;
