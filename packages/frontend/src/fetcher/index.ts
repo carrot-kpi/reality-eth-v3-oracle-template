@@ -12,37 +12,37 @@ export * from "./abstraction";
 
 class FullFetcher implements IFullFetcher {
     private async shouldUseSubgraph({
-        nodeClient,
+        publicClient,
         preferDecentralization,
     }: {
-        nodeClient: PublicClient;
+        publicClient: PublicClient;
         preferDecentralization?: boolean;
     }) {
         if (preferDecentralization) return false;
-        const chainId = await nodeClient.getChainId();
+        const chainId = await publicClient.getChainId();
         return SubgraphFetcher.supportedInChain({ chainId });
     }
 
     public async fetchQuestion({
         preferDecentralization,
-        nodeClient,
+        publicClient,
         realityV3Address,
         question,
         questionId,
     }: FullFetcherFetchQuestionParams): Promise<RealityQuestion | null> {
         const useSubgraph = await this.shouldUseSubgraph({
-            nodeClient,
+            publicClient,
             preferDecentralization,
         });
         return useSubgraph
             ? SubgraphFetcher.fetchQuestion({
-                  nodeClient,
+                  publicClient,
                   realityV3Address,
                   question,
                   questionId,
               })
             : OnChainFetcher.fetchQuestion({
-                  nodeClient,
+                  publicClient,
                   realityV3Address,
                   question,
                   questionId,
@@ -51,22 +51,22 @@ class FullFetcher implements IFullFetcher {
 
     public async fetchAnswersHistory({
         preferDecentralization,
-        nodeClient,
+        publicClient,
         realityV3Address,
         questionId,
     }: FullFetcherFetchAnswersHistoryParams): Promise<RealityResponse[]> {
         const useSubgraph = await this.shouldUseSubgraph({
-            nodeClient,
+            publicClient,
             preferDecentralization,
         });
         return useSubgraph
             ? SubgraphFetcher.fetchAnswersHistory({
-                  nodeClient,
+                  publicClient,
                   realityV3Address,
                   questionId,
               })
             : OnChainFetcher.fetchAnswersHistory({
-                  nodeClient,
+                  publicClient,
                   realityV3Address,
                   questionId,
               });

@@ -8,20 +8,20 @@ export interface SupportedInChainParams {
 }
 
 export interface FetchQuestionParams {
-    nodeClient: PublicClient;
+    publicClient: PublicClient;
     realityV3Address?: Address;
     question?: string;
     questionId?: Hex;
 }
 
 export interface FetchAnswersHistoryParams {
-    nodeClient: PublicClient;
+    publicClient: PublicClient;
     realityV3Address?: Address;
     questionId?: Hex;
 }
 
 export interface FetchAnswersHistoryParams {
-    nodeClient: PublicClient;
+    publicClient: PublicClient;
     realityV3Address?: Address;
     questionId?: Hex;
 }

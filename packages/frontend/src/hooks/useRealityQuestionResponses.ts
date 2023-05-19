@@ -30,7 +30,7 @@ export function useRealityQuestionResponses(
             try {
                 const fetched = await Fetcher.fetchAnswersHistory({
                     preferDecentralization,
-                    nodeClient: publicClient,
+                    publicClient,
                     realityV3Address,
                     questionId,
                 });

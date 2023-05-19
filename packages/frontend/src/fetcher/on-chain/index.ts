@@ -24,7 +24,7 @@ import {
 } from "viem";
 import { type Hex } from "viem";
 
-const LOGS_BLOCKS_SIZE = __DEV__ ? 10n : 10_000n;
+const LOGS_BLOCKS_SIZE = __DEV__ ? 10n : 5_000n;
 const NEW_QUESTION_LOG_TOPIC = keccak256(
     toHex(
         "LogNewQuestion(bytes32,address,uint256,string,bytes32,address,uint32,uint32,uint256,uint256)"
@@ -40,7 +40,7 @@ class Fetcher implements IPartialFetcher {
     }
 
     public async fetchQuestion({
-        nodeClient,
+        publicClient,
         realityV3Address,
         questionId,
         question,
@@ -56,7 +56,7 @@ class Fetcher implements IPartialFetcher {
         )
             return null;
 
-        const chainId = await nodeClient.getChainId();
+        const chainId = await publicClient.getChainId();
         enforce(
             chainId in SupportedChainId,
             `unsupported chain with id ${chainId}`
@@ -64,7 +64,7 @@ class Fetcher implements IPartialFetcher {
         const realityContract = getContract({
             abi: REALITY_ETH_V3_ABI,
             address: realityV3Address,
-            publicClient: nodeClient,
+            publicClient,
         });
 
         // in case the question has been reopened, let's directly fetch the latest reopening
@@ -110,24 +110,23 @@ class Fetcher implements IPartialFetcher {
     }
 
     public async fetchAnswersHistory({
-        nodeClient,
+        publicClient,
         realityV3Address,
         questionId,
     }: FetchAnswersHistoryParams): Promise<RealityResponse[]> {
         if (!realityV3Address || !questionId) return [];
-        const chainId = await nodeClient.getChainId();
+        const chainId = await publicClient.getChainId();
         enforce(
             chainId in SupportedChainId,
             `unsupported chain with id ${chainId}`
         );
 
-        let toBlock = await nodeClient.getBlockNumber();
+        let toBlock = await publicClient.getBlockNumber();
         let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
         const answersFromLogs: RealityResponse[] = [];
         try {
             while (true) {
-                // FIXME: check if this implementation still works properly
-                const newAnwersEventLogs = await nodeClient.getLogs({
+                const newAnwersEventLogs = await publicClient.getLogs({
                     address: realityV3Address,
                     event: parseAbiItem(
                         "event LogNewAnswer(bytes32,bytes32,bytes32,address,uint256,uint256,bool)"
@@ -135,7 +134,7 @@ class Fetcher implements IPartialFetcher {
                     fromBlock,
                     toBlock,
                 });
-                const newQuestionEventLogs = await nodeClient.getLogs({
+                const newQuestionEventLogs = await publicClient.getLogs({
                     address: realityV3Address,
                     event: parseAbiItem(
                         "event LogNewQuestion(bytes32,address,uint256,string,bytes32,address,uint32,uint32,uint256,uint256)"
@@ -143,12 +142,10 @@ class Fetcher implements IPartialFetcher {
                     fromBlock,
                     toBlock,
                 });
-                newQuestionEventLogs;
 
                 const logs = [...newAnwersEventLogs, ...newQuestionEventLogs];
                 let shouldBreak = false;
                 for (const log of logs) {
-                    // FIXME: is this condition still valid
                     if (log.topics[0] === NEW_ANSWER_LOG_TOPIC) {
                         // Event params: bytes32 answer, bytes32 indexed question_id, bytes32 history_hash, address indexed user, uint256 bond, uint256 ts, bool is_commitment
                         const [answerer] = decodeAbiParameters(
@@ -171,9 +168,8 @@ class Fetcher implements IPartialFetcher {
                             bond,
                             hash,
                             answer,
-                            timestamp: timestamp,
+                            timestamp,
                         });
-                        // FIXME: is this condition still valid
                     } else if (log.topics[0] === NEW_QUESTION_LOG_TOPIC)
                         shouldBreak = true;
                 }

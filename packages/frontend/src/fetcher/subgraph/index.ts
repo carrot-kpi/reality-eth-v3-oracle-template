@@ -28,13 +28,13 @@ class Fetcher implements IPartialFetcher {
     }
 
     public async fetchQuestion({
-        nodeClient,
+        publicClient,
         realityV3Address,
         questionId,
     }: FetchQuestionParams): Promise<RealityQuestion | null> {
         if (!questionId || !realityV3Address) return null;
 
-        const chainId = await nodeClient.getChainId();
+        const chainId = await publicClient.getChainId();
         enforce(
             chainId in SupportedChainId,
             `unsupported chain with id ${chainId}`
@@ -76,11 +76,11 @@ class Fetcher implements IPartialFetcher {
     public async fetchAnswersHistory({
         realityV3Address,
         questionId,
-        nodeClient,
+        publicClient,
     }: FetchAnswersHistoryParams): Promise<RealityResponse[]> {
         if (!realityV3Address || !questionId) return [];
 
-        const chainId = await nodeClient.getChainId();
+        const chainId = await publicClient.getChainId();
         enforce(
             chainId in SupportedChainId,
             `unsupported chain with id ${chainId}`

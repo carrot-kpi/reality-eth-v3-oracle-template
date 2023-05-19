@@ -29,7 +29,7 @@ export function useWatchRealityQuestion(
             try {
                 const fetched = await Fetcher.fetchQuestion({
                     preferDecentralization,
-                    nodeClient: publicClient,
+                    publicClient,
                     realityV3Address,
                     question,
                     questionId,
