@@ -17,7 +17,7 @@ export const setupFork = async ({ nodeClient, walletClient }) => {
     const {
         abi: templateAbi,
         bytecode: { object: templateBytecode },
-    } = require(`../artifacts/RealityV3Oracle${chainId}.sol/RealityV3Oracle.json`);
+    } = require(`../out/RealityV3Oracle${chainId}.sol/RealityV3Oracle.json`);
 
     const { contractAddress: templateAddress } =
         await nodeClient.getTransactionReceipt({
@@ -31,7 +31,7 @@ export const setupFork = async ({ nodeClient, walletClient }) => {
     const {
         abi: arbitratorAbi,
         bytecode: { object: arbitratorBytecode },
-    } = require(`../artifacts/TrustedRealityV3Arbitrator${chainId}.sol/TrustedRealityV3Arbitrator.json`);
+    } = require(`../out/TrustedRealityV3Arbitrator${chainId}.sol/TrustedRealityV3Arbitrator.json`);
 
     const { contractAddress: arbitratorAddress } =
         await nodeClient.getTransactionReceipt({
@@ -56,7 +56,7 @@ export const setupFork = async ({ nodeClient, walletClient }) => {
     const {
         abi: erc20Abi,
         bytecode: { object: erc20Bytecode },
-    } = require("../artifacts/ERC20PresetMinterPauser.sol/ERC20PresetMinterPauser.json");
+    } = require("../out/ERC20PresetMinterPauser.sol/ERC20PresetMinterPauser.json");
     const { contractAddress: tst1Address } =
         await nodeClient.getTransactionReceipt({
             hash: await walletClient.deployContract({

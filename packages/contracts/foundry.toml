@@ -1,20 +1,13 @@
 [profile.default]
-src = 'src'
-out = 'artifacts'
-test = 'tests'
-libs = ['lib']
 remappings = [
     'carrot/=lib/carrot/contracts',
     'forge-std/=lib/forge-std/src/',
     'oz-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/',
-    'oz/=lib/openzeppelin-contracts/contracts/',
-    'tests/=tests/'
+    'oz/=lib/openzeppelin-contracts/contracts/'
 ]
+optimizer = false
 
 [profile.production]
 optimizer = true
-optimizer_runs = 200
-
-[profile.test]
-test = 'tests'
-optimizer = false
+via_ir = true
+optimizer_runs = 1000000
