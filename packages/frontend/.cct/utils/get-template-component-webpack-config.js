@@ -22,6 +22,7 @@ export const getTemplateComponentWebpackConfig = (type, globals, outDir) => {
     const devMode = !!!outDir;
     return {
         mode: devMode ? "development" : "production",
+        target: "browserslist",
         devtool: false,
         infrastructureLogging: devMode
             ? {
