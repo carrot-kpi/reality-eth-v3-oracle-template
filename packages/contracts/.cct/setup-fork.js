@@ -52,6 +52,9 @@ export const setupFork = async ({ nodeClient, walletClient }) => {
     // set a minimum arbitration fee
     await arbitratorContract.write.setDisputeFee([parseUnits("1", 18)]);
 
+    // FIXME: This ONLY works because the ERC20 KPI token template manually adds the tokens on the default token list when running in dev mode.
+    // It relies on a dev-only logic present in another template.
+
     // deploy test erc20 tokens
     const {
         abi: erc20Abi,
