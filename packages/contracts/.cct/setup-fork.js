@@ -117,7 +117,7 @@ export const setupFork = async ({ nodeClient, walletClient }) => {
             },
         ],
         frontendGlobals: {
-            CCT_TRUSTED_ARBITRATOR_ADDRESS: arbitratorContract.address,
+            CCT_TRUSTED_ARBITRATOR_ADDRESS: arbitratorAddress,
             CCT_ERC20_1_ADDRESS: tst1Address,
             CCT_ERC20_2_ADDRESS: tst2Address,
         },
