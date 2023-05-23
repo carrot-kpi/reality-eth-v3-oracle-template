@@ -1057,16 +1057,7 @@
     react-use "^17.4.0"
     viem "^0.3.24"
 
-"@carrot-kpi/sdk@*", "@carrot-kpi/sdk@^1.27.0":
-  version "1.27.1"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.27.1.tgz#c15fce40562f4b6db5b9cde5300f4eea8d914c0f"
-  integrity sha512-M1kut3hQPuJYzTlQlPg2Lkp5kHS3vQD3cQT3dXuPa+4E42rKvRv0fLBOKKAaHgOy9fcRbMZdIPtB3TAD92cZ/w==
-  dependencies:
-    decimal.js-light "^2.5.1"
-    multiformats "^9.9.0"
-    viem "^0.3.24"
-
-"@carrot-kpi/sdk@^1.27.2":
+"@carrot-kpi/sdk@*", "@carrot-kpi/sdk@^1.27.0", "@carrot-kpi/sdk@^1.27.2":
   version "1.27.2"
   resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.27.2.tgz#8af709e13fc3d09711a9101df7493e6e53133d92"
   integrity sha512-bzvqFaNs1W1o+upuO7I/OSdgTPa5MhB5IMf5ZhCC4img4bnVjcmjKapehz8G8NtW6aJoqYYYwcR796bBQbKJ8A==
@@ -5748,9 +5739,9 @@ electron-fetch@^1.7.2:
     encoding "^0.1.13"
 
 electron-to-chromium@^1.4.284:
-  version "1.4.404"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.404.tgz#16baf653a7a2613e221da61480ad02fe84e40231"
-  integrity sha512-te57sWvQdpxmyd1GiswaodKdXdPgn9cN4ht8JlNa04QgtrfnUdWEo1261rY2vaC6TKaiHn0E7QerJWPKFCvMVw==
+  version "1.4.405"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.405.tgz#487bdba2d82a59b092d6b6e4602bf733cec6a7ef"
+  integrity sha512-JdDgnwU69FMZURoesf9gNOej2Cms1XJFfLk24y1IBtnAdhTcJY/mXnokmpmxHN59PcykBP4bgUU98vLY44Lhuw==
 
 elliptic@6.5.4:
   version "6.5.4"
@@ -5990,12 +5981,12 @@ eslint-config-prettier@^8.8.0:
   resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-8.8.0.tgz#bfda738d412adc917fd7b038857110efe98c9348"
   integrity sha512-wLbQiFre3tdGgpDv67NQKnJuTlcUVYHas3k+DZCc2U2BadthoEY4B7hLPvAxaqdyOGCzuLfii2fqGph10va7oA==
 
-eslint-config-turbo@1.9.8:
-  version "1.9.8"
-  resolved "https://registry.yarnpkg.com/eslint-config-turbo/-/eslint-config-turbo-1.9.8.tgz#164df75b6a2dbe62ea7be4cb823df0498696502b"
-  integrity sha512-EaZ3EbWXo7bcnwRKZsV+ckcF5Cjdri9wRBXZd5j49E7mJ3EEPvGw70h77kWeeunu+jM3mxxfy8olmo1Udr7gvQ==
+eslint-config-turbo@1.9.9:
+  version "1.9.9"
+  resolved "https://registry.yarnpkg.com/eslint-config-turbo/-/eslint-config-turbo-1.9.9.tgz#69baf8765ff65cc644cea4cd0f5edee765b498c9"
+  integrity sha512-OQLvRK9Ej/8HIEAW6e9hPu3nk1nCYWJ76voB4eOIaI2fYeIKC++0/r0zJPMOD8puo5V1DH+Gkd0XioKpL14ncg==
   dependencies:
-    eslint-plugin-turbo "1.9.8"
+    eslint-plugin-turbo "1.9.9"
 
 eslint-plugin-prettier@^4.2.1:
   version "4.2.1"
@@ -6030,10 +6021,10 @@ eslint-plugin-react@^7.31.11:
     semver "^6.3.0"
     string.prototype.matchall "^4.0.8"
 
-eslint-plugin-turbo@1.9.8:
-  version "1.9.8"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-turbo/-/eslint-plugin-turbo-1.9.8.tgz#b4354335e256dce44338da9619bfbbcb3cced204"
-  integrity sha512-Alvv3zCkILFfwEJ2aiuUjzYFqZ12qX+2F14ahNOhC9BDwgGZkEh1w19TB2gOPMLeNx2+iBVAU9L+1FTBSOOAJA==
+eslint-plugin-turbo@1.9.9:
+  version "1.9.9"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-turbo/-/eslint-plugin-turbo-1.9.9.tgz#88d282b384fd6ba1009b5bf662eb092b9cbbd0bf"
+  integrity sha512-BgtBMcgNd2YKiHbn1clRiEAmnlpSl19kt9yfIhFEsNIVPg2Gx0O1H++vWXGzMtT19mjHG4Unx0uIMRENKnDYLg==
 
 eslint-scope@5.1.1, eslint-scope@^5.1.1:
   version "5.1.1"
@@ -9589,9 +9580,9 @@ postcss-modules-extract-imports@^3.0.0:
   integrity sha512-bdHleFnP3kZ4NYDhuGlVK+CMrQ/pqUm8bx/oGL93K6gVwiclvX5x0n76fYMKuIGKzlABOy13zsvqjb0f92TEXw==
 
 postcss-modules-local-by-default@^4.0.1:
-  version "4.0.2"
-  resolved "https://registry.yarnpkg.com/postcss-modules-local-by-default/-/postcss-modules-local-by-default-4.0.2.tgz#586297f6ed3f307102feaacfad77473f05f15b80"
-  integrity sha512-mR/pcIsQhU2UgKYOPjRCSgacmjn08pyrHk+Vrm8WEKjDWgqO43vdRkzmxyZOZWiKr6Ed9gpReQHhLUGVAcn9jw==
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/postcss-modules-local-by-default/-/postcss-modules-local-by-default-4.0.3.tgz#b08eb4f083050708998ba2c6061b50c2870ca524"
+  integrity sha512-2/u2zraspoACtrbFRnTijMiQtb4GW4BvatjaG/bCjYQo8kLTdevCUlwuBHx2sCnSyrI3x3qj4ZK1j5LQBgzmwA==
   dependencies:
     icss-utils "^5.0.0"
     postcss-selector-parser "^6.0.2"
@@ -11591,47 +11582,47 @@ tsutils@^3.21.0:
   dependencies:
     tslib "^1.8.1"
 
-turbo-darwin-64@1.9.8:
-  version "1.9.8"
-  resolved "https://registry.yarnpkg.com/turbo-darwin-64/-/turbo-darwin-64-1.9.8.tgz#febb33027c59c04ff79f7511a886f3f97a827950"
-  integrity sha512-PkTdBjPfgpj/Dob/6SjkzP0BBP80/KmFjLEocXVEECCLJE6tHKbWLRdvc79B0N6SufdYdZ1uvvoU3KPtBokSPw==
+turbo-darwin-64@1.9.9:
+  version "1.9.9"
+  resolved "https://registry.yarnpkg.com/turbo-darwin-64/-/turbo-darwin-64-1.9.9.tgz#5bda12cbe8f2cd3ace2ec9b54fa638ed45d4965d"
+  integrity sha512-UDGM9E21eCDzF5t1F4rzrjwWutcup33e7ZjNJcW/mJDPorazZzqXGKEPIy9kXwKhamUUXfC7668r6ZuA1WXF2Q==
 
-turbo-darwin-arm64@1.9.8:
-  version "1.9.8"
-  resolved "https://registry.yarnpkg.com/turbo-darwin-arm64/-/turbo-darwin-arm64-1.9.8.tgz#4b3c2ebb71b781520ea7bcf689e0860d289b346a"
-  integrity sha512-sLwqOx3XV57QCEoJM9GnDDnnqidG8wf29ytxssBaWHBdeJTjupyrmzTUrX+tyKo3Q+CjWvbPLyqVqxT4g5NuXQ==
+turbo-darwin-arm64@1.9.9:
+  version "1.9.9"
+  resolved "https://registry.yarnpkg.com/turbo-darwin-arm64/-/turbo-darwin-arm64-1.9.9.tgz#ada42865b641a7ea0a7e450047ffe4b48d37a461"
+  integrity sha512-VyfkXzTJpYLTAQ9krq2myyEq7RPObilpS04lgJ4OO1piq76RNmSpX9F/t9JCaY9Pj/4TL7i0d8PM7NGhwEA5Ag==
 
-turbo-linux-64@1.9.8:
-  version "1.9.8"
-  resolved "https://registry.yarnpkg.com/turbo-linux-64/-/turbo-linux-64-1.9.8.tgz#1233e8019aeb0ba550c73b753102d679bd4f00c2"
-  integrity sha512-AMg6VT6sW7aOD1uOs5suxglXfTYz9T0uVyKGKokDweGOYTWmuTMGU5afUT1tYRUwQ+kVPJI+83Atl5Ob0oBsgw==
+turbo-linux-64@1.9.9:
+  version "1.9.9"
+  resolved "https://registry.yarnpkg.com/turbo-linux-64/-/turbo-linux-64-1.9.9.tgz#69a1f69ebfd90f0c5c68c321f57e84c6b870f106"
+  integrity sha512-Fu1MY29Odg8dHOqXcpIIGC3T63XLOGgnGfbobXMKdrC7JQDvtJv8TUCYciRsyknZYjyyKK1z6zKuYIiDjf3KeQ==
 
-turbo-linux-arm64@1.9.8:
-  version "1.9.8"
-  resolved "https://registry.yarnpkg.com/turbo-linux-arm64/-/turbo-linux-arm64-1.9.8.tgz#226a35f6604a451895fbbf142226956b1968318e"
-  integrity sha512-tLnxFv+OIklwTjiOZ8XMeEeRDAf150Ry4BCivNwgTVFAqQGEqkFP6KGBy56hb5RRF1frPQpoPGipJNVm7c8m1w==
+turbo-linux-arm64@1.9.9:
+  version "1.9.9"
+  resolved "https://registry.yarnpkg.com/turbo-linux-arm64/-/turbo-linux-arm64-1.9.9.tgz#94806037067f527188eabf1ff2a210c6985f2a9d"
+  integrity sha512-50LI8NafPuJxdnMCBeDdzgyt1cgjQG7FwkyY336v4e95WJPUVjrHdrKH6jYXhOUyrv9+jCJxwX1Yrg02t5yJ1g==
 
-turbo-windows-64@1.9.8:
-  version "1.9.8"
-  resolved "https://registry.yarnpkg.com/turbo-windows-64/-/turbo-windows-64-1.9.8.tgz#0c65f3f8a7c7b025a3cb62e69de42b452238d3a9"
-  integrity sha512-r3pCjvXTMR7kq2E3iqwFlN1R7pFO/TOsuUjMhOSPP7HwuuUIinAckU4I9foM3q7ZCQd1XXScBUt3niDyHijAqQ==
+turbo-windows-64@1.9.9:
+  version "1.9.9"
+  resolved "https://registry.yarnpkg.com/turbo-windows-64/-/turbo-windows-64-1.9.9.tgz#ef7e8212541eb0fd657c709c6602466bf3702a8b"
+  integrity sha512-9IsTReoLmQl1IRsy3WExe2j2RKWXQyXujfJ4fXF+jp08KxjVF4/tYP2CIRJx/A7UP/7keBta27bZqzAjsmbSTA==
 
-turbo-windows-arm64@1.9.8:
-  version "1.9.8"
-  resolved "https://registry.yarnpkg.com/turbo-windows-arm64/-/turbo-windows-arm64-1.9.8.tgz#50a102dae12d48f52520718e3ff4605d12a62c25"
-  integrity sha512-CWzRbX2TM5IfHBC6uWM659qUOEDC4h0nn16ocG8yIq1IF3uZMzKRBHgGOT5m1BHom+R08V0NcjTmPRoqpiI0dg==
+turbo-windows-arm64@1.9.9:
+  version "1.9.9"
+  resolved "https://registry.yarnpkg.com/turbo-windows-arm64/-/turbo-windows-arm64-1.9.9.tgz#35e77125c960431ad46b54e00c1b0b37140fa1bc"
+  integrity sha512-CUu4hpeQo68JjDr0V0ygTQRLbS+/sNfdqEVV+Xz9136vpKn2WMQLAuUBVZV0Sp0S/7i+zGnplskT0fED+W46wQ==
 
-turbo@^1.9.8:
-  version "1.9.8"
-  resolved "https://registry.yarnpkg.com/turbo/-/turbo-1.9.8.tgz#6d97630f9df7c25c588722837ac4c2b9342c7766"
-  integrity sha512-dTouGZBm4a2fE0OPafcTQERCp4i3ZOow0Pr0JlOyxKmzJy0JRwXypH013kbZoK6k1ET5tS/g9rwUXIM/AmWXXQ==
+turbo@^1.9.9:
+  version "1.9.9"
+  resolved "https://registry.yarnpkg.com/turbo/-/turbo-1.9.9.tgz#7dd311a8c8a5951fade94e92b4cbe1f8f9eb2160"
+  integrity sha512-+ZS66LOT7ahKHxh6XrIdcmf2Yk9mNpAbPEj4iF2cs0cAeaDU3xLVPZFF0HbSho89Uxwhx7b5HBgPbdcjQTwQkg==
   optionalDependencies:
-    turbo-darwin-64 "1.9.8"
-    turbo-darwin-arm64 "1.9.8"
-    turbo-linux-64 "1.9.8"
-    turbo-linux-arm64 "1.9.8"
-    turbo-windows-64 "1.9.8"
-    turbo-windows-arm64 "1.9.8"
+    turbo-darwin-64 "1.9.9"
+    turbo-darwin-arm64 "1.9.9"
+    turbo-linux-64 "1.9.9"
+    turbo-linux-arm64 "1.9.9"
+    turbo-windows-64 "1.9.9"
+    turbo-windows-arm64 "1.9.9"
 
 type-check@^0.4.0, type-check@~0.4.0:
   version "0.4.0"
@@ -11922,10 +11913,10 @@ vary@~1.1.2:
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
 
-viem@^0.3.24, viem@^0.3.35:
-  version "0.3.35"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-0.3.35.tgz#5855be41f2464caf790474833be7e73fe9f7e942"
-  integrity sha512-r9GrjAwY5BAehRAMSDJQGpPWGM6sKbAftb3GVny/rLCdjjtK4Zz2B3HOcjOQEM7jo+3LfPWSd85rBkNEpWntiA==
+viem@^0.3.24, viem@^0.3.35, viem@^0.3.36:
+  version "0.3.36"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-0.3.36.tgz#3747ef6c4ae81eb14518e2fdfed17643c1b147f3"
+  integrity sha512-8wgZyG+Zty6b9ztM5+/1xBZBl/z1/YFtQJZqrvSOUnbrIL7u786XeZXDPyoY6zbR0HTt14k5ATsEPnXnCyDhtg==
   dependencies:
     "@adraffy/ens-normalize" "1.9.0"
     "@noble/curves" "1.0.0"
