@@ -25,7 +25,7 @@
         "test": "echo 'Fix issues with pnpm and Jest not resolving modules'"
     },
     "devDependencies": {
-        "@carrot-kpi/host-frontend": "^0.5.2",
+        "@carrot-kpi/host-frontend": "^0.6.0",
         "@carrot-kpi/switzer-font": "^0.1.0",
         "@commitlint/cli": "^17.6.3",
         "@svgr/webpack": "^8.0.1",
@@ -57,7 +57,7 @@
         "tailwindcss": "^3.3.2",
         "terser-webpack-plugin": "^5.3.9",
         "ts-jest": "^29.1.0",
-        "ts-loader": "^9.4.1",
+        "ts-loader": "^9.4.3",
         "turbo": "^1.9.8",
         "typescript": "^5.0.4",
         "url-loader": "^4.1.1",
@@ -66,7 +66,7 @@
     },
     "dependencies": {
         "@carrot-kpi/react": "^0.46.0",
-        "@carrot-kpi/sdk": "^1.27.1",
+        "@carrot-kpi/sdk": "^1.27.2",
         "@carrot-kpi/shared-state": "^0.3.1",
         "@carrot-kpi/ui": "^0.45.1",
         "@fontsource/ibm-plex-mono": "^5.0.1",

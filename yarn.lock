@@ -1026,10 +1026,10 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@carrot-kpi/host-frontend@^0.5.2":
-  version "0.5.2"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/host-frontend/-/host-frontend-0.5.2.tgz#4d57efc036b55b3754e5ee9cd804bdb6d8c2f24e"
-  integrity sha512-e2xYRnBWlSsex2013ZzENRwZfV+vDdaeB450xRvOJ2V1wGDv7D0zFQ2JPKpKBUMfyQAaWjSDZeggh/7kzEL5Aw==
+"@carrot-kpi/host-frontend@^0.6.0":
+  version "0.6.0"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/host-frontend/-/host-frontend-0.6.0.tgz#be9c592e9fde8b8030b416c81089468af3179887"
+  integrity sha512-yoKl0SWLhBFqTnNngOzaMBGZDjxNjikskzdmN/76aMiZr0AvFtP+gVjKfy5Y3cnbYU6OD1qnb4IFLqMBoyii4w==
   dependencies:
     "@carrot-kpi/react" "*"
     "@carrot-kpi/sdk" "*"
@@ -1057,10 +1057,19 @@
     react-use "^17.4.0"
     viem "^0.3.24"
 
-"@carrot-kpi/sdk@*", "@carrot-kpi/sdk@^1.27.0", "@carrot-kpi/sdk@^1.27.1":
+"@carrot-kpi/sdk@*", "@carrot-kpi/sdk@^1.27.0":
   version "1.27.1"
   resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.27.1.tgz#c15fce40562f4b6db5b9cde5300f4eea8d914c0f"
   integrity sha512-M1kut3hQPuJYzTlQlPg2Lkp5kHS3vQD3cQT3dXuPa+4E42rKvRv0fLBOKKAaHgOy9fcRbMZdIPtB3TAD92cZ/w==
+  dependencies:
+    decimal.js-light "^2.5.1"
+    multiformats "^9.9.0"
+    viem "^0.3.24"
+
+"@carrot-kpi/sdk@^1.27.2":
+  version "1.27.2"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.27.2.tgz#8af709e13fc3d09711a9101df7493e6e53133d92"
+  integrity sha512-bzvqFaNs1W1o+upuO7I/OSdgTPa5MhB5IMf5ZhCC4img4bnVjcmjKapehz8G8NtW6aJoqYYYwcR796bBQbKJ8A==
   dependencies:
     decimal.js-light "^2.5.1"
     multiformats "^9.9.0"
@@ -11526,10 +11535,10 @@ ts-jest@^29.1.0:
     semver "7.x"
     yargs-parser "^21.0.1"
 
-ts-loader@^9.4.1:
-  version "9.4.2"
-  resolved "https://registry.yarnpkg.com/ts-loader/-/ts-loader-9.4.2.tgz#80a45eee92dd5170b900b3d00abcfa14949aeb78"
-  integrity sha512-OmlC4WVmFv5I0PpaxYb+qGeGOdm5giHU7HwDDUjw59emP2UYMHy9fFSDcYgSNoH8sXcj4hGCSEhlDZ9ULeDraA==
+ts-loader@^9.4.3:
+  version "9.4.3"
+  resolved "https://registry.yarnpkg.com/ts-loader/-/ts-loader-9.4.3.tgz#55cfa7c28dd82a2de968ae45c3adb75fb888b27e"
+  integrity sha512-n3hBnm6ozJYzwiwt5YRiJZkzktftRpMiBApHaJPoWLA+qetQBAXkHqCLM6nwSdRDimqVtA5ocIkcTRLMTt7yzA==
   dependencies:
     chalk "^4.1.0"
     enhanced-resolve "^5.0.0"
