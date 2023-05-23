@@ -10,11 +10,7 @@ import {
 } from "../../commons";
 import REALITY_ETH_V3_ABI from "../../abis/reality-eth-v3";
 import { enforce, isCID } from "@carrot-kpi/sdk";
-import {
-    RealityResponse,
-    OnChainRealityQuestion,
-    RealityQuestion,
-} from "../../page/types";
+import { RealityResponse, RealityQuestion } from "../../page/types";
 import {
     decodeAbiParameters,
     getContract,
@@ -47,7 +43,7 @@ class Fetcher implements IPartialFetcher {
             !isCID(cid) ||
             !templateId ||
             !REALITY_TEMPLATE_OPTIONS.find(
-                (validTemplate) => validTemplate.value === templateId
+                (validTemplate) => validTemplate.value === Number(templateId)
             )
         )
             return null;
@@ -70,38 +66,26 @@ class Fetcher implements IPartialFetcher {
         if (reopenedQuestionId && reopenedQuestionId !== BYTES32_ZERO)
             finalQuestionId = reopenedQuestionId;
 
-        const {
-            content_hash,
-            arbitrator,
-            opening_ts,
-            timeout,
-            finalize_ts,
-            is_pending_arbitration,
-            bounty,
-            best_answer,
-            history_hash,
-            bond,
-            min_bond,
-        } = (await realityContract.read.questions([
+        const realityV3Question = await realityContract.read.questions([
             finalQuestionId,
-        ])) as unknown as OnChainRealityQuestion;
+        ]);
 
         return {
             id: finalQuestionId,
             reopenedId: questionId === finalQuestionId ? undefined : questionId,
-            historyHash: history_hash,
             templateId: Number(templateId),
             content: question,
-            contentHash: content_hash,
-            arbitrator,
-            timeout,
-            openingTimestamp: opening_ts,
-            finalizationTimestamp: finalize_ts,
-            pendingArbitration: is_pending_arbitration,
-            bounty,
-            bestAnswer: best_answer,
-            bond,
-            minBond: min_bond,
+            contentHash: realityV3Question[0],
+            arbitrator: realityV3Question[1],
+            openingTimestamp: realityV3Question[2],
+            timeout: realityV3Question[3],
+            finalizationTimestamp: realityV3Question[4],
+            pendingArbitration: realityV3Question[5],
+            bounty: realityV3Question[6],
+            bestAnswer: realityV3Question[7],
+            historyHash: realityV3Question[8],
+            bond: realityV3Question[9],
+            minBond: realityV3Question[10],
         };
     }
 
