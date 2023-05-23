@@ -1,4 +1,3 @@
-import { toHex } from "viem";
 import {
     ANSWERED_TOO_SOON_REALITY_ANSWER,
     BYTES32_ZERO,
@@ -8,15 +7,6 @@ import {
 } from "../commons";
 import { RealityQuestion } from "../page/types";
 import dayjs from "dayjs";
-
-// TODO: find a better way to encode the answer values
-export const numberToByte32 = (num: string | number): string => {
-    const hex = toHex(num);
-
-    const frontZeros = "0".repeat(66 - hex.length);
-
-    return `0x${frontZeros}${hex.split("0x")[1]}`;
-};
 
 export const shortenAddress = (address?: string) => {
     return address

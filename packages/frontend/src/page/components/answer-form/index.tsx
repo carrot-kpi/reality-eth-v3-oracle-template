@@ -48,7 +48,6 @@ import {
     isAnswerMissing,
     isAnswerPendingArbitration,
     isQuestionFinalized,
-    numberToByte32,
 } from "../../../utils";
 import { NumberFormatValue, RealityQuestion } from "../../types";
 import { Answer } from "./answer";
@@ -70,7 +69,13 @@ import { useRealityQuestionResponses } from "../../../hooks/useRealityQuestionRe
 import { useQuestionContent } from "../../../hooks/useQuestionContent";
 import { Arbitrator } from "./arbitrator";
 import Danger from "../../../assets/danger";
-import { formatUnits, parseUnits, zeroAddress } from "viem";
+import {
+    bytesToHex,
+    formatUnits,
+    parseUnits,
+    toBytes,
+    zeroAddress,
+} from "viem";
 import type { Hex, Hash, Address } from "viem";
 
 interface AnswerFormProps {
@@ -314,11 +319,14 @@ export const AnswerForm = ({
         if (moreOptionValue.anweredTooSoon)
             return setAnswer(ANSWERED_TOO_SOON_REALITY_ANSWER);
         if (moreOptionValue.invalid) return setAnswer(INVALID_REALITY_ANSWER);
-        if (booleanValue) return setAnswer(numberToByte32(booleanValue));
+        if (booleanValue)
+            return setAnswer(bytesToHex(toBytes(booleanValue, { size: 32 })));
         if (!isNaN(parseFloat(numberValue.value)))
             return setAnswer(
-                numberToByte32(
-                    parseUnits(numberValue.value as `${number}`, 18).toString()
+                bytesToHex(
+                    toBytes(parseUnits(numberValue.value as `${number}`, 18), {
+                        size: 32,
+                    })
                 )
             );
     }, [
@@ -407,7 +415,10 @@ export const AnswerForm = ({
                         }),
                     },
                     receipt: {
-                        ...receipt,
+                        from: receipt.from,
+                        transactionIndex: receipt.transactionIndex,
+                        blockHash: receipt.blockHash,
+                        transactionHash: receipt.transactionHash,
                         to: receipt.to || zeroAddress,
                         contractAddress: receipt.contractAddress || zeroAddress,
                         blockNumber: Number(receipt.blockNumber),
@@ -453,7 +464,10 @@ export const AnswerForm = ({
                         summary: t("label.transaction.reopenSubmitted"),
                     },
                     receipt: {
-                        ...receipt,
+                        from: receipt.from,
+                        transactionIndex: receipt.transactionIndex,
+                        blockHash: receipt.blockHash,
+                        transactionHash: receipt.transactionHash,
                         to: receipt.to || zeroAddress,
                         contractAddress: receipt.contractAddress || zeroAddress,
                         blockNumber: Number(receipt.blockNumber),
@@ -495,7 +509,10 @@ export const AnswerForm = ({
                         summary: t("label.transaction.oracleFinalized"),
                     },
                     receipt: {
-                        ...receipt,
+                        from: receipt.from,
+                        transactionIndex: receipt.transactionIndex,
+                        blockHash: receipt.blockHash,
+                        transactionHash: receipt.transactionHash,
                         to: receipt.to || zeroAddress,
                         contractAddress: receipt.contractAddress || zeroAddress,
                         blockNumber: Number(receipt.blockNumber),
@@ -534,7 +551,10 @@ export const AnswerForm = ({
                         summary: t("label.transaction.arbitrationRequested"),
                     },
                     receipt: {
-                        ...receipt,
+                        from: receipt.from,
+                        transactionIndex: receipt.transactionIndex,
+                        blockHash: receipt.blockHash,
+                        transactionHash: receipt.transactionHash,
                         to: receipt.to || zeroAddress,
                         contractAddress: receipt.contractAddress || zeroAddress,
                         blockNumber: Number(receipt.blockNumber),
@@ -574,7 +594,10 @@ export const AnswerForm = ({
                         summary: t("label.transaction.winningsWithdrawn"),
                     },
                     receipt: {
-                        ...receipt,
+                        from: receipt.from,
+                        transactionIndex: receipt.transactionIndex,
+                        blockHash: receipt.blockHash,
+                        transactionHash: receipt.transactionHash,
                         to: receipt.to || zeroAddress,
                         contractAddress: receipt.contractAddress || zeroAddress,
                         blockNumber: Number(receipt.blockNumber),
@@ -620,11 +643,11 @@ export const AnswerForm = ({
                 </div>
             )}
             <div className="flex flex-col md:flex-row justify-between">
-                <div className="w-full flex border-b dark:border-white">
+                <div className="w-full flex border-b border-black dark:border-white">
                     <QuestionInfo
                         label={t("label.question.arbitrator")}
                         className={{
-                            root: "border-r-0 md:border-r dark:border-white",
+                            root: "border-r-0 md:border-r border-black dark:border-white",
                         }}
                     >
                         <Arbitrator address={question.arbitrator} />
@@ -639,11 +662,11 @@ export const AnswerForm = ({
                         {!question.bounty.isZero() && chain?.id ? <></> : "-"}
                     </QuestionInfo> */}
                 </div>
-                <div className="w-full flex border-b dark:border-white">
+                <div className="w-full flex border-b border-black dark:border-white">
                     <QuestionInfo
                         label={t("label.question.timeout")}
                         className={{
-                            root: "border-r-0 md:border-r dark:border-white",
+                            root: "border-r-0 md:border-r border-black dark:border-white",
                         }}
                     >
                         <Typography>
@@ -651,10 +674,12 @@ export const AnswerForm = ({
                         </Typography>
                     </QuestionInfo>
                 </div>
-                <div className="w-full flex border-b dark:border-white">
+                <div className="w-full flex border-b border-black dark:border-white">
                     <QuestionInfo
                         label={t("label.question.oracleLink")}
-                        className={{ root: "border-r-0 dark:border-white" }}
+                        className={{
+                            root: "border-r-0 border-black dark:border-white",
+                        }}
                     >
                         <a
                             className="flex gap-1 items-center"
@@ -678,10 +703,12 @@ export const AnswerForm = ({
                     loadingQuestion={loadingQuestion}
                 />
             )}
-            <div className="border-b dark:border-white">
+            <div className="border-b border-black dark:border-white">
                 <QuestionInfo
                     label={t("label.question.question")}
-                    className={{ root: "border-r-0 dark:border-white" }}
+                    className={{
+                        root: "border-r-0 border-black dark:border-white",
+                    }}
                 >
                     {loadingContent ? (
                         <Skeleton width="100px" />
