@@ -8,15 +8,19 @@ import { type Address } from "viem";
 export enum SupportedChainId {
     GNOSIS = ChainId.GNOSIS,
     SEPOLIA = ChainId.SEPOLIA,
+    SCROLL_TESTNET = ChainId.SCROLL_TESTNET,
 }
 
 export const TRUSTED_REALITY_ARBITRATORS: Record<SupportedChainId, Address> = {
     [SupportedChainId.GNOSIS]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0xe37AA274d1bb3815b63cd13064dE443423F74316",
+        : "0xc5A7605f4C82be84950761131831EB027696A5f4",
     [SupportedChainId.SEPOLIA]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0x96073897873796d1950B1B04Fe2Ead8E0CA34914",
+        : "0x0Aee086EB282a59E4c564EDEdCb3d3DE5220b061",
+    [SupportedChainId.SCROLL_TESTNET]: __DEV__
+        ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
+        : "0x8Ed4b3029f591362411318aEB86EF3EC1fbfe0e5",
 };
 
 export const ARBITRATORS_BY_CHAIN: Record<
@@ -37,12 +41,20 @@ export const ARBITRATORS_BY_CHAIN: Record<
             icon: CarrotIcon,
         },
     ],
+    [SupportedChainId.SCROLL_TESTNET]: [
+        {
+            value: TRUSTED_REALITY_ARBITRATORS[SupportedChainId.SCROLL_TESTNET],
+            label: "Carrot guild",
+            icon: CarrotIcon,
+        },
+    ],
 };
 
 export const SUBGRAPH_URL: Record<SupportedChainId, string | null> = {
     [SupportedChainId.GNOSIS]:
         "https://api.thegraph.com/subgraphs/name/realityeth/realityeth-xdai",
     [SupportedChainId.SEPOLIA]: null,
+    [SupportedChainId.SCROLL_TESTNET]: null,
 };
 
 interface TimeoutOption {

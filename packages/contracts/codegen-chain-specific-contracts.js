@@ -10,7 +10,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const REALITYV3_ADDRESS = {
     [ChainId.SEPOLIA]: "0x64a0745EF9d3772d9739D9350873eD3703bE45eC",
     [ChainId.GNOSIS]: "0xE78996A233895bE74a66F451f1019cA9734205cc",
-    [ChainId.ARBITRUM_GOERLI]: "0x14a6748192aBC6E10CA694Ae07bDd4327D6c7A51",
+    [ChainId.SCROLL_TESTNET]: "0x4300d4C410f87c7c1824Cbc2eF67431030106604",
 };
 
 const [, , chainId] = process.argv;
