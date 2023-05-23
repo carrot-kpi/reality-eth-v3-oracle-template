@@ -10,6 +10,7 @@
         "lint": "./fmt.js lint",
         "format": "./fmt.js format",
         "build": "forge build",
+        "build:production": "FOUNDRY_PROFILE=production forge build",
         "test": "forge test",
         "coverage": "forge coverage",
         "codegen-chain-specific-contracts": "./codegen-chain-specific-contracts.js"

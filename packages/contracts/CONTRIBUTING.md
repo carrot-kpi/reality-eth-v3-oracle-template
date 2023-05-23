@@ -73,7 +73,7 @@ doing that, you can finally execute the following command to initiate the
 deployment:
 
 ```
-forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPOINT ./scripts/Deploy.sol
+FOUNDRY_PROFILE=production forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPOINT Deploy
 ```
 
 ### Deploying the trusted arbitrator
@@ -106,7 +106,7 @@ doing that, you can finally execute the following command to initiate the
 deployment:
 
 ```
-forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPOINT --sig 'run(string,uint256)' ./scripts/DeployArbitrator.sol $METADATA $QUESTION_FEE
+FOUNDRY_PROFILE=production forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPOINT --sig 'run(string,uint256)' DeployArbitrator $METADATA $QUESTION_FEE
 ```
 
 ### Setting the trusted arbitrator creation fee
@@ -138,5 +138,5 @@ doing that, you can finally execute the following command to initiate the
 deployment:
 
 ```
-forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPOINT --sig 'run(address,uint256)' ./scripts/SetArbitratorQuestionFee.sol $ARBITRATOR $QUESTION_FEE
+FOUNDRY_PROFILE=production forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPOINT --sig 'run(address,uint256)' SetArbitratorQuestionFee $ARBITRATOR $QUESTION_FEE
 ```
