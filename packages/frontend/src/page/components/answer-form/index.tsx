@@ -284,7 +284,7 @@ export const AnswerForm = ({
             claimWinningsPayload.answerers.length > 0 &&
             claimWinningsPayload.bonds.length > 0 &&
             claimWinningsPayload.responses.length > 0 &&
-            (BigInt(question.historyHash) !== 0n ||
+            (question.historyHash !== BYTES32_ZERO ||
                 withdrawableBalance !== 0n) &&
             !isAnswerMissing(question),
     });
