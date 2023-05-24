@@ -203,18 +203,21 @@ export const AnswerForm = ({
     });
 
     const { config: submitAnswerConfig } = usePrepareContractWrite({
+        chainId: chain?.id,
         address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "submitAnswer",
         args: [question.id, answer as Hex, 0n],
         value: finalBond,
-        enabled: !!answer && !!finalBond && finalBond >= minimumBond,
+        enabled:
+            !!chain?.id && !!answer && !!finalBond && finalBond >= minimumBond,
     });
     const { writeAsync: postAnswerAsync } =
         useContractWrite(submitAnswerConfig);
 
     const finalized = isQuestionFinalized(question);
     const { config: reopenQuestionConfig } = usePrepareContractWrite({
+        chainId: chain?.id,
         address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "reopenQuestion",
@@ -229,21 +232,27 @@ export const AnswerForm = ({
             question.reopenedId || question.id,
         ],
         value: 0n,
-        enabled: finalized && isAnsweredTooSoon(question),
+        enabled: !!chain?.id && finalized && isAnsweredTooSoon(question),
     });
     const { writeAsync: reopenAnswerAsync } =
         useContractWrite(reopenQuestionConfig);
 
     const { config: finalizeOracleConfig } = usePrepareContractWrite({
+        chainId: chain?.id,
         address: oracle.address,
         abi: REALITY_ORACLE_V3_ABI,
         functionName: "finalize",
-        enabled: finalized && !oracle.finalized && !isAnsweredTooSoon(question),
+        enabled:
+            !!chain?.id &&
+            finalized &&
+            !oracle.finalized &&
+            !isAnsweredTooSoon(question),
     });
     const { writeAsync: finalizeOracleAsync } =
         useContractWrite(finalizeOracleConfig);
 
     const { config: requestArbitrationConfig } = usePrepareContractWrite({
+        chainId: chain?.id,
         address:
             !!chain && chain.id && chain.id in SupportedChainId
                 ? TRUSTED_REALITY_ARBITRATORS[chain.id as SupportedChainId]
@@ -265,6 +274,7 @@ export const AnswerForm = ({
     );
 
     const { config: claimMultipleAndWithdrawConfig } = usePrepareContractWrite({
+        chainId: chain?.id,
         address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "claimMultipleAndWithdrawBalance",
@@ -277,6 +287,7 @@ export const AnswerForm = ({
             claimWinningsPayload.responses,
         ],
         enabled:
+            !!chain?.id &&
             !!question.id &&
             finalized &&
             !!claimWinningsPayload &&
