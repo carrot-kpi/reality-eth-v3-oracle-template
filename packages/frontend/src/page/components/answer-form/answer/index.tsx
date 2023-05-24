@@ -27,6 +27,7 @@ const answerBoxStyles = cva(
         "md:flex-row",
         "justify-between",
         "border-r-0",
+        "border-black",
         "dark:border-white",
     ],
     {
@@ -39,7 +40,13 @@ const answerBoxStyles = cva(
 );
 
 const bondBoxStyles = cva(
-    ["w-full", "border-b", "md:border-b-0", "dark:border-white"],
+    [
+        "w-full",
+        "border-b",
+        "md:border-b-0",
+        "border-black",
+        "dark:border-white",
+    ],
     {
         variants: {
             pendingArbitration: {
