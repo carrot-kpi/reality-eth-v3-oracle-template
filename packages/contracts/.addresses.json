@@ -1,10 +1,14 @@
 {
     "11155111": {
-		"template": "0xc8000f0CC97e5661DCC096a2dE5aCf5f55F04f29",
-        "arbitrator": "0x96073897873796d1950B1B04Fe2Ead8E0CA34914"
+		"template": "0x2F8e3C513aB9e75D9E2B8F4C683E2577c908a411",
+        "arbitrator": "0x54ca9Bc25Fd623c94f5E1db4f7CEe846513AA844"
     },
     "100": {
-		"template": "0x2A447682071e7B53c19e68Aab15986ddADE9b984",
-        "arbitrator": "0xe37AA274d1bb3815b63cd13064dE443423F74316"
+		"template": "0xB65Bd5941e8bF11d7F0eF098BFd08CDD30841797 ",
+        "arbitrator": "0xFC4AB7D9D2bD20Bd2F518ef47b8160d95BD2Ac16"
+    },
+    "534353": {
+		"template": "0x7528a83Ea462C8D9464efEc73A0530ddD6Dc004D",
+        "arbitrator": "0x87d24272071593B4a7907fd133E74EC30025D4F9"
     }
 }
