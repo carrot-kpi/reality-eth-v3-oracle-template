@@ -867,44 +867,57 @@ export default [
         name: "questions",
         outputs: [
             {
-                internalType: "bytes32",
-                name: "content_hash",
-                type: "bytes32",
+                components: [
+                    {
+                        internalType: "bytes32",
+                        name: "content_hash",
+                        type: "bytes32",
+                    },
+                    {
+                        internalType: "address",
+                        name: "arbitrator",
+                        type: "address",
+                    },
+                    {
+                        internalType: "uint32",
+                        name: "opening_ts",
+                        type: "uint32",
+                    },
+                    { internalType: "uint32", name: "timeout", type: "uint32" },
+                    {
+                        internalType: "uint32",
+                        name: "finalize_ts",
+                        type: "uint32",
+                    },
+                    {
+                        internalType: "bool",
+                        name: "is_pending_arbitration",
+                        type: "bool",
+                    },
+                    {
+                        internalType: "uint256",
+                        name: "bounty",
+                        type: "uint256",
+                    },
+                    {
+                        internalType: "bytes32",
+                        name: "best_answer",
+                        type: "bytes32",
+                    },
+                    {
+                        internalType: "bytes32",
+                        name: "history_hash",
+                        type: "bytes32",
+                    },
+                    { internalType: "uint256", name: "bond", type: "uint256" },
+                    {
+                        internalType: "uint256",
+                        name: "min_bond",
+                        type: "uint256",
+                    },
+                ],
+                type: "tuple",
             },
-            {
-                internalType: "address",
-                name: "arbitrator",
-                type: "address",
-            },
-            {
-                internalType: "uint32",
-                name: "opening_ts",
-                type: "uint32",
-            },
-            { internalType: "uint32", name: "timeout", type: "uint32" },
-            {
-                internalType: "uint32",
-                name: "finalize_ts",
-                type: "uint32",
-            },
-            {
-                internalType: "bool",
-                name: "is_pending_arbitration",
-                type: "bool",
-            },
-            { internalType: "uint256", name: "bounty", type: "uint256" },
-            {
-                internalType: "bytes32",
-                name: "best_answer",
-                type: "bytes32",
-            },
-            {
-                internalType: "bytes32",
-                name: "history_hash",
-                type: "bytes32",
-            },
-            { internalType: "uint256", name: "bond", type: "uint256" },
-            { internalType: "uint256", name: "min_bond", type: "uint256" },
         ],
         stateMutability: "view",
         type: "function",

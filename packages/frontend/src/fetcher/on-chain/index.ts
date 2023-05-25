@@ -66,26 +66,36 @@ class Fetcher implements IPartialFetcher {
         if (reopenedQuestionId && reopenedQuestionId !== BYTES32_ZERO)
             finalQuestionId = reopenedQuestionId;
 
-        const realityV3Question = await realityContract.read.questions([
-            finalQuestionId,
-        ]);
+        const {
+            content_hash,
+            arbitrator,
+            opening_ts,
+            timeout,
+            finalize_ts,
+            is_pending_arbitration,
+            bounty,
+            best_answer,
+            history_hash,
+            bond,
+            min_bond,
+        } = await realityContract.read.questions([finalQuestionId]);
 
         return {
             id: finalQuestionId,
             reopenedId: questionId === finalQuestionId ? undefined : questionId,
             templateId: Number(templateId),
             content: question,
-            contentHash: realityV3Question[0],
-            arbitrator: realityV3Question[1],
-            openingTimestamp: realityV3Question[2],
-            timeout: realityV3Question[3],
-            finalizationTimestamp: realityV3Question[4],
-            pendingArbitration: realityV3Question[5],
-            bounty: realityV3Question[6],
-            bestAnswer: realityV3Question[7],
-            historyHash: realityV3Question[8],
-            bond: realityV3Question[9],
-            minBond: realityV3Question[10],
+            contentHash: content_hash,
+            arbitrator,
+            openingTimestamp: opening_ts,
+            timeout: timeout,
+            finalizationTimestamp: finalize_ts,
+            pendingArbitration: is_pending_arbitration,
+            bounty,
+            bestAnswer: best_answer,
+            historyHash: history_hash,
+            bond: bond,
+            minBond: min_bond,
         };
     }
 
