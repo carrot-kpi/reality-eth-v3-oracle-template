@@ -27,6 +27,7 @@ const answerBoxStyles = cva(
         "md:flex-row",
         "justify-between",
         "border-r-0",
+        "border-black",
         "dark:border-white",
     ],
     {
@@ -39,7 +40,13 @@ const answerBoxStyles = cva(
 );
 
 const bondBoxStyles = cva(
-    ["w-full", "border-b", "md:border-b-0", "dark:border-white"],
+    [
+        "w-full",
+        "border-b",
+        "md:border-b-0",
+        "border-black",
+        "dark:border-white",
+    ],
     {
         variants: {
             pendingArbitration: {
@@ -103,13 +110,13 @@ export const Answer = ({
     }
 
     return (
-        <div className="flex flex-col md:flex-row justify-between border-b-0 md:border-b dark:border-white">
+        <div className="flex flex-col md:flex-row justify-between border-b-0 md:border-b border-black dark:border-white">
             <div className={answerBoxStyles({ pendingArbitration })}>
                 <AnswerInfo
                     label={currentAnswerTitle}
                     className={
                         !pendingArbitration
-                            ? "border-b md:border-b-0 dark:border-white"
+                            ? "border-b md:border-b-0 border-black dark:border-white"
                             : undefined
                     }
                 >
@@ -123,7 +130,7 @@ export const Answer = ({
                     <AnswerInfo
                         label={t("label.answer.form.finalizingIn")}
                         className={
-                            "border-b md:border-b-0 border-r-0 dark:border-white"
+                            "border-b md:border-b-0 border-r-0 border-black dark:border-white"
                         }
                     >
                         {loadingQuestion ? (

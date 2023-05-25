@@ -10,11 +10,7 @@ import {
 } from "../../commons";
 import REALITY_ETH_V3_ABI from "../../abis/reality-eth-v3";
 import { enforce, isCID } from "@carrot-kpi/sdk";
-import {
-    RealityResponse,
-    OnChainRealityQuestion,
-    RealityQuestion,
-} from "../../page/types";
+import { RealityResponse, RealityQuestion } from "../../page/types";
 import {
     decodeAbiParameters,
     getContract,
@@ -47,7 +43,7 @@ class Fetcher implements IPartialFetcher {
             !isCID(cid) ||
             !templateId ||
             !REALITY_TEMPLATE_OPTIONS.find(
-                (validTemplate) => validTemplate.value === templateId
+                (validTemplate) => validTemplate.value === Number(templateId)
             )
         )
             return null;
@@ -82,25 +78,23 @@ class Fetcher implements IPartialFetcher {
             history_hash,
             bond,
             min_bond,
-        } = (await realityContract.read.questions([
-            finalQuestionId,
-        ])) as unknown as OnChainRealityQuestion;
+        } = await realityContract.read.questions([finalQuestionId]);
 
         return {
             id: finalQuestionId,
             reopenedId: questionId === finalQuestionId ? undefined : questionId,
-            historyHash: history_hash,
             templateId: Number(templateId),
             content: question,
             contentHash: content_hash,
             arbitrator,
-            timeout,
             openingTimestamp: opening_ts,
+            timeout: timeout,
             finalizationTimestamp: finalize_ts,
             pendingArbitration: is_pending_arbitration,
             bounty,
             bestAnswer: best_answer,
-            bond,
+            historyHash: history_hash,
+            bond: bond,
             minBond: min_bond,
         };
     }
@@ -125,16 +119,22 @@ class Fetcher implements IPartialFetcher {
                 const newAnwersEventLogs = await publicClient.getLogs({
                     address: realityV3Address,
                     event: parseAbiItem(
-                        "event LogNewAnswer(bytes32,bytes32,bytes32,address,uint256,uint256,bool)"
+                        "event LogNewAnswer(bytes32 answer,bytes32 indexed question_id,bytes32 history_hash,address indexed user,uint256 bond,uint256 ts,bool is_commitment)"
                     ),
+                    args: {
+                        question_id: questionId,
+                    },
                     fromBlock,
                     toBlock,
                 });
                 const newQuestionEventLogs = await publicClient.getLogs({
                     address: realityV3Address,
                     event: parseAbiItem(
-                        "event LogNewQuestion(bytes32,address,uint256,string,bytes32,address,uint32,uint32,uint256,uint256)"
+                        "event LogNewQuestion(bytes32 indexed question_id,address indexed user,uint256 template_id,string question,bytes32 indexed content_hash,address arbitrator,uint32 timeout,uint32 opening_ts,uint256 nonce,uint256 created)"
                     ),
+                    args: {
+                        question_id: questionId,
+                    },
                     fromBlock,
                     toBlock,
                 });
