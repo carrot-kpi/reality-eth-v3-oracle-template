@@ -29,7 +29,13 @@ export const startPlayground = async (
     ]);
 
     const templateDevServer = new WebpackDevServer(
-        { port: "auto", open: false },
+        {
+            port: "auto",
+            open: false,
+            headers: {
+                "Access-Control-Allow-Origin": "*",
+            },
+        },
         templateCompiler
     );
 

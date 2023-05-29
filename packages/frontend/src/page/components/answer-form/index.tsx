@@ -72,6 +72,8 @@ import Danger from "../../../assets/danger";
 import {
     bytesToHex,
     formatUnits,
+    isHex,
+    numberToHex,
     parseUnits,
     toBytes,
     zeroAddress,
@@ -331,7 +333,11 @@ export const AnswerForm = ({
             return setAnswer(ANSWERED_TOO_SOON_REALITY_ANSWER);
         if (moreOptionValue.invalid) return setAnswer(INVALID_REALITY_ANSWER);
         if (booleanValue)
-            return setAnswer(bytesToHex(toBytes(booleanValue, { size: 32 })));
+            return setAnswer(
+                isHex(booleanValue)
+                    ? booleanValue
+                    : numberToHex(Number(booleanValue), { size: 32 })
+            );
         if (!isNaN(parseFloat(numberValue.value)))
             return setAnswer(
                 bytesToHex(
