@@ -3648,15 +3648,15 @@
   resolved "https://registry.yarnpkg.com/@wagmi/chains/-/chains-0.2.16.tgz#a726716e4619ec1c192b312e23f9c38407617aa0"
   integrity sha512-rkWaI2PxCnbD8G07ZZff5QXftnSkYL0h5f4DkHCG3fGYYr/ZDvmCL4bMae7j7A9sAif1csPPBmbCzHp3R5ogCQ==
 
-"@wagmi/chains@0.2.25":
-  version "0.2.25"
-  resolved "https://registry.yarnpkg.com/@wagmi/chains/-/chains-0.2.25.tgz#44614a07399bcebb6651899d8116475e4a87e875"
-  integrity sha512-Gah0bgR+14navwxi7xTL2oFB8YgK4qoBPye1b8ucccIwF3Z8Zg1u2gVTDFAyPT4lyB+ZVqwYKs3Y/IkFNG5O4Q==
+"@wagmi/chains@0.3.1":
+  version "0.3.1"
+  resolved "https://registry.yarnpkg.com/@wagmi/chains/-/chains-0.3.1.tgz#5d8e8ef1bcd8637c9f3ead8626595b12a01c35e4"
+  integrity sha512-NN5qziBLFeXnx0+3ywdiKKXUSW4H73Wc1jRrygl9GKXVPawU0GBMudwXUfV7VOu6E9vmG7Arj0pVsEwq63b2Ew==
 
-"@wagmi/connectors@1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@wagmi/connectors/-/connectors-1.0.5.tgz#1fbd440b4ee7e01882a61c33be33d7bd7057483a"
-  integrity sha512-fsnaeRv1/9Ec0n2J2W0JVUV3dvv9FoiCPCiY0I1MVJxadPn9x9h9/x69NyVsx+kUdhohKUNCbPlD3lrGg5c/Fg==
+"@wagmi/connectors@2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@wagmi/connectors/-/connectors-2.0.0.tgz#558a7bc8b2d5f08a2c10fd14b3126adad12d1717"
+  integrity sha512-W7GFLdLaJiqISm65pwoe0DePLjL3klyugCwQwlunFXHNHvYSsoWkzDjb1H5XJwx9g+dTVNwJVg8TE7WfaUdilg==
   dependencies:
     "@coinbase/wallet-sdk" "^3.6.6"
     "@ledgerhq/connect-kit-loader" "^1.0.1"
@@ -3668,14 +3668,14 @@
     abitype "0.8.1"
     eventemitter3 "^4.0.7"
 
-"@wagmi/core@1.0.6":
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/@wagmi/core/-/core-1.0.6.tgz#db1204d05c02cf5b98cc8c04f3253f072c2a943a"
-  integrity sha512-OYcHXS2s76CgN+kOzA1EgxvmkN+yZxjb+0PeBqdRyClnajPJ69MmVRKkWgZdLDdy2JIthPyT7mIrbW1VW+mw7w==
+"@wagmi/core@1.0.8":
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/@wagmi/core/-/core-1.0.8.tgz#c123507b0104dc1ccbc88664d0c7aae74e67e002"
+  integrity sha512-0NknHYf7KivPK9PXzfWP2zxNeHG9kDZEW3NXRQ7Wyd4l6LiX3pBMtHnb1grlqhzrirApqOwhzViyRaznl3IwCg==
   dependencies:
-    "@wagmi/chains" "0.2.25"
-    "@wagmi/connectors" "1.0.5"
-    abitype "0.8.1"
+    "@wagmi/chains" "0.3.1"
+    "@wagmi/connectors" "2.0.0"
+    abitype "0.8.2"
     eventemitter3 "^4.0.7"
     zustand "^4.3.1"
 
@@ -5335,15 +5335,15 @@ css-in-js-utils@^3.1.0:
   dependencies:
     hyphenate-style-name "^1.0.3"
 
-css-loader@^6.7.4:
-  version "6.7.4"
-  resolved "https://registry.yarnpkg.com/css-loader/-/css-loader-6.7.4.tgz#a5d8ec28a73f3e0823998cfee2a1f7e564b91f9b"
-  integrity sha512-0Y5uHtK5BswfaGJ+jrO+4pPg1msFBc0pwPIE1VqfpmVn6YbDfYfXMj8rfd7nt+4goAhJueO+H/I40VWJfcP1mQ==
+css-loader@^6.8.1:
+  version "6.8.1"
+  resolved "https://registry.yarnpkg.com/css-loader/-/css-loader-6.8.1.tgz#0f8f52699f60f5e679eab4ec0fcd68b8e8a50a88"
+  integrity sha512-xDAXtEVGlD0gJ07iclwWVkLoZOpEvAWaSyf6W18S2pOC//K8+qUDIx8IIT3D+HjnmkJPQeesOPv5aiUaJsCM2g==
   dependencies:
     icss-utils "^5.1.0"
     postcss "^8.4.21"
     postcss-modules-extract-imports "^3.0.0"
-    postcss-modules-local-by-default "^4.0.1"
+    postcss-modules-local-by-default "^4.0.3"
     postcss-modules-scope "^3.0.0"
     postcss-modules-values "^4.0.0"
     postcss-value-parser "^4.2.0"
@@ -9712,10 +9712,10 @@ postcss-load-config@^4.0.1:
     lilconfig "^2.0.5"
     yaml "^2.1.1"
 
-postcss-loader@^7.3.0:
-  version "7.3.0"
-  resolved "https://registry.yarnpkg.com/postcss-loader/-/postcss-loader-7.3.0.tgz#05991c1e490d8ff86ef18358d87db3b5b2dcb5f5"
-  integrity sha512-qLAFjvR2BFNz1H930P7mj1iuWJFjGey/nVhimfOAAQ1ZyPpcClAxP8+A55Sl8mBvM+K2a9Pjgdj10KpANWrNfw==
+postcss-loader@^7.3.2:
+  version "7.3.2"
+  resolved "https://registry.yarnpkg.com/postcss-loader/-/postcss-loader-7.3.2.tgz#ac3344ad1f14bb65df135744b7efae4dbdad4301"
+  integrity sha512-c7qDlXErX6n0VT+LUsW+nwefVtTu3ORtVvK8EXuUIDcxo+b/euYqpuHlJAvePb0Af5e8uMjR/13e0lTuYifaig==
   dependencies:
     cosmiconfig "^8.1.3"
     jiti "^1.18.2"
@@ -9777,7 +9777,7 @@ postcss-modules-extract-imports@^3.0.0:
   resolved "https://registry.yarnpkg.com/postcss-modules-extract-imports/-/postcss-modules-extract-imports-3.0.0.tgz#cda1f047c0ae80c97dbe28c3e76a43b88025741d"
   integrity sha512-bdHleFnP3kZ4NYDhuGlVK+CMrQ/pqUm8bx/oGL93K6gVwiclvX5x0n76fYMKuIGKzlABOy13zsvqjb0f92TEXw==
 
-postcss-modules-local-by-default@^4.0.1:
+postcss-modules-local-by-default@^4.0.3:
   version "4.0.3"
   resolved "https://registry.yarnpkg.com/postcss-modules-local-by-default/-/postcss-modules-local-by-default-4.0.3.tgz#b08eb4f083050708998ba2c6061b50c2870ca524"
   integrity sha512-2/u2zraspoACtrbFRnTijMiQtb4GW4BvatjaG/bCjYQo8kLTdevCUlwuBHx2sCnSyrI3x3qj4ZK1j5LQBgzmwA==
@@ -9929,6 +9929,15 @@ postcss@^8.3.11, postcss@^8.4.21, postcss@^8.4.23:
   version "8.4.23"
   resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.23.tgz#df0aee9ac7c5e53e1075c24a3613496f9e6552ab"
   integrity sha512-bQ3qMcpF6A/YjR55xtoTr0jGOlnPOKAIMdOWiv0EIT6HVPEaJiJB4NLljSbiHoC2RX7DN5Uvjtpbg1NPdwv1oA==
+  dependencies:
+    nanoid "^3.3.6"
+    picocolors "^1.0.0"
+    source-map-js "^1.0.2"
+
+postcss@^8.4.24:
+  version "8.4.24"
+  resolved "https://registry.yarnpkg.com/postcss/-/postcss-8.4.24.tgz#f714dba9b2284be3cc07dbd2fc57ee4dc972d2df"
+  integrity sha512-M0RzbcI0sO/XJNucsGjvWU9ERWxb/ytp1w6dKtxTKgixdtQDq4rmx/g8W1hnaheq9jgwL/oyEdH5Bc4WwJKMqg==
   dependencies:
     nanoid "^3.3.6"
     picocolors "^1.0.0"
@@ -12142,6 +12151,21 @@ viem@^0.3.36:
     isomorphic-ws "5.0.0"
     ws "8.12.0"
 
+viem@^0.3.37:
+  version "0.3.37"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-0.3.37.tgz#0426863c52f4b77547bd3216b8ac66e32a38dda5"
+  integrity sha512-17jycP/1Hy9DsDpHlaaI7bbAHBDYGfVYHN6j0ltE7A/S30RXhPVFe4LAPRfmG+xR2QBq8xSUpjO78cRgDLBjZQ==
+  dependencies:
+    "@adraffy/ens-normalize" "1.9.0"
+    "@noble/curves" "1.0.0"
+    "@noble/hashes" "1.3.0"
+    "@scure/bip32" "1.3.0"
+    "@scure/bip39" "1.2.0"
+    "@wagmi/chains" "0.3.1"
+    abitype "0.8.2"
+    isomorphic-ws "5.0.0"
+    ws "8.12.0"
+
 void-elements@3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/void-elements/-/void-elements-3.1.0.tgz#614f7fbf8d801f0bb5f0661f5b2f5785750e4f09"
@@ -12159,16 +12183,16 @@ w3c-xmlserializer@^4.0.0:
   dependencies:
     xml-name-validator "^4.0.0"
 
-wagmi@^1.0.5:
-  version "1.0.6"
-  resolved "https://registry.yarnpkg.com/wagmi/-/wagmi-1.0.6.tgz#e40ba28e7bff70a0f6ce9b2c1b376e1468189b92"
-  integrity sha512-lagpdFyms43+80wwHPElXhW8QXZSH/nKesfcuFdhA3iCQ9cCksj8xrMoEcmuno3zrUaN85X5bn72QgKQNfOYNQ==
+wagmi@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/wagmi/-/wagmi-1.0.8.tgz#c51b001c9f0949a10d26bac1defe7e2e1b7d1b89"
+  integrity sha512-xcDTt9vyy6R9kP7Yk4G+qGDDcqVmULXisAIFf2G6tekk1u9YWcUuqOYQAG8H7AS0Kz1hPYJech3ge1UGuoF3fg==
   dependencies:
     "@tanstack/query-sync-storage-persister" "^4.27.1"
     "@tanstack/react-query" "^4.28.0"
     "@tanstack/react-query-persist-client" "^4.28.0"
-    "@wagmi/core" "1.0.6"
-    abitype "0.8.1"
+    "@wagmi/core" "1.0.8"
+    abitype "0.8.2"
     use-sync-external-store "^1.2.0"
 
 walker@^1.0.8:
@@ -12274,10 +12298,10 @@ webpack-sources@^3.2.3:
   resolved "https://registry.yarnpkg.com/webpack-sources/-/webpack-sources-3.2.3.tgz#2d4daab8451fd4b240cc27055ff6a0c2ccea0cde"
   integrity sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==
 
-webpack@^5.84.0:
-  version "5.84.0"
-  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.84.0.tgz#011115617668744aece87a9eb68534487d84de1a"
-  integrity sha512-XezNK3kwJq6IyeoZmZ1uEqQs+42nTqIi4jYM/YjLwaJedUC1N3bwnCC0+UcnHJPfqWX0kGrQnMIvZZyWYaIZrA==
+webpack@^5.84.1:
+  version "5.84.1"
+  resolved "https://registry.yarnpkg.com/webpack/-/webpack-5.84.1.tgz#d4493acdeca46b26ffc99d86d784cabfeb925a15"
+  integrity sha512-ZP4qaZ7vVn/K8WN/p990SGATmrL1qg4heP/MrVneczYtpDGJWlrgZv55vxaV2ul885Kz+25MP2kSXkPe3LZfmg==
   dependencies:
     "@types/eslint-scope" "^3.7.3"
     "@types/estree" "^1.0.0"
