@@ -100,7 +100,8 @@ export const Component = ({
     );
     const [realityTemplateId, setRealityTemplateId] =
         useState<SelectOption | null>(
-            state.realityTemplateId
+            state.realityTemplateId !== null &&
+                state.realityTemplateId !== undefined
                 ? REALITY_TEMPLATE_OPTIONS.find(
                       (option) => option.value === state.realityTemplateId
                   ) || null
