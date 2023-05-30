@@ -30,21 +30,21 @@ export const ARBITRATORS_BY_CHAIN: Record<
     [SupportedChainId.SEPOLIA]: [
         {
             value: TRUSTED_REALITY_ARBITRATORS[SupportedChainId.SEPOLIA],
-            label: "Carrot guild",
+            label: "Carrot",
             icon: CarrotIcon,
         },
     ],
     [SupportedChainId.GNOSIS]: [
         {
             value: TRUSTED_REALITY_ARBITRATORS[SupportedChainId.GNOSIS],
-            label: "Carrot guild",
+            label: "Carrot",
             icon: CarrotIcon,
         },
     ],
     [SupportedChainId.SCROLL_TESTNET]: [
         {
             value: TRUSTED_REALITY_ARBITRATORS[SupportedChainId.SCROLL_TESTNET],
-            label: "Carrot guild",
+            label: "Carrot",
             icon: CarrotIcon,
         },
     ],
