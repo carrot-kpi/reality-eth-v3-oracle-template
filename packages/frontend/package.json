@@ -27,7 +27,7 @@
     "devDependencies": {
         "@carrot-kpi/host-frontend": "^0.7.0",
         "@carrot-kpi/switzer-font": "^0.1.0",
-        "@commitlint/cli": "^17.6.3",
+        "@commitlint/cli": "^17.6.5",
         "@svgr/webpack": "^8.0.1",
         "@testing-library/jest-dom": "^5.16.5",
         "@testing-library/react": "^14.0.0",
@@ -68,7 +68,7 @@
         "@carrot-kpi/react": "^0.47.0",
         "@carrot-kpi/sdk": "^1.27.3",
         "@carrot-kpi/shared-state": "^0.3.1",
-        "@carrot-kpi/ui": "^0.45.3",
+        "@carrot-kpi/ui": "^0.46.0",
         "@fontsource/ibm-plex-mono": "^5.0.1",
         "class-variance-authority": "^0.6.0",
         "dayjs": "^1.11.7",
@@ -77,8 +77,8 @@
         "react-dom": "^18.2.0",
         "react-i18next": "^12.3.1",
         "rimraf": "^5.0.1",
-        "viem": "^0.3.37",
-        "wagmi": "^1.0.8"
+        "viem": "^0.3.39",
+        "wagmi": "^1.0.9"
     },
     "browserslist": {
         "production": [
