@@ -654,7 +654,7 @@ export const AnswerForm = ({
     return (
         <div className="flex flex-col">
             {kpiToken.expired && !oracle.finalized && (
-                <div className="p-6 flex gap-3 items-center border-b bg-orange/40 dark:border-white">
+                <div className="p-6 flex gap-3 items-center border-b border-black bg-orange/40 dark:border-white">
                     <Danger width={36} height={36} />
                     <Typography>{t("label.question.kpiExpired")}</Typography>
                 </div>
