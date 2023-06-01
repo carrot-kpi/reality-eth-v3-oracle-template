@@ -18,7 +18,7 @@ export const ArbitratorOption = ({
             {!disputeFee ? (
                 <Skeleton width="50px" />
             ) : (
-                <Typography>{`${disputeFee} (${chain?.nativeCurrency.symbol})`}</Typography>
+                <Typography>{`${disputeFee} ${chain?.nativeCurrency.symbol}`}</Typography>
             )}
         </div>
     );
