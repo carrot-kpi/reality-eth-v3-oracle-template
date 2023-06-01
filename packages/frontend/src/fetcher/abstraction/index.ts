@@ -20,7 +20,7 @@ export interface FetchAnswersHistoryParams {
     questionId?: Hex;
 }
 
-export interface FetchAnswersHistoryParams {
+export interface FetchClaimableQuestionsParams {
     publicClient: PublicClient;
     realityV3Address?: Address;
     questionId?: Hex;
@@ -34,6 +34,10 @@ export interface IPartialFetcher {
     fetchAnswersHistory(
         params: FetchAnswersHistoryParams
     ): Promise<RealityResponse[] | null>;
+
+    fetchClaimableQuestions(
+        params: FetchClaimableQuestionsParams
+    ): Promise<Hex[]>;
 }
 
 export interface DecentralizationParams {
@@ -46,7 +50,10 @@ export type FullFetcherFetchQuestionParams =
     WithDecentralizationParams<FetchQuestionParams>;
 
 export type FullFetcherFetchAnswersHistoryParams =
-    WithDecentralizationParams<FetchQuestionParams>;
+    WithDecentralizationParams<FetchAnswersHistoryParams>;
+
+export type FullFetcherFetchClaimableQuestionsParams =
+    WithDecentralizationParams<FetchClaimableQuestionsParams>;
 
 export interface IFullFetcher {
     fetchQuestion(
@@ -56,4 +63,8 @@ export interface IFullFetcher {
     fetchAnswersHistory(
         params: FullFetcherFetchAnswersHistoryParams
     ): Promise<RealityResponse[]>;
+
+    fetchClaimableQuestions(
+        params: FullFetcherFetchClaimableQuestionsParams
+    ): Promise<Hex[]>;
 }

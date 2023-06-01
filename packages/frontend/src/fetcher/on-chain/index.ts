@@ -1,6 +1,7 @@
 import {
     FetchAnswersHistoryParams,
     FetchQuestionParams,
+    FetchClaimableQuestionsParams,
     IPartialFetcher,
 } from "../abstraction";
 import {
@@ -17,6 +18,7 @@ import {
     getEventSelector,
     parseAbiItem,
 } from "viem";
+import { type Hex } from "viem";
 
 const LOGS_BLOCKS_SIZE = __DEV__ ? 10n : 5_000n;
 const NEW_QUESTION_LOG_TOPIC = getEventSelector(
@@ -174,7 +176,7 @@ class Fetcher implements IPartialFetcher {
                         shouldBreak = true;
                 }
                 if (shouldBreak) break;
-                toBlock = fromBlock;
+                toBlock = fromBlock - 1n;
                 fromBlock = fromBlock - LOGS_BLOCKS_SIZE;
             }
         } catch (error) {
@@ -183,6 +185,192 @@ class Fetcher implements IPartialFetcher {
         return answersFromLogs.sort((a, b) => {
             return Number(a.timestamp - b.timestamp);
         });
+    }
+
+    public async fetchClaimableQuestions({
+        publicClient,
+        realityV3Address,
+        questionId,
+    }: FetchClaimableQuestionsParams): Promise<Hex[]> {
+        if (!realityV3Address || !questionId) return [];
+        const chainId = await publicClient.getChainId();
+        enforce(
+            chainId in SupportedChainId,
+            `unsupported chain with id ${chainId}`
+        );
+
+        const questionsHistoryFromLogs: {
+            block: bigint | null;
+            questionId: Hex;
+        }[] = [];
+
+        try {
+            let toBlock = await publicClient.getBlockNumber();
+            let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+            let shouldBreak = false;
+
+            const realityContract = getContract({
+                abi: REALITY_ETH_V3_ABI,
+                address: realityV3Address,
+                publicClient,
+            });
+            const reopenerQuestion =
+                await realityContract.read.reopener_questions([questionId]);
+
+            let originalReopenedQuestionId: Hex = questionId;
+
+            // avoid looking for an non existing reopened question event if the question id is not a reopener
+            if (reopenerQuestion) {
+                while (true) {
+                    const lastReopenedQuestionEventLogs =
+                        await publicClient.getLogs({
+                            address: realityV3Address,
+                            event: parseAbiItem(
+                                "event LogReopenQuestion(bytes32 indexed question_id,bytes32 indexed reopened_question_id)"
+                            ),
+                            args: {
+                                question_id: questionId,
+                            },
+                            fromBlock,
+                            toBlock,
+                        });
+
+                    // there's always a single reopen event for a question_id
+                    const lastReopenedQuestionEventLog =
+                        lastReopenedQuestionEventLogs[0];
+
+                    if (
+                        !lastReopenedQuestionEventLog ||
+                        !lastReopenedQuestionEventLog.topics[2]
+                    ) {
+                        toBlock = fromBlock - 1n;
+                        fromBlock = fromBlock - LOGS_BLOCKS_SIZE;
+                        continue;
+                    }
+
+                    // id of the reopened question, it's the same for each reopened event
+                    // since they all refer to the same question_id
+                    const [reopenedQuestionIdLog] = decodeAbiParameters(
+                        [
+                            {
+                                type: "bytes32",
+                                name: "reopened_question_id",
+                            },
+                        ],
+                        lastReopenedQuestionEventLog.topics[2]
+                    );
+
+                    if (reopenedQuestionIdLog) {
+                        originalReopenedQuestionId = reopenedQuestionIdLog;
+                        break;
+                    }
+                }
+            }
+
+            toBlock = await publicClient.getBlockNumber();
+            fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+
+            while (true) {
+                // get all reopened events for the previous reopened_question_id
+                const linkedReopenedQuestionEventLogs =
+                    await publicClient.getLogs({
+                        address: realityV3Address,
+                        event: parseAbiItem(
+                            "event LogReopenQuestion(bytes32 indexed question_id,bytes32 indexed reopened_question_id)"
+                        ),
+                        args: {
+                            reopened_question_id: originalReopenedQuestionId,
+                        },
+                        fromBlock,
+                        toBlock,
+                    });
+
+                // get the original new question event, used as a filter limit
+                const originalNewQuestionEventLogs = await publicClient.getLogs(
+                    {
+                        address: realityV3Address,
+                        event: parseAbiItem(
+                            "event LogNewQuestion(bytes32 indexed question_id,address indexed user,uint256 template_id,string question,bytes32 indexed content_hash,address arbitrator,uint32 timeout,uint32 opening_ts,uint256 nonce,uint256 created)"
+                        ),
+                        args: {
+                            question_id: originalReopenedQuestionId,
+                        },
+                        fromBlock,
+                        toBlock,
+                    }
+                );
+
+                for (const log of [
+                    ...originalNewQuestionEventLogs,
+                    ...linkedReopenedQuestionEventLogs,
+                ]) {
+                    if (!log.topics[1]) continue;
+
+                    // id of the new question, after the reopening
+                    const [questionId] = decodeAbiParameters(
+                        [
+                            {
+                                type: "bytes32",
+                                name: "question_id",
+                            },
+                        ],
+                        log.topics[1]
+                    );
+
+                    const newQuestionEventLogs = await publicClient.getLogs({
+                        address: realityV3Address,
+                        event: parseAbiItem(
+                            "event LogNewQuestion(bytes32 indexed question_id,address indexed user,uint256 template_id,string question,bytes32 indexed content_hash,address arbitrator,uint32 timeout,uint32 opening_ts,uint256 nonce,uint256 created)"
+                        ),
+                        args: {
+                            question_id: questionId,
+                        },
+                        fromBlock,
+                        toBlock,
+                    });
+
+                    // there's always a single new question event for a question_id
+                    const newQuestionEventLog = newQuestionEventLogs[0];
+                    if (!newQuestionEventLog || !newQuestionEventLog.topics[1])
+                        continue;
+
+                    const [questionIdFromNewEvent] = decodeAbiParameters(
+                        [
+                            {
+                                type: "bytes32",
+                                name: "question_id",
+                            },
+                        ],
+                        newQuestionEventLog.topics[1]
+                    );
+
+                    const question = await realityContract.read.questions([
+                        questionIdFromNewEvent,
+                    ]);
+
+                    if (question.history_hash !== BYTES32_ZERO)
+                        questionsHistoryFromLogs.push({
+                            block: newQuestionEventLog.blockNumber,
+                            questionId: questionIdFromNewEvent,
+                        });
+
+                    if (questionIdFromNewEvent === originalReopenedQuestionId)
+                        shouldBreak = true;
+                }
+
+                if (shouldBreak) break;
+                toBlock = fromBlock - 1n;
+                fromBlock = fromBlock - LOGS_BLOCKS_SIZE;
+            }
+        } catch (error) {
+            console.warn("could not fetch questions history logs", error);
+        }
+
+        return questionsHistoryFromLogs
+            .sort((a, b) => {
+                return Number(a.block) - Number(b.block);
+            })
+            .map((log) => log.questionId);
     }
 }
 

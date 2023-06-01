@@ -79,6 +79,7 @@ import {
     zeroAddress,
 } from "viem";
 import type { Hex, Hash, Address } from "viem";
+import { useRealityClaimableQuestions } from "../../../hooks/useRealityClaimableQuestions";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -101,9 +102,12 @@ export const AnswerForm = ({
 }: AnswerFormProps): ReactElement => {
     const publicClient = usePublicClient();
 
+    const finalized = isQuestionFinalized(question);
+    const { loading: loadingQuestions, claimableQuestions } =
+        useRealityClaimableQuestions(realityAddress, question.id, finalized);
     const { loading: loadingAnswers, responses } = useRealityQuestionResponses(
         realityAddress,
-        question.id
+        claimableQuestions
     );
     const { loading: loadingContent, content } = useQuestionContent(
         question.content
@@ -153,34 +157,89 @@ export const AnswerForm = ({
     }, [bond, nativeCurrency.decimals]);
 
     const claimWinningsPayload = useMemo(() => {
-        const payload = responses.reduce(
+        const payload = Object.keys(responses).reduce(
             (
                 accumulator: {
+                    [key: string]: {
+                        historyHashes: Hash[];
+                        answerers: Address[];
+                        bonds: bigint[];
+                        responses: Hex[];
+                    };
+                },
+                questionId
+            ) => {
+                if (!accumulator[questionId]) {
+                    accumulator[questionId] = {
+                        historyHashes: [],
+                        answerers: [],
+                        bonds: [],
+                        responses: [],
+                    };
+                }
+
+                accumulator[questionId].historyHashes.push(
+                    ...responses[questionId as Hex].map((answer) => answer.hash)
+                );
+                accumulator[questionId].answerers.push(
+                    ...responses[questionId as Hex].map(
+                        (answer) => answer.answerer
+                    )
+                );
+                accumulator[questionId].bonds.push(
+                    ...responses[questionId as Hex].map((answer) => answer.bond)
+                );
+                accumulator[questionId].responses.push(
+                    ...responses[questionId as Hex].map(
+                        (answer) => answer.answer
+                    )
+                );
+
+                return accumulator;
+            },
+            {}
+        );
+
+        const mergedPayload = Object.keys(payload).reduce(
+            (
+                accumulator: {
+                    historyLengths: bigint[];
                     historyHashes: Hash[];
                     answerers: Address[];
                     bonds: bigint[];
                     responses: Hex[];
                 },
-                answer
+                questionId
             ) => {
-                accumulator.historyHashes.push(answer.hash);
-                accumulator.answerers.push(answer.answerer);
-                accumulator.bonds.push(answer.bond);
-                accumulator.responses.push(answer.answer);
+                // the last history hash must be empty
+                payload[questionId].historyHashes.reverse().shift();
+                payload[questionId].historyHashes.push(BYTES32_ZERO);
+                payload[questionId].answerers.reverse();
+                payload[questionId].bonds.reverse();
+                payload[questionId].responses.reverse();
+
+                accumulator.historyLengths.push(
+                    BigInt(payload[questionId].historyHashes.length)
+                );
+                accumulator.historyHashes.push(
+                    ...payload[questionId].historyHashes
+                );
+                accumulator.answerers.push(...payload[questionId].answerers);
+                accumulator.bonds.push(...payload[questionId].bonds);
+                accumulator.responses.push(...payload[questionId].responses);
 
                 return accumulator;
             },
-            { historyHashes: [], answerers: [], bonds: [], responses: [] }
+            {
+                historyLengths: [],
+                historyHashes: [],
+                answerers: [],
+                bonds: [],
+                responses: [],
+            }
         );
 
-        // the last history hash must be empty
-        payload.historyHashes.reverse().shift();
-        payload.historyHashes.push(BYTES32_ZERO);
-        payload.answerers.reverse();
-        payload.bonds.reverse();
-        payload.responses.reverse();
-
-        return payload;
+        return mergedPayload;
     }, [responses]);
 
     const { data: disputeFee } = useContractRead({
@@ -217,7 +276,6 @@ export const AnswerForm = ({
     const { writeAsync: postAnswerAsync } =
         useContractWrite(submitAnswerConfig);
 
-    const finalized = isQuestionFinalized(question);
     const { config: reopenQuestionConfig } = usePrepareContractWrite({
         chainId: chain?.id,
         address: realityAddress,
@@ -281,8 +339,8 @@ export const AnswerForm = ({
         abi: REALITY_ETH_V3_ABI,
         functionName: "claimMultipleAndWithdrawBalance",
         args: [
-            [question.id],
-            [BigInt(claimWinningsPayload.historyHashes.length)],
+            claimableQuestions,
+            claimWinningsPayload.historyLengths,
             claimWinningsPayload.historyHashes,
             claimWinningsPayload.answerers,
             claimWinningsPayload.bonds,
@@ -292,6 +350,7 @@ export const AnswerForm = ({
             !!chain?.id &&
             !!question.id &&
             finalized &&
+            !loadingQuestions &&
             !!claimWinningsPayload &&
             claimWinningsPayload.historyHashes.length > 0 &&
             claimWinningsPayload.answerers.length > 0 &&
@@ -468,6 +527,10 @@ export const AnswerForm = ({
         const submitReopen = async () => {
             if (!cancelled) setSubmitting(true);
             try {
+                console.log(
+                    "REOPEN QUESTION WITH ID",
+                    question.reopenedId || question.id
+                );
                 const tx = await reopenAnswerAsync();
                 const receipt = await publicClient.waitForTransactionReceipt({
                     hash: tx.hash,
@@ -505,7 +568,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [reopenAnswerAsync, onTx, t, publicClient]);
+    }, [reopenAnswerAsync, onTx, t, publicClient, question]);
 
     const handleFinalizeOracleSubmit = useCallback(() => {
         if (!finalizeOracleAsync) return;

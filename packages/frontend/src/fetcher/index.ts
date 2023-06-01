@@ -3,10 +3,12 @@ import { RealityResponse, RealityQuestion } from "../page/types";
 import {
     FullFetcherFetchAnswersHistoryParams,
     FullFetcherFetchQuestionParams,
+    FullFetcherFetchClaimableQuestionsParams,
     IFullFetcher,
 } from "./abstraction";
 import { OnChainFetcher } from "./on-chain";
 import { SubgraphFetcher } from "./subgraph";
+import { type Hex } from "viem";
 
 export * from "./abstraction";
 
@@ -66,6 +68,29 @@ class FullFetcher implements IFullFetcher {
                   questionId,
               })
             : OnChainFetcher.fetchAnswersHistory({
+                  publicClient,
+                  realityV3Address,
+                  questionId,
+              });
+    }
+
+    public async fetchClaimableQuestions({
+        preferDecentralization,
+        publicClient,
+        realityV3Address,
+        questionId,
+    }: FullFetcherFetchClaimableQuestionsParams): Promise<Hex[]> {
+        const useSubgraph = await this.shouldUseSubgraph({
+            publicClient,
+            preferDecentralization,
+        });
+        return useSubgraph
+            ? SubgraphFetcher.fetchClaimableQuestions({
+                  publicClient,
+                  realityV3Address,
+                  questionId,
+              })
+            : OnChainFetcher.fetchClaimableQuestions({
                   publicClient,
                   realityV3Address,
                   questionId,

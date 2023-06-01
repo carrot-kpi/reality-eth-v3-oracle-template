@@ -1,6 +1,7 @@
 import {
     FetchAnswersHistoryParams,
     FetchQuestionParams,
+    FetchClaimableQuestionsParams,
     IPartialFetcher,
     SupportedInChainParams,
 } from "../abstraction";
@@ -18,6 +19,7 @@ import {
     GetResponsesQuery,
     GetResponsesQueryResponse,
 } from "./queries";
+import { type Hex } from "viem";
 
 class Fetcher implements IPartialFetcher {
     public supportedInChain({ chainId }: SupportedInChainParams): boolean {
@@ -113,6 +115,13 @@ class Fetcher implements IPartialFetcher {
             });
         }
         return responses;
+    }
+
+    public async fetchClaimableQuestions(
+        params: FetchClaimableQuestionsParams
+    ): Promise<Hex[]> {
+        // TODO: implement
+        return [];
     }
 }
 

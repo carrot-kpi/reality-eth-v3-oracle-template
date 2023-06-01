@@ -5,53 +5,45 @@ import {
 } from "@carrot-kpi/react";
 import { usePublicClient } from "wagmi";
 import { Fetcher } from "../fetcher";
-import { RealityResponse } from "../page/types";
 import type { Address, Hex } from "viem";
 
-export function useRealityQuestionResponses(
+export function useRealityClaimableQuestions(
     realityV3Address?: Address,
-    questionIds?: Hex[]
+    questionId?: Hex,
+    finalized?: boolean
 ): {
     loading: boolean;
-    responses: Record<Hex, RealityResponse[]>;
+    claimableQuestions: Hex[];
 } {
     const publicClient = usePublicClient();
     const ipfsGatewayURL = useIPFSGatewayURL();
     const preferDecentralization = usePreferDecentralization();
 
     const [loading, setLoading] = useState(true);
-    const [responses, setResponses] = useState<Record<Hex, RealityResponse[]>>(
-        {}
-    );
+    const [claimableQuestions, setClaimableQuestions] = useState<Hex[]>([]);
 
     useEffect(() => {
         let cancelled = false;
         const fetchData = async (): Promise<void> => {
             if (
                 !realityV3Address ||
-                !questionIds ||
-                questionIds.length === 0 ||
+                !questionId ||
+                !finalized ||
                 !ipfsGatewayURL
             )
                 return;
             if (!cancelled) setLoading(true);
             try {
-                for (const questionId of questionIds) {
-                    const fetched = await Fetcher.fetchAnswersHistory({
-                        preferDecentralization,
-                        publicClient,
-                        realityV3Address,
-                        questionId,
-                    });
-                    if (!cancelled)
-                        setResponses((previousState) => ({
-                            ...previousState,
-                            [questionId]: fetched,
-                        }));
-                }
+                const fetched = await Fetcher.fetchClaimableQuestions({
+                    preferDecentralization,
+                    publicClient,
+                    realityV3Address,
+                    questionId,
+                });
+                if (!cancelled) setClaimableQuestions(fetched);
             } catch (error) {
                 console.error(
-                    "error fetching reality v3 question responses",
+                    "error fetching reality v3 reponed questions responses",
                     error
                 );
             } finally {
@@ -64,11 +56,12 @@ export function useRealityQuestionResponses(
         };
     }, [
         publicClient,
-        questionIds,
+        questionId,
         ipfsGatewayURL,
         realityV3Address,
         preferDecentralization,
+        finalized,
     ]);
 
-    return { loading, responses };
+    return { loading, claimableQuestions };
 }
