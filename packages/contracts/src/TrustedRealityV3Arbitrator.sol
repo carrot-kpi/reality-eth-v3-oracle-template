@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 
-pragma solidity ^0.8.10;
+pragma solidity 0.8.19;
 
 import {Ownable} from "oz/access/Ownable.sol";
 import {IRealityV3Arbitrator} from "./interfaces/external/IRealityV3Arbitrator.sol";
