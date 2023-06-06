@@ -635,6 +635,14 @@ export const AnswerForm = ({
         };
     }, [claimMultipleAndWithdrawAsync, onTx, t, publicClient]);
 
+    // TODO: remove console log
+    console.log({
+        finalized,
+        requestArbitrationAsync,
+        answerMissing: isAnswerMissing(question),
+        pendingArbitration: isAnswerPendingArbitration(question),
+    });
+
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
     const requestArbitrationDisabled =
