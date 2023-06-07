@@ -352,7 +352,8 @@ export const AnswerForm = ({
             claimWinningsPayload.answerers.length > 0 &&
             claimWinningsPayload.bonds.length > 0 &&
             claimWinningsPayload.responses.length > 0 &&
-            withdrawableBalance !== 0n &&
+            (question.historyHash !== BYTES32_ZERO ||
+                withdrawableBalance !== 0n) &&
             !isAnswerMissing(question),
     });
     const { writeAsync: claimMultipleAndWithdrawAsync } = useContractWrite(
@@ -1048,8 +1049,8 @@ export const AnswerForm = ({
                             onClick={handleClaimMultipleAndWithdrawSubmit}
                             disabled={
                                 !claimMultipleAndWithdrawAsync ||
-                                BigInt(question.historyHash) === 0n ||
-                                (BigInt(question.historyHash) === 0n &&
+                                question.historyHash === BYTES32_ZERO ||
+                                (question.historyHash === BYTES32_ZERO &&
                                     withdrawableBalance === 0n)
                             }
                             loading={
