@@ -1,9 +1,8 @@
 import { type PublicClient } from "wagmi";
 import { RealityResponse, RealityQuestion } from "../page/types";
 import {
-    FullFetcherFetchAnswersHistoryParams,
+    FullFetcherFetchClaimableHistoryParams,
     FullFetcherFetchQuestionParams,
-    FullFetcherFetchClaimableQuestionsParams,
     IFullFetcher,
 } from "./abstraction";
 import { OnChainFetcher } from "./on-chain";
@@ -51,46 +50,25 @@ class FullFetcher implements IFullFetcher {
               });
     }
 
-    public async fetchAnswersHistory({
+    public async fetchClaimableHistory({
         preferDecentralization,
         publicClient,
         realityV3Address,
         questionId,
-    }: FullFetcherFetchAnswersHistoryParams): Promise<RealityResponse[]> {
+    }: FullFetcherFetchClaimableHistoryParams): Promise<
+        Record<Hex, RealityResponse[]>
+    > {
         const useSubgraph = await this.shouldUseSubgraph({
             publicClient,
             preferDecentralization,
         });
         return useSubgraph
-            ? SubgraphFetcher.fetchAnswersHistory({
+            ? SubgraphFetcher.fetchClaimableHistory({
                   publicClient,
                   realityV3Address,
                   questionId,
               })
-            : OnChainFetcher.fetchAnswersHistory({
-                  publicClient,
-                  realityV3Address,
-                  questionId,
-              });
-    }
-
-    public async fetchClaimableQuestions({
-        preferDecentralization,
-        publicClient,
-        realityV3Address,
-        questionId,
-    }: FullFetcherFetchClaimableQuestionsParams): Promise<Hex[]> {
-        const useSubgraph = await this.shouldUseSubgraph({
-            publicClient,
-            preferDecentralization,
-        });
-        return useSubgraph
-            ? SubgraphFetcher.fetchClaimableQuestions({
-                  publicClient,
-                  realityV3Address,
-                  questionId,
-              })
-            : OnChainFetcher.fetchClaimableQuestions({
+            : OnChainFetcher.fetchClaimableHistory({
                   publicClient,
                   realityV3Address,
                   questionId,

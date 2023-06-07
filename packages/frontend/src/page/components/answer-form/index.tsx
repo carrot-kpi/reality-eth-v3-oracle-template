@@ -33,6 +33,16 @@ import {
     usePublicClient,
 } from "wagmi";
 import {
+    bytesToHex,
+    formatUnits,
+    isHex,
+    numberToHex,
+    parseUnits,
+    toBytes,
+    zeroAddress,
+} from "viem";
+import type { Hex, Hash, Address } from "viem";
+import {
     ANSWERED_TOO_SOON_REALITY_ANSWER,
     BooleanAnswer,
     BYTES32_ZERO,
@@ -65,21 +75,10 @@ import {
     ResolvedOracleWithData,
 } from "@carrot-kpi/sdk";
 import { unixTimestamp } from "../../../utils/dates";
-import { useRealityQuestionResponses } from "../../../hooks/useRealityQuestionResponses";
 import { useQuestionContent } from "../../../hooks/useQuestionContent";
 import { Arbitrator } from "./arbitrator";
 import Danger from "../../../assets/danger";
-import {
-    bytesToHex,
-    formatUnits,
-    isHex,
-    numberToHex,
-    parseUnits,
-    toBytes,
-    zeroAddress,
-} from "viem";
-import type { Hex, Hash, Address } from "viem";
-import { useRealityClaimableQuestions } from "../../../hooks/useRealityClaimableQuestions";
+import { useRealityClaimableHistory } from "../../../hooks/useRealityClaimableHistory";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -103,12 +102,8 @@ export const AnswerForm = ({
     const publicClient = usePublicClient();
 
     const finalized = isQuestionFinalized(question);
-    const { loading: loadingQuestions, claimableQuestions } =
-        useRealityClaimableQuestions(realityAddress, question.id, finalized);
-    const { loading: loadingAnswers, responses } = useRealityQuestionResponses(
-        realityAddress,
-        claimableQuestions
-    );
+    const { loading: loadingClaimableHistory, claimable } =
+        useRealityClaimableHistory(realityAddress, question.id, finalized);
     const { loading: loadingContent, content } = useQuestionContent(
         question.content
     );
@@ -157,7 +152,7 @@ export const AnswerForm = ({
     }, [bond, nativeCurrency.decimals]);
 
     const claimWinningsPayload = useMemo(() => {
-        const payload = Object.keys(responses).reduce(
+        const payload = Object.keys(claimable).reduce(
             (
                 accumulator: {
                     [key: string]: {
@@ -179,18 +174,18 @@ export const AnswerForm = ({
                 }
 
                 accumulator[questionId].historyHashes.push(
-                    ...responses[questionId as Hex].map((answer) => answer.hash)
+                    ...claimable[questionId as Hex].map((answer) => answer.hash)
                 );
                 accumulator[questionId].answerers.push(
-                    ...responses[questionId as Hex].map(
+                    ...claimable[questionId as Hex].map(
                         (answer) => answer.answerer
                     )
                 );
                 accumulator[questionId].bonds.push(
-                    ...responses[questionId as Hex].map((answer) => answer.bond)
+                    ...claimable[questionId as Hex].map((answer) => answer.bond)
                 );
                 accumulator[questionId].responses.push(
-                    ...responses[questionId as Hex].map(
+                    ...claimable[questionId as Hex].map(
                         (answer) => answer.answer
                     )
                 );
@@ -240,7 +235,7 @@ export const AnswerForm = ({
         );
 
         return mergedPayload;
-    }, [responses]);
+    }, [claimable]);
 
     const { data: disputeFee } = useContractRead({
         address:
@@ -339,7 +334,7 @@ export const AnswerForm = ({
         abi: REALITY_ETH_V3_ABI,
         functionName: "claimMultipleAndWithdrawBalance",
         args: [
-            claimableQuestions,
+            Object.keys(claimable) as Hex[],
             claimWinningsPayload.historyLengths,
             claimWinningsPayload.historyHashes,
             claimWinningsPayload.answerers,
@@ -349,15 +344,15 @@ export const AnswerForm = ({
         enabled:
             !!chain?.id &&
             !!question.id &&
+            Object.keys(claimable).length > 0 &&
             finalized &&
-            !loadingQuestions &&
+            !loadingClaimableHistory &&
             !!claimWinningsPayload &&
             claimWinningsPayload.historyHashes.length > 0 &&
             claimWinningsPayload.answerers.length > 0 &&
             claimWinningsPayload.bonds.length > 0 &&
             claimWinningsPayload.responses.length > 0 &&
-            (question.historyHash !== BYTES32_ZERO ||
-                withdrawableBalance !== 0n) &&
+            withdrawableBalance !== 0n &&
             !isAnswerMissing(question),
     });
     const { writeAsync: claimMultipleAndWithdrawAsync } = useContractWrite(
@@ -527,10 +522,6 @@ export const AnswerForm = ({
         const submitReopen = async () => {
             if (!cancelled) setSubmitting(true);
             try {
-                console.log(
-                    "REOPEN QUESTION WITH ID",
-                    question.reopenedId || question.id
-                );
                 const tx = await reopenAnswerAsync();
                 const receipt = await publicClient.waitForTransactionReceipt({
                     hash: tx.hash,
@@ -568,7 +559,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [reopenAnswerAsync, onTx, t, publicClient, question]);
+    }, [reopenAnswerAsync, onTx, t, publicClient]);
 
     const handleFinalizeOracleSubmit = useCallback(() => {
         if (!finalizeOracleAsync) return;
@@ -1061,7 +1052,10 @@ export const AnswerForm = ({
                                 (BigInt(question.historyHash) === 0n &&
                                     withdrawableBalance === 0n)
                             }
-                            loading={loadingAnswers || claimingAndWithdrawing}
+                            loading={
+                                loadingClaimableHistory ||
+                                claimingAndWithdrawing
+                            }
                             size="small"
                         >
                             {t("label.question.form.withdrawWinnings")}

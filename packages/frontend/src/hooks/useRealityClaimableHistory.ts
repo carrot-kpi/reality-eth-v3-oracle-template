@@ -5,22 +5,25 @@ import {
 } from "@carrot-kpi/react";
 import { usePublicClient } from "wagmi";
 import { Fetcher } from "../fetcher";
+import { RealityResponse } from "../page/types";
 import type { Address, Hex } from "viem";
 
-export function useRealityClaimableQuestions(
+export function useRealityClaimableHistory(
     realityV3Address?: Address,
     questionId?: Hex,
     finalized?: boolean
 ): {
     loading: boolean;
-    claimableQuestions: Hex[];
+    claimable: Record<Hex, RealityResponse[]>;
 } {
     const publicClient = usePublicClient();
     const ipfsGatewayURL = useIPFSGatewayURL();
     const preferDecentralization = usePreferDecentralization();
 
     const [loading, setLoading] = useState(true);
-    const [claimableQuestions, setClaimableQuestions] = useState<Hex[]>([]);
+    const [claimable, setClaimable] = useState<Record<Hex, RealityResponse[]>>(
+        {}
+    );
 
     useEffect(() => {
         let cancelled = false;
@@ -28,22 +31,22 @@ export function useRealityClaimableQuestions(
             if (
                 !realityV3Address ||
                 !questionId ||
-                !finalized ||
-                !ipfsGatewayURL
+                !ipfsGatewayURL ||
+                !finalized
             )
                 return;
             if (!cancelled) setLoading(true);
             try {
-                const fetched = await Fetcher.fetchClaimableQuestions({
+                const fetched = await Fetcher.fetchClaimableHistory({
                     preferDecentralization,
                     publicClient,
                     realityV3Address,
                     questionId,
                 });
-                if (!cancelled) setClaimableQuestions(fetched);
+                if (!cancelled) setClaimable(fetched);
             } catch (error) {
                 console.error(
-                    "error fetching reality v3 reponed questions responses",
+                    "error fetching reality v3 question responses",
                     error
                 );
             } finally {
@@ -55,13 +58,13 @@ export function useRealityClaimableQuestions(
             cancelled = true;
         };
     }, [
+        finalized,
         publicClient,
         questionId,
         ipfsGatewayURL,
         realityV3Address,
         preferDecentralization,
-        finalized,
     ]);
 
-    return { loading, claimableQuestions };
+    return { loading, claimable };
 }

@@ -14,7 +14,7 @@ export interface FetchQuestionParams {
     questionId?: Hex;
 }
 
-export interface FetchAnswersHistoryParams {
+export interface FetchClaimableHistoryParams {
     publicClient: PublicClient;
     realityV3Address?: Address;
     questionId?: Hex;
@@ -31,13 +31,9 @@ export interface IPartialFetcher {
 
     fetchQuestion(params: FetchQuestionParams): Promise<RealityQuestion | null>;
 
-    fetchAnswersHistory(
-        params: FetchAnswersHistoryParams
-    ): Promise<RealityResponse[] | null>;
-
-    fetchClaimableQuestions(
-        params: FetchClaimableQuestionsParams
-    ): Promise<Hex[]>;
+    fetchClaimableHistory(
+        params: FetchClaimableHistoryParams
+    ): Promise<Record<Hex, RealityResponse[]>>;
 }
 
 export interface DecentralizationParams {
@@ -49,22 +45,15 @@ type WithDecentralizationParams<T> = T & DecentralizationParams;
 export type FullFetcherFetchQuestionParams =
     WithDecentralizationParams<FetchQuestionParams>;
 
-export type FullFetcherFetchAnswersHistoryParams =
-    WithDecentralizationParams<FetchAnswersHistoryParams>;
-
-export type FullFetcherFetchClaimableQuestionsParams =
-    WithDecentralizationParams<FetchClaimableQuestionsParams>;
+export type FullFetcherFetchClaimableHistoryParams =
+    WithDecentralizationParams<FetchClaimableHistoryParams>;
 
 export interface IFullFetcher {
     fetchQuestion(
         params: FullFetcherFetchQuestionParams
     ): Promise<RealityQuestion | null>;
 
-    fetchAnswersHistory(
-        params: FullFetcherFetchAnswersHistoryParams
-    ): Promise<RealityResponse[]>;
-
-    fetchClaimableQuestions(
-        params: FullFetcherFetchClaimableQuestionsParams
-    ): Promise<Hex[]>;
+    fetchClaimableHistory(
+        params: FullFetcherFetchClaimableHistoryParams
+    ): Promise<Record<Hex, RealityResponse[]>>;
 }

@@ -1,7 +1,6 @@
 import {
-    FetchAnswersHistoryParams,
+    FetchClaimableHistoryParams,
     FetchQuestionParams,
-    FetchClaimableQuestionsParams,
     IPartialFetcher,
     SupportedInChainParams,
 } from "../abstraction";
@@ -13,12 +12,7 @@ import {
 } from "../../commons";
 import { enforce, query } from "@carrot-kpi/sdk";
 import { RealityResponse, RealityQuestion } from "../../page/types";
-import {
-    GetQuestionQuery,
-    GetQuestionQueryResponse,
-    GetResponsesQuery,
-    GetResponsesQueryResponse,
-} from "./queries";
+import { GetQuestionQuery, GetQuestionQueryResponse } from "./queries";
 import { type Hex } from "viem";
 
 class Fetcher implements IPartialFetcher {
@@ -75,53 +69,53 @@ class Fetcher implements IPartialFetcher {
         };
     }
 
-    public async fetchAnswersHistory({
-        realityV3Address,
-        questionId,
-        publicClient,
-    }: FetchAnswersHistoryParams): Promise<RealityResponse[]> {
-        if (!realityV3Address || !questionId) return [];
+    // public async _fetchAnswersHistory({
+    //     realityV3Address,
+    //     questionId,
+    //     publicClient,
+    // }: FetchClaimableHistoryParams): Promise<RealityResponse[]> {
+    //     if (!realityV3Address || !questionId) return [];
 
-        const chainId = await publicClient.getChainId();
-        enforce(
-            chainId in SupportedChainId,
-            `unsupported chain with id ${chainId}`
-        );
-        const subgraphURL = SUBGRAPH_URL[chainId as SupportedChainId];
-        enforce(!!subgraphURL, `no subgraph available in chain ${chainId}`);
-        const { question } = await query<GetResponsesQueryResponse>(
-            subgraphURL,
-            GetResponsesQuery,
-            {
-                questionId: `${realityV3Address?.toLowerCase()}-${questionId?.toLowerCase()}`,
-            }
-        );
-        if (
-            !question ||
-            question.responses.some((response) => !response.answer)
-        )
-            return [];
-        const responses: RealityResponse[] = [];
-        for (let i = 0; i < question.responses.length; i++) {
-            const rawResponse = question.responses[i];
-            const answer = rawResponse.answer;
-            if (!answer) return [];
-            responses.push({
-                answer,
-                answerer: rawResponse.user,
-                bond: BigInt(rawResponse.bond),
-                hash: rawResponse.historyHash,
-                timestamp: BigInt(rawResponse.timestamp),
-            });
-        }
-        return responses;
-    }
+    //     const chainId = await publicClient.getChainId();
+    //     enforce(
+    //         chainId in SupportedChainId,
+    //         `unsupported chain with id ${chainId}`
+    //     );
+    //     const subgraphURL = SUBGRAPH_URL[chainId as SupportedChainId];
+    //     enforce(!!subgraphURL, `no subgraph available in chain ${chainId}`);
+    //     const { question } = await query<GetResponsesQueryResponse>(
+    //         subgraphURL,
+    //         GetResponsesQuery,
+    //         {
+    //             questionId: `${realityV3Address?.toLowerCase()}-${questionId?.toLowerCase()}`,
+    //         }
+    //     );
+    //     if (
+    //         !question ||
+    //         question.responses.some((response) => !response.answer)
+    //     )
+    //         return [];
+    //     const responses: RealityResponse[] = [];
+    //     for (let i = 0; i < question.responses.length; i++) {
+    //         const rawResponse = question.responses[i];
+    //         const answer = rawResponse.answer;
+    //         if (!answer) return [];
+    //         responses.push({
+    //             answer,
+    //             answerer: rawResponse.user,
+    //             bond: BigInt(rawResponse.bond),
+    //             hash: rawResponse.historyHash,
+    //             timestamp: BigInt(rawResponse.timestamp),
+    //         });
+    //     }
+    //     return responses;
+    // }
 
-    public async fetchClaimableQuestions(
-        params: FetchClaimableQuestionsParams
-    ): Promise<Hex[]> {
+    public async fetchClaimableHistory(
+        _params: FetchClaimableHistoryParams
+    ): Promise<Record<Hex, RealityResponse[]>> {
         // TODO: implement
-        return [];
+        return {};
     }
 }
 

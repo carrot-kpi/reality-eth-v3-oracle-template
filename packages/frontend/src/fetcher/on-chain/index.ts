@@ -1,7 +1,6 @@
 import {
-    FetchAnswersHistoryParams,
+    FetchClaimableHistoryParams,
     FetchQuestionParams,
-    FetchClaimableQuestionsParams,
     IPartialFetcher,
 } from "../abstraction";
 import {
@@ -101,27 +100,50 @@ class Fetcher implements IPartialFetcher {
         };
     }
 
-    public async fetchAnswersHistory({
+    public async fetchClaimableHistory({
         publicClient,
         realityV3Address,
         questionId,
-    }: FetchAnswersHistoryParams): Promise<RealityResponse[]> {
-        if (!realityV3Address || !questionId) return [];
+    }: FetchClaimableHistoryParams): Promise<Record<Hex, RealityResponse[]>> {
+        if (!realityV3Address || !questionId) return {};
         const chainId = await publicClient.getChainId();
         enforce(
             chainId in SupportedChainId,
             `unsupported chain with id ${chainId}`
         );
 
-        let toBlock = await publicClient.getBlockNumber();
-        let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
-        const answersFromLogs: RealityResponse[] = [];
-        try {
+        let originalQuestionId = questionId;
+        let answersHistory: Record<
+            Hex,
+            Required<
+                RealityResponse & { logIndex: number; blockNumber: bigint }
+            >[]
+        > = {};
+        const questionsHistory: {
+            logIndex: number | null;
+            blockNumber: bigint | null;
+            questionId: Hex;
+        }[] = [];
+
+        const realityContract = getContract({
+            abi: REALITY_ETH_V3_ABI,
+            address: realityV3Address,
+            publicClient,
+        });
+        const reopener = await realityContract.read.reopener_questions([
+            questionId,
+        ]);
+
+        // look for the original question id if the current one is a reopener
+        if (reopener) {
+            let toBlock = await publicClient.getBlockNumber();
+            let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+
             while (true) {
-                const newAnwersEventLogs = await publicClient.getLogs({
+                const reopeneQuestionEventLogs = await publicClient.getLogs({
                     address: realityV3Address,
                     event: parseAbiItem(
-                        "event LogNewAnswer(bytes32 answer,bytes32 indexed question_id,bytes32 history_hash,address indexed user,uint256 bond,uint256 ts,bool is_commitment)"
+                        "event LogReopenQuestion(bytes32 indexed question_id,bytes32 indexed reopened_question_id)"
                     ),
                     args: {
                         question_id: questionId,
@@ -129,6 +151,75 @@ class Fetcher implements IPartialFetcher {
                     fromBlock,
                     toBlock,
                 });
+
+                if (
+                    reopeneQuestionEventLogs[0] &&
+                    reopeneQuestionEventLogs[0].topics[2]
+                ) {
+                    const [reopenedQuestionIdLog] = decodeAbiParameters(
+                        [
+                            {
+                                type: "bytes32",
+                                name: "reopened_question_id",
+                            },
+                        ],
+                        reopeneQuestionEventLogs[0].topics[2]
+                    );
+
+                    originalQuestionId = reopenedQuestionIdLog;
+                    break;
+                }
+
+                toBlock = fromBlock - 1n;
+                fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+            }
+        }
+
+        let toBlock = await publicClient.getBlockNumber();
+        let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+        let shouldBreak = false;
+        while (true) {
+            const reopenQuestionEventLogs = await publicClient.getLogs({
+                address: realityV3Address,
+                event: parseAbiItem(
+                    "event LogReopenQuestion(bytes32 indexed question_id,bytes32 indexed reopened_question_id)"
+                ),
+                args: {
+                    reopened_question_id: originalQuestionId,
+                },
+                fromBlock,
+                toBlock,
+            });
+            const newQuestionEventLogs = await publicClient.getLogs({
+                address: realityV3Address,
+                event: parseAbiItem(
+                    "event LogNewQuestion(bytes32 indexed question_id,address indexed user,uint256 template_id,string question,bytes32 indexed content_hash,address arbitrator,uint32 timeout,uint32 opening_ts,uint256 nonce,uint256 created)"
+                ),
+                args: {
+                    question_id: originalQuestionId,
+                },
+                fromBlock,
+                toBlock,
+            });
+
+            // here we have to look for both LogReopenQuestion and LogNewQuestion events by the original question id
+            // otherwise, if the original LogNewQuestion event is "isolated" in a sliding window (the linked reopen in in the next 10th block)
+            // we would never find it since we're relying on the presence of LogReopenQuestion events.
+            const newAndReopenLogs = [
+                ...newQuestionEventLogs,
+                ...reopenQuestionEventLogs,
+            ];
+            for (const newAndReopenLog of newAndReopenLogs) {
+                const [questionId] = decodeAbiParameters(
+                    [
+                        {
+                            type: "bytes32",
+                            name: "question_id",
+                        },
+                    ],
+                    newAndReopenLog.topics[1]
+                );
+
                 const newQuestionEventLogs = await publicClient.getLogs({
                     address: realityV3Address,
                     event: parseAbiItem(
@@ -141,172 +232,115 @@ class Fetcher implements IPartialFetcher {
                     toBlock,
                 });
 
-                const logs = [...newAnwersEventLogs, ...newQuestionEventLogs];
-                let shouldBreak = false;
-                for (const log of logs) {
-                    if (log.topics[0] === NEW_ANSWER_LOG_TOPIC) {
-                        if (!log.topics[2]) {
-                            continue;
-                        }
-
-                        // Event params: bytes32 answer, bytes32 indexed question_id, bytes32 history_hash, address indexed user, uint256 bond, uint256 ts, bool is_commitment
-                        const [answerer] = decodeAbiParameters(
-                            [{ type: "address", name: "answerer" }],
-                            log.topics[2]
-                        );
-                        const [answer, hash, bond, timestamp] =
-                            decodeAbiParameters(
-                                [
-                                    { type: "bytes32", name: "answer" },
-                                    { type: "bytes32", name: "hash" },
-                                    { type: "uint256", name: "bond" },
-                                    { type: "uint256", name: "timestamp" },
-                                    { type: "bool", name: "commitment" },
-                                ],
-                                log.data
-                            );
-                        answersFromLogs.push({
-                            answerer,
-                            bond,
-                            hash,
-                            answer,
-                            timestamp,
-                        });
-                    } else if (log.topics[0] === NEW_QUESTION_LOG_TOPIC)
-                        shouldBreak = true;
-                }
-                if (shouldBreak) break;
-                toBlock = fromBlock - 1n;
-                fromBlock = fromBlock - LOGS_BLOCKS_SIZE;
-            }
-        } catch (error) {
-            console.warn("error while fetching question logs", error);
-        }
-        return answersFromLogs.sort((a, b) => {
-            return Number(a.timestamp - b.timestamp);
-        });
-    }
-
-    public async fetchClaimableQuestions({
-        publicClient,
-        realityV3Address,
-        questionId,
-    }: FetchClaimableQuestionsParams): Promise<Hex[]> {
-        if (!realityV3Address || !questionId) return [];
-        const chainId = await publicClient.getChainId();
-        enforce(
-            chainId in SupportedChainId,
-            `unsupported chain with id ${chainId}`
-        );
-
-        const questionsHistoryFromLogs: {
-            block: bigint | null;
-            questionId: Hex;
-        }[] = [];
-
-        try {
-            let toBlock = await publicClient.getBlockNumber();
-            let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
-            let shouldBreak = false;
-
-            const realityContract = getContract({
-                abi: REALITY_ETH_V3_ABI,
-                address: realityV3Address,
-                publicClient,
-            });
-            const reopenerQuestion =
-                await realityContract.read.reopener_questions([questionId]);
-
-            let originalReopenedQuestionId: Hex = questionId;
-
-            // avoid looking for an non existing reopened question event if the question id is not a reopener
-            if (reopenerQuestion) {
-                while (true) {
-                    const lastReopenedQuestionEventLogs =
-                        await publicClient.getLogs({
-                            address: realityV3Address,
-                            event: parseAbiItem(
-                                "event LogReopenQuestion(bytes32 indexed question_id,bytes32 indexed reopened_question_id)"
-                            ),
-                            args: {
-                                question_id: questionId,
-                            },
-                            fromBlock,
-                            toBlock,
-                        });
-
-                    // there's always a single reopen event for a question_id
-                    const lastReopenedQuestionEventLog =
-                        lastReopenedQuestionEventLogs[0];
-
-                    if (
-                        !lastReopenedQuestionEventLog ||
-                        !lastReopenedQuestionEventLog.topics[2]
-                    ) {
-                        toBlock = fromBlock - 1n;
-                        fromBlock = fromBlock - LOGS_BLOCKS_SIZE;
-                        continue;
-                    }
-
-                    // id of the reopened question, it's the same for each reopened event
-                    // since they all refer to the same question_id
-                    const [reopenedQuestionIdLog] = decodeAbiParameters(
+                for (const newLog of newQuestionEventLogs) {
+                    const [questionId] = decodeAbiParameters(
                         [
                             {
                                 type: "bytes32",
-                                name: "reopened_question_id",
+                                name: "question_id",
                             },
                         ],
-                        lastReopenedQuestionEventLog.topics[2]
+                        newLog.topics[1]
                     );
 
-                    if (reopenedQuestionIdLog) {
-                        originalReopenedQuestionId = reopenedQuestionIdLog;
-                        break;
-                    }
+                    questionsHistory.push({
+                        logIndex: newLog.logIndex,
+                        blockNumber: newLog.blockNumber,
+                        questionId,
+                    });
+
+                    // exit the loop once the original question asked is reached
+                    if (questionId === originalQuestionId) shouldBreak = true;
                 }
             }
 
-            toBlock = await publicClient.getBlockNumber();
+            if (shouldBreak) break;
+            toBlock = fromBlock - 1n;
             fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+        }
 
-            while (true) {
-                // get all reopened events for the previous reopened_question_id
-                const linkedReopenedQuestionEventLogs =
-                    await publicClient.getLogs({
-                        address: realityV3Address,
-                        event: parseAbiItem(
-                            "event LogReopenQuestion(bytes32 indexed question_id,bytes32 indexed reopened_question_id)"
-                        ),
-                        args: {
-                            reopened_question_id: originalReopenedQuestionId,
-                        },
-                        fromBlock,
-                        toBlock,
-                    });
+        if (questionsHistory.length === 0) {
+            return {};
+        }
 
-                // get the original new question event, used as a filter limit
-                const originalNewQuestionEventLogs = await publicClient.getLogs(
-                    {
-                        address: realityV3Address,
-                        event: parseAbiItem(
-                            "event LogNewQuestion(bytes32 indexed question_id,address indexed user,uint256 template_id,string question,bytes32 indexed content_hash,address arbitrator,uint32 timeout,uint32 opening_ts,uint256 nonce,uint256 created)"
-                        ),
-                        args: {
-                            question_id: originalReopenedQuestionId,
-                        },
-                        fromBlock,
-                        toBlock,
-                    }
-                );
+        toBlock = await publicClient.getBlockNumber();
+        fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+        shouldBreak = false;
+        while (true) {
+            const newAnwersEventLogs = await publicClient.getLogs({
+                address: realityV3Address,
+                event: parseAbiItem(
+                    "event LogNewAnswer(bytes32 answer,bytes32 indexed question_id,bytes32 history_hash,address indexed user,uint256 bond,uint256 ts,bool is_commitment)"
+                ),
+                args: {
+                    question_id: questionsHistory.map(
+                        (question) => question.questionId
+                    ),
+                },
+                fromBlock,
+                toBlock,
+            });
+            const newQuestionEventLogs = await publicClient.getLogs({
+                address: realityV3Address,
+                event: parseAbiItem(
+                    "event LogNewQuestion(bytes32 indexed question_id,address indexed user,uint256 template_id,string question,bytes32 indexed content_hash,address arbitrator,uint32 timeout,uint32 opening_ts,uint256 nonce,uint256 created)"
+                ),
+                args: {
+                    question_id: questionsHistory.map(
+                        (question) => question.questionId
+                    ),
+                },
+                fromBlock,
+                toBlock,
+            });
 
-                for (const log of [
-                    ...originalNewQuestionEventLogs,
-                    ...linkedReopenedQuestionEventLogs,
-                ]) {
-                    if (!log.topics[1]) continue;
+            const logs = [...newAnwersEventLogs, ...newQuestionEventLogs];
+            for (const log of logs) {
+                if (log.topics[0] === NEW_ANSWER_LOG_TOPIC) {
+                    const [questionId] = decodeAbiParameters(
+                        [{ type: "bytes32", name: "question_id" }],
+                        log.topics[1]
+                    );
+                    const [answerer] = decodeAbiParameters(
+                        [{ type: "address", name: "answerer" }],
+                        log.topics[2]
+                    );
+                    const [answer, hash, bond, timestamp] = decodeAbiParameters(
+                        [
+                            { type: "bytes32", name: "answer" },
+                            { type: "bytes32", name: "hash" },
+                            { type: "uint256", name: "bond" },
+                            { type: "uint256", name: "timestamp" },
+                            { type: "bool", name: "commitment" },
+                        ],
+                        log.data
+                    );
 
-                    // id of the new question, after the reopening
+                    // if the question's history hash is 0x00 it means the rewards are already been claimed,
+                    // so we need to ignore its answers
+                    const question = await realityContract.read.questions([
+                        questionId,
+                    ]);
+                    if (question.history_hash === BYTES32_ZERO) continue;
+
+                    answersHistory = {
+                        ...answersHistory,
+                        [questionId]: [
+                            ...(answersHistory[questionId]
+                                ? answersHistory[questionId]
+                                : []),
+                            {
+                                logIndex: log.logIndex,
+                                blockNumber: log.blockNumber,
+                                answerer,
+                                bond,
+                                hash,
+                                answer,
+                                timestamp,
+                            },
+                        ],
+                    };
+                } else if (log.topics[0] === NEW_QUESTION_LOG_TOPIC) {
                     const [questionId] = decodeAbiParameters(
                         [
                             {
@@ -317,60 +351,44 @@ class Fetcher implements IPartialFetcher {
                         log.topics[1]
                     );
 
-                    const newQuestionEventLogs = await publicClient.getLogs({
-                        address: realityV3Address,
-                        event: parseAbiItem(
-                            "event LogNewQuestion(bytes32 indexed question_id,address indexed user,uint256 template_id,string question,bytes32 indexed content_hash,address arbitrator,uint32 timeout,uint32 opening_ts,uint256 nonce,uint256 created)"
-                        ),
-                        args: {
-                            question_id: questionId,
-                        },
-                        fromBlock,
-                        toBlock,
-                    });
-
-                    // there's always a single new question event for a question_id
-                    const newQuestionEventLog = newQuestionEventLogs[0];
-                    if (!newQuestionEventLog || !newQuestionEventLog.topics[1])
-                        continue;
-
-                    const [questionIdFromNewEvent] = decodeAbiParameters(
-                        [
-                            {
-                                type: "bytes32",
-                                name: "question_id",
-                            },
-                        ],
-                        newQuestionEventLog.topics[1]
-                    );
-
-                    const question = await realityContract.read.questions([
-                        questionIdFromNewEvent,
-                    ]);
-
-                    if (question.history_hash !== BYTES32_ZERO)
-                        questionsHistoryFromLogs.push({
-                            block: newQuestionEventLog.blockNumber,
-                            questionId: questionIdFromNewEvent,
-                        });
-
-                    if (questionIdFromNewEvent === originalReopenedQuestionId)
-                        shouldBreak = true;
+                    // once the original question has been found exit the whole fetch
+                    if (questionId === originalQuestionId) shouldBreak = true;
+                    break;
                 }
-
-                if (shouldBreak) break;
-                toBlock = fromBlock - 1n;
-                fromBlock = fromBlock - LOGS_BLOCKS_SIZE;
             }
-        } catch (error) {
-            console.warn("could not fetch questions history logs", error);
+
+            if (shouldBreak) break;
+            toBlock = fromBlock - 1n;
+            fromBlock = toBlock - LOGS_BLOCKS_SIZE;
         }
 
-        return questionsHistoryFromLogs
-            .sort((a, b) => {
-                return Number(a.block) - Number(b.block);
-            })
-            .map((log) => log.questionId);
+        // FIXME: question ids are not correctly sorted, check, but it doesn't seem to bother Reality claim function
+
+        const sortedAnswersHistory = Object.keys(answersHistory).reduce(
+            (accumulator, questionId) => {
+                return {
+                    ...accumulator,
+                    [questionId]: answersHistory[questionId as Hex]
+                        .sort((a, b) => {
+                            if (a.blockNumber === b.blockNumber)
+                                return Number(a.logIndex - b.logIndex);
+                            else return Number(a.blockNumber - b.blockNumber);
+                        })
+                        .map((answer) => {
+                            return {
+                                answerer: answer.answerer,
+                                bond: answer.bond,
+                                hash: answer.hash,
+                                answer: answer.answer,
+                                timestamp: answer.timestamp,
+                            };
+                        }),
+                };
+            },
+            {}
+        );
+
+        return sortedAnswersHistory;
     }
 }
 
