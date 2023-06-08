@@ -12,20 +12,26 @@ import REALITY_ETH_V3_ABI from "../../abis/reality-eth-v3";
 import { enforce, isCID } from "@carrot-kpi/sdk";
 import { RealityResponse, RealityQuestion } from "../../page/types";
 import {
+    Address,
+    PublicClient,
     decodeAbiParameters,
     getContract,
-    getEventSelector,
     parseAbiItem,
 } from "viem";
 import { type Hex } from "viem";
 
 const LOGS_BLOCKS_SIZE = __DEV__ ? 10n : 5_000n;
-const NEW_QUESTION_LOG_TOPIC = getEventSelector(
-    "LogNewQuestion(bytes32,address,uint256,string,bytes32,address,uint32,uint32,uint256,uint256)"
-);
-const NEW_ANSWER_LOG_TOPIC = getEventSelector(
-    "LogNewAnswer(bytes32,bytes32,bytes32,address,uint256,uint256,bool)"
-);
+
+type HistoryQuestion = {
+    logIndex: number | null;
+    blockNumber: bigint | null;
+    questionId: Hex;
+};
+
+type HistoryRealityResponse = Record<
+    Hex,
+    Required<RealityResponse & { logIndex: number; blockNumber: bigint }>[]
+>;
 
 class Fetcher implements IPartialFetcher {
     public supportedInChain(): boolean {
@@ -112,19 +118,6 @@ class Fetcher implements IPartialFetcher {
             `unsupported chain with id ${chainId}`
         );
 
-        let originalQuestionId = questionId;
-        let answersHistory: Record<
-            Hex,
-            Required<
-                RealityResponse & { logIndex: number; blockNumber: bigint }
-            >[]
-        > = {};
-        const questionsHistory: {
-            logIndex: number | null;
-            blockNumber: bigint | null;
-            questionId: Hex;
-        }[] = [];
-
         const realityContract = getContract({
             abi: REALITY_ETH_V3_ABI,
             address: realityV3Address,
@@ -134,46 +127,103 @@ class Fetcher implements IPartialFetcher {
             questionId,
         ]);
 
-        // look for the original question id if the current one is a reopener
+        let originalQuestionId = questionId;
         if (reopener) {
-            let toBlock = await publicClient.getBlockNumber();
-            let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
-
-            while (true) {
-                const reopeneQuestionEventLogs = await publicClient.getLogs({
-                    address: realityV3Address,
-                    event: parseAbiItem(
-                        "event LogReopenQuestion(bytes32 indexed question_id,bytes32 indexed reopened_question_id)"
-                    ),
-                    args: {
-                        question_id: questionId,
-                    },
-                    fromBlock,
-                    toBlock,
-                });
-
-                if (
-                    reopeneQuestionEventLogs[0] &&
-                    reopeneQuestionEventLogs[0].topics[2]
-                ) {
-                    const [reopenedQuestionIdLog] = decodeAbiParameters(
-                        [
-                            {
-                                type: "bytes32",
-                                name: "reopened_question_id",
-                            },
-                        ],
-                        reopeneQuestionEventLogs[0].topics[2]
-                    );
-
-                    originalQuestionId = reopenedQuestionIdLog;
-                    break;
-                }
-
-                toBlock = fromBlock - 1n;
-                fromBlock = toBlock - LOGS_BLOCKS_SIZE;
-            }
+            originalQuestionId = await this.fetchOriginalQuestionId(
+                publicClient,
+                realityV3Address,
+                questionId
+            );
         }
+
+        const questionsHistory = await this.fetchQuestionsHistory(
+            publicClient,
+            realityV3Address,
+            originalQuestionId
+        );
+        const answersHistory = await this.fetchAnswersHistory(
+            publicClient,
+            realityV3Address,
+            originalQuestionId,
+            questionsHistory
+        );
+
+        // TODO: question ids are not correctly sorted, but it doesn't seem to bother Reality claim function
+        return Object.keys(answersHistory).reduce((accumulator, questionId) => {
+            return {
+                ...accumulator,
+                [questionId]: answersHistory[questionId as Hex]
+                    .sort((a, b) => {
+                        if (a.blockNumber === b.blockNumber)
+                            return a.logIndex - b.logIndex;
+                        else return Number(a.blockNumber - b.blockNumber);
+                    })
+                    .map((answer) => {
+                        return {
+                            answerer: answer.answerer,
+                            bond: answer.bond,
+                            hash: answer.hash,
+                            answer: answer.answer,
+                            timestamp: answer.timestamp,
+                        };
+                    }),
+            };
+        }, {});
+    }
+
+    private async fetchOriginalQuestionId(
+        publicClient: PublicClient,
+        realityV3Address: Address,
+        questionId: Hex
+    ): Promise<Hex> {
+        let toBlock = await publicClient.getBlockNumber();
+        let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+
+        let originalQuestionId: Hex;
+        while (true) {
+            const reopeneQuestionEventLogs = await publicClient.getLogs({
+                address: realityV3Address,
+                event: parseAbiItem(
+                    "event LogReopenQuestion(bytes32 indexed question_id,bytes32 indexed reopened_question_id)"
+                ),
+                args: {
+                    question_id: questionId,
+                },
+                fromBlock,
+                toBlock,
+            });
+
+            if (
+                reopeneQuestionEventLogs[0] &&
+                reopeneQuestionEventLogs[0].topics[2]
+            ) {
+                const [reopenedQuestionIdLog] = decodeAbiParameters(
+                    [
+                        {
+                            type: "bytes32",
+                            name: "reopened_question_id",
+                        },
+                    ],
+                    reopeneQuestionEventLogs[0].topics[2]
+                );
+
+                originalQuestionId = reopenedQuestionIdLog;
+                break;
+            }
+
+            toBlock = fromBlock - 1n;
+            fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+        }
+
+        return originalQuestionId;
+    }
+
+    private async fetchQuestionsHistory(
+        publicClient: PublicClient,
+        realityV3Address: Address,
+        originalQuestionId: Hex
+    ): Promise<HistoryQuestion[]> {
+        const questionsHistory: HistoryQuestion[] = [];
 
         let toBlock = await publicClient.getBlockNumber();
         let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
@@ -259,13 +309,24 @@ class Fetcher implements IPartialFetcher {
             fromBlock = toBlock - LOGS_BLOCKS_SIZE;
         }
 
-        if (questionsHistory.length === 0) {
-            return {};
-        }
+        return questionsHistory;
+    }
 
-        toBlock = await publicClient.getBlockNumber();
-        fromBlock = toBlock - LOGS_BLOCKS_SIZE;
-        shouldBreak = false;
+    private async fetchAnswersHistory(
+        publicClient: PublicClient,
+        realityV3Address: Address,
+        originalQuestionId: Hex,
+        questionsHistory: HistoryQuestion[]
+    ): Promise<HistoryRealityResponse> {
+        const realityContract = getContract({
+            abi: REALITY_ETH_V3_ABI,
+            address: realityV3Address,
+            publicClient,
+        });
+
+        let answersHistory: HistoryRealityResponse = {};
+        let toBlock = await publicClient.getBlockNumber();
+        let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
         while (true) {
             const newAnwersEventLogs = await publicClient.getLogs({
                 address: realityV3Address,
@@ -286,109 +347,78 @@ class Fetcher implements IPartialFetcher {
                     "event LogNewQuestion(bytes32 indexed question_id,address indexed user,uint256 template_id,string question,bytes32 indexed content_hash,address arbitrator,uint32 timeout,uint32 opening_ts,uint256 nonce,uint256 created)"
                 ),
                 args: {
-                    question_id: questionsHistory.map(
-                        (question) => question.questionId
-                    ),
+                    question_id: originalQuestionId,
                 },
                 fromBlock,
                 toBlock,
             });
 
-            const logs = [...newAnwersEventLogs, ...newQuestionEventLogs];
-            for (const log of logs) {
-                if (log.topics[0] === NEW_ANSWER_LOG_TOPIC) {
-                    const [questionId] = decodeAbiParameters(
-                        [{ type: "bytes32", name: "question_id" }],
-                        log.topics[1]
-                    );
-                    const [answerer] = decodeAbiParameters(
-                        [{ type: "address", name: "answerer" }],
-                        log.topics[2]
-                    );
-                    const [answer, hash, bond, timestamp] = decodeAbiParameters(
-                        [
-                            { type: "bytes32", name: "answer" },
-                            { type: "bytes32", name: "hash" },
-                            { type: "uint256", name: "bond" },
-                            { type: "uint256", name: "timestamp" },
-                            { type: "bool", name: "commitment" },
-                        ],
-                        log.data
-                    );
+            for (const newAnswerLog of newAnwersEventLogs) {
+                const [questionId] = decodeAbiParameters(
+                    [{ type: "bytes32", name: "question_id" }],
+                    newAnswerLog.topics[1]
+                );
+                const [answerer] = decodeAbiParameters(
+                    [{ type: "address", name: "answerer" }],
+                    newAnswerLog.topics[2]
+                );
+                const [answer, hash, bond, timestamp] = decodeAbiParameters(
+                    [
+                        { type: "bytes32", name: "answer" },
+                        { type: "bytes32", name: "hash" },
+                        { type: "uint256", name: "bond" },
+                        { type: "uint256", name: "timestamp" },
+                        { type: "bool", name: "commitment" },
+                    ],
+                    newAnswerLog.data
+                );
 
-                    // if the question's history hash is 0x00 it means the rewards are already been claimed,
-                    // so we need to ignore its answers
-                    const question = await realityContract.read.questions([
-                        questionId,
-                    ]);
-                    if (question.history_hash === BYTES32_ZERO) continue;
+                // if the question's history hash is 0x00 it means the rewards are already been claimed,
+                // so we need to ignore its answers
+                const question = await realityContract.read.questions([
+                    questionId,
+                ]);
+                if (question.history_hash === BYTES32_ZERO) continue;
 
-                    answersHistory = {
-                        ...answersHistory,
-                        [questionId]: [
-                            ...(answersHistory[questionId]
-                                ? answersHistory[questionId]
-                                : []),
-                            {
-                                logIndex: log.logIndex,
-                                blockNumber: log.blockNumber,
-                                answerer,
-                                bond,
-                                hash,
-                                answer,
-                                timestamp,
-                            },
-                        ],
-                    };
-                } else if (log.topics[0] === NEW_QUESTION_LOG_TOPIC) {
-                    const [questionId] = decodeAbiParameters(
-                        [
-                            {
-                                type: "bytes32",
-                                name: "question_id",
-                            },
-                        ],
-                        log.topics[1]
-                    );
-
-                    // once the original question has been found exit the whole fetch
-                    if (questionId === originalQuestionId) shouldBreak = true;
-                    break;
-                }
+                answersHistory = {
+                    ...answersHistory,
+                    [questionId]: [
+                        ...(answersHistory[questionId]
+                            ? answersHistory[questionId]
+                            : []),
+                        {
+                            logIndex: newAnswerLog.logIndex,
+                            blockNumber: newAnswerLog.blockNumber,
+                            answerer,
+                            bond,
+                            hash,
+                            answer,
+                            timestamp,
+                        },
+                    ],
+                };
             }
 
-            if (shouldBreak) break;
+            // once the original question has been found exit the whole fetch
+            if (newQuestionEventLogs[0]) {
+                const [questionId] = decodeAbiParameters(
+                    [
+                        {
+                            type: "bytes32",
+                            name: "question_id",
+                        },
+                    ],
+                    newQuestionEventLogs[0].topics[1]
+                );
+
+                if (questionId === originalQuestionId) break;
+            }
+
             toBlock = fromBlock - 1n;
             fromBlock = toBlock - LOGS_BLOCKS_SIZE;
         }
 
-        // FIXME: question ids are not correctly sorted, check, but it doesn't seem to bother Reality claim function
-
-        const sortedAnswersHistory = Object.keys(answersHistory).reduce(
-            (accumulator, questionId) => {
-                return {
-                    ...accumulator,
-                    [questionId]: answersHistory[questionId as Hex]
-                        .sort((a, b) => {
-                            if (a.blockNumber === b.blockNumber)
-                                return Number(a.logIndex - b.logIndex);
-                            else return Number(a.blockNumber - b.blockNumber);
-                        })
-                        .map((answer) => {
-                            return {
-                                answerer: answer.answerer,
-                                bond: answer.bond,
-                                hash: answer.hash,
-                                answer: answer.answer,
-                                timestamp: answer.timestamp,
-                            };
-                        }),
-                };
-            },
-            {}
-        );
-
-        return sortedAnswersHistory;
+        return answersHistory;
     }
 }
 
