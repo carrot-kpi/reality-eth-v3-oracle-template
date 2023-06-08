@@ -306,24 +306,26 @@ export const AnswerForm = ({
     const { writeAsync: finalizeOracleAsync } =
         useContractWrite(finalizeOracleConfig);
 
-    const { config: requestArbitrationConfig } = usePrepareContractWrite({
-        chainId: chain?.id,
-        address:
-            !!chain && chain.id && chain.id in SupportedChainId
-                ? TRUSTED_REALITY_ARBITRATORS[chain.id as SupportedChainId]
-                : undefined,
-        abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
-        functionName: "requestArbitration",
-        args: [question.id, 0n],
-        value: disputeFee || 0n,
-        enabled:
-            !!chain &&
-            !!chain.id &&
-            !finalized &&
-            !!disputeFee &&
-            !isAnswerPendingArbitration(question) &&
-            !isAnswerMissing(question),
-    });
+    const { config: requestArbitrationConfig, error } = usePrepareContractWrite(
+        {
+            chainId: chain?.id,
+            address:
+                !!chain && chain.id && chain.id in SupportedChainId
+                    ? TRUSTED_REALITY_ARBITRATORS[chain.id as SupportedChainId]
+                    : undefined,
+            abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
+            functionName: "requestArbitration",
+            args: [question.id, 0n],
+            value: disputeFee || 0n,
+            enabled:
+                !!chain &&
+                !!chain.id &&
+                !finalized &&
+                !!disputeFee &&
+                !isAnswerPendingArbitration(question) &&
+                !isAnswerMissing(question),
+        }
+    );
     const { writeAsync: requestArbitrationAsync } = useContractWrite(
         requestArbitrationConfig
     );
@@ -690,6 +692,15 @@ export const AnswerForm = ({
         };
     }, [claimMultipleAndWithdrawAsync, onTx, t, publicClient]);
 
+    // TODO: remove console log
+    console.log({
+        finalized,
+        requestArbitrationAsync,
+        requestArbitrationError: error,
+        answerMissing: isAnswerMissing(question),
+        pendingArbitration: isAnswerPendingArbitration(question),
+    });
+
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
     const requestArbitrationDisabled =
@@ -709,7 +720,7 @@ export const AnswerForm = ({
     return (
         <div className="flex flex-col">
             {kpiToken.expired && !oracle.finalized && (
-                <div className="p-6 flex gap-3 items-center border-b bg-orange/40 dark:border-white">
+                <div className="p-6 flex gap-3 items-center border-b border-black bg-orange/40 dark:border-white">
                     <Danger width={36} height={36} />
                     <Typography>{t("label.question.kpiExpired")}</Typography>
                 </div>

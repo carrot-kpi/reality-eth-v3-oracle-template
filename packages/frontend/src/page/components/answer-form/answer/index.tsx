@@ -140,7 +140,7 @@ export const Answer = ({
                         ) : (
                             // TODO: Timer could support bigint values
                             <Timer
-                                to={Number(question.finalizationTimestamp)}
+                                to={question.finalizationTimestamp}
                                 seconds
                                 countdown
                             />

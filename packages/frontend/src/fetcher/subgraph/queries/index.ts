@@ -8,8 +8,8 @@ export interface SubgraphQuestion {
     arbitrator: Address;
     openingTimestamp: string;
     timeout: string;
-    currentScheduledFinalizationTimestamp: string;
-    isPendingArbitration: boolean;
+    finalizationTimestamp: string;
+    pendingArbitration: boolean;
     bounty: string;
     currentAnswer?: string;
     historyHash?: Hash;

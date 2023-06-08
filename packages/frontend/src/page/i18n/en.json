@@ -5,7 +5,7 @@
     "label.question.time.minutes": "Minutes",
     "label.question.time.seconds": "Seconds",
     "label.question.arbitrator": "Arbitrator",
-    "label.question.arbitrator.disputeFee": "The arbitrator charges {{fee}} ({{symbol}}) for the arbitration",
+    "label.question.arbitrator.disputeFee": "The arbitrator charges {{fee}} {{symbol}} for the arbitration",
     "label.question.question": "Question",
     "label.question.rewards": "Rewards",
     "label.question.timeout": "Timeout",

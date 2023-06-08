@@ -1,5 +1,5 @@
 import { Typography } from "@carrot-kpi/ui";
-import { cva } from "class-variance-authority";
+import { cx } from "class-variance-authority";
 import type { ReactElement } from "react";
 
 interface CountdownFrameProps {
@@ -8,20 +8,18 @@ interface CountdownFrameProps {
     className?: { root?: string };
 }
 
-const rootStyles = cva([
-    "flex flex-col",
-    "gap-3 md:gap-6",
-    "justify-center items-center",
-    "pt-3",
-]);
-
 export const CountdownFrame = ({
     label,
     timeFrame,
     className,
 }: CountdownFrameProps): ReactElement => {
     return (
-        <div className={rootStyles({ className: className?.root })}>
+        <div
+            className={cx(
+                "flex flex-col justify-center items-center",
+                className?.root
+            )}
+        >
             <Typography
                 className={{
                     root: "text-2xl sm:text-[44px] md:text-[54px] lg:text-[64px]",

@@ -62,11 +62,11 @@ class Fetcher implements IPartialFetcher {
             timeout: Number(question.timeout),
             openingTimestamp: Number(question.openingTimestamp),
             finalizationTimestamp:
-                question.currentScheduledFinalizationTimestamp ===
+                question.finalizationTimestamp ===
                 SUBGRAPH_CURRENT_ANSWER_FINALIZATION_TIMESTAMP_NULL_VALUE
                     ? 0
-                    : Number(question.currentScheduledFinalizationTimestamp),
-            pendingArbitration: question.isPendingArbitration,
+                    : Number(question.finalizationTimestamp),
+            pendingArbitration: question.pendingArbitration,
             bounty: BigInt(question.bounty),
             bestAnswer: question.currentAnswer || BYTES32_ZERO,
             bond: BigInt(question.currentAnswerBond),
