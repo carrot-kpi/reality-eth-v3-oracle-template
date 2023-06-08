@@ -5,7 +5,7 @@ import {
 } from "@carrot-kpi/react";
 import { usePublicClient } from "wagmi";
 import { Fetcher } from "../fetcher";
-import { RealityResponse } from "../page/types";
+import type { RealityResponse } from "../page/types";
 import type { Address, Hex } from "viem";
 
 export function useRealityClaimableHistory(

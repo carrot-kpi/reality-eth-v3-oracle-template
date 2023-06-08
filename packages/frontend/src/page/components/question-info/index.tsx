@@ -1,4 +1,4 @@
-import { ReactElement, ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 import { cva } from "class-variance-authority";
 import { Typography } from "@carrot-kpi/ui";
 

@@ -1,6 +1,6 @@
 import { type PublicClient } from "wagmi";
-import { RealityResponse, RealityQuestion } from "../page/types";
-import {
+import type { RealityResponse, RealityQuestion } from "../page/types";
+import type {
     FullFetcherFetchClaimableHistoryParams,
     FullFetcherFetchQuestionParams,
     IFullFetcher,

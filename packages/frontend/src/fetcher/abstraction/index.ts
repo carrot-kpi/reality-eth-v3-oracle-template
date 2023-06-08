@@ -1,5 +1,5 @@
 import { type PublicClient } from "wagmi";
-import { RealityResponse, RealityQuestion } from "../../page/types";
+import type { RealityResponse, RealityQuestion } from "../../page/types";
 import { ChainId } from "@carrot-kpi/sdk";
 import type { Address, Hex } from "viem";
 

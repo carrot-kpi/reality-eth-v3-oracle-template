@@ -1,11 +1,17 @@
 import "../global.css";
 import "@carrot-kpi/ui/styles.css";
 
-import { ReactElement, useCallback, useEffect, useMemo, useState } from "react";
-import { OracleRemoteCreationFormProps } from "@carrot-kpi/react";
+import {
+    type ReactElement,
+    useCallback,
+    useEffect,
+    useMemo,
+    useState,
+} from "react";
+import { type OracleRemoteCreationFormProps } from "@carrot-kpi/react";
 import {
     Select,
-    SelectOption,
+    type SelectOption,
     NumberInput,
     MarkdownInput,
     DateTimeInput,
@@ -20,7 +26,7 @@ import {
     TIMEOUT_OPTIONS,
     MINIMUM_ANSWER_PERIODS_AMOUNT,
 } from "../commons";
-import { OptionForArbitrator, State } from "./types";
+import type { OptionForArbitrator, State } from "./types";
 import { ArbitratorOption } from "./components/arbitrator-option";
 import dayjs, { Dayjs } from "dayjs";
 import durationPlugin from "dayjs/plugin/duration";

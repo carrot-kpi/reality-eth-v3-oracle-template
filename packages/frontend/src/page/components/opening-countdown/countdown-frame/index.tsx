@@ -1,6 +1,6 @@
 import { Typography } from "@carrot-kpi/ui";
 import { cva } from "class-variance-authority";
-import { ReactElement } from "react";
+import type { ReactElement } from "react";
 
 interface CountdownFrameProps {
     label: string;

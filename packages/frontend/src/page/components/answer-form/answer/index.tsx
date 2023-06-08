@@ -1,10 +1,10 @@
 import {
-    NamespacedTranslateFunction,
+    type NamespacedTranslateFunction,
     useNativeCurrency,
 } from "@carrot-kpi/react";
 import { Skeleton, Timer, Typography } from "@carrot-kpi/ui";
 import { cva } from "class-variance-authority";
-import { ReactElement } from "react";
+import type { ReactElement } from "react";
 import { BYTES32_ZERO } from "../../../../commons";
 import {
     isAnsweredTooSoon,
@@ -15,7 +15,7 @@ import {
     isAnswerMissing,
     isAnswerPendingArbitration,
 } from "../../../../utils";
-import { RealityQuestion } from "../../../types";
+import type { RealityQuestion } from "../../../types";
 import { AnswerInfo } from "../../answer-info";
 import { formatUnits } from "viem";
 

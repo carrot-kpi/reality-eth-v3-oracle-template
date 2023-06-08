@@ -1,6 +1,6 @@
-import { NumberFormatValue } from "../../../types";
+import type { NumberFormatValue } from "../../../types";
 import { NumberInput, Typography } from "@carrot-kpi/ui";
-import { NamespacedTranslateFunction } from "@carrot-kpi/react";
+import type { NamespacedTranslateFunction } from "@carrot-kpi/react";
 import { infoPopoverStyles, inputStyles } from "../common/styles";
 import { useNetwork } from "wagmi";
 

@@ -1,6 +1,6 @@
 import {
-    NamespacedTranslateFunction,
-    OraclePageProps,
+    type NamespacedTranslateFunction,
+    type OraclePageProps,
     TxType,
     useNativeCurrency,
 } from "@carrot-kpi/react";
@@ -16,8 +16,8 @@ import {
     Popover,
 } from "@carrot-kpi/ui";
 import {
-    ChangeEvent,
-    ReactElement,
+    type ChangeEvent,
+    type ReactElement,
     useCallback,
     useEffect,
     useMemo,
@@ -59,7 +59,7 @@ import {
     isAnswerPendingArbitration,
     isQuestionFinalized,
 } from "../../../utils";
-import { NumberFormatValue, RealityQuestion } from "../../types";
+import type { NumberFormatValue, RealityQuestion } from "../../types";
 import { Answer } from "./answer";
 import REALITY_ETH_V3_ABI from "../../../abis/reality-eth-v3";
 import REALITY_ORACLE_V3_ABI from "../../../abis/reality-oracle-v3";

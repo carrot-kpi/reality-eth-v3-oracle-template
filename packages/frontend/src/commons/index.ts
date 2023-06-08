@@ -1,7 +1,7 @@
 import { ChainId } from "@carrot-kpi/sdk";
-import { SelectOption } from "@carrot-kpi/ui";
+import type { SelectOption } from "@carrot-kpi/ui";
 import CarrotIcon from "../assets/carrot";
-import { OptionForArbitrator } from "../creation-form/types";
+import type { OptionForArbitrator } from "../creation-form/types";
 import { type Address } from "viem";
 
 // TODO: add arbitrum goerli to supported chains

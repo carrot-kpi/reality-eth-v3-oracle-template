@@ -1,4 +1,4 @@
-import {
+import type {
     FetchClaimableHistoryParams,
     FetchQuestionParams,
     IPartialFetcher,
@@ -10,10 +10,10 @@ import {
 } from "../../commons";
 import REALITY_ETH_V3_ABI from "../../abis/reality-eth-v3";
 import { enforce, isCID } from "@carrot-kpi/sdk";
-import { RealityResponse, RealityQuestion } from "../../page/types";
+import type { RealityResponse, RealityQuestion } from "../../page/types";
 import {
-    Address,
-    PublicClient,
+    type Address,
+    type PublicClient,
     decodeAbiParameters,
     getContract,
     parseAbiItem,

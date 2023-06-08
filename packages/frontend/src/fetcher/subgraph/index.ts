@@ -1,4 +1,4 @@
-import {
+import type {
     FetchClaimableHistoryParams,
     FetchQuestionParams,
     IPartialFetcher,
@@ -11,12 +11,12 @@ import {
     SupportedChainId,
 } from "../../commons";
 import { enforce, query } from "@carrot-kpi/sdk";
-import { RealityResponse, RealityQuestion } from "../../page/types";
+import type { RealityResponse, RealityQuestion } from "../../page/types";
 import {
     GetQuestionQuery,
-    GetQuestionQueryResponse,
+    type GetQuestionQueryResponse,
+    type GetResponsesQueryResponse,
     GetResponsesQuery,
-    GetResponsesQueryResponse,
 } from "./queries";
 import { type Hex } from "viem";
 
