@@ -4956,6 +4956,21 @@ carrot-scripts@0.22.1:
     tsconfig "*"
     viem "^0.3.36"
 
+carrot-scripts@0.22.2:
+  version "0.22.2"
+  resolved "https://registry.yarnpkg.com/carrot-scripts/-/carrot-scripts-0.22.2.tgz#f2e3b4f42885c04809445de69c7361c54a6e5fdf"
+  integrity sha512-pGsvQ4SnfAXhznAigtoNo0V/+AXKAS+rRrRG26L4CJ+4fjMfK4HVqneiIHYlD3/Pxki2m4L+1ffTH4399/XwvA==
+  dependencies:
+    "@carrot-kpi/ganache" "^0.2.0"
+    "@carrot-kpi/sdk" "^1.27.5"
+    chalk "^5.2.0"
+    ethers "5"
+    execa "^7.1.1"
+    ipfs-http-client "^60.0.1"
+    ora "^6.3.1"
+    tsconfig "*"
+    viem "^1.0.2"
+
 case-anything@^2.1.10:
   version "2.1.13"
   resolved "https://registry.yarnpkg.com/case-anything/-/case-anything-2.1.13.tgz#0cdc16278cb29a7fcdeb072400da3f342ba329e9"
@@ -7446,7 +7461,7 @@ ipfs-core-utils@^0.18.1:
     timeout-abort-controller "^3.0.0"
     uint8arrays "^4.0.2"
 
-ipfs-http-client@^60.0.0:
+ipfs-http-client@^60.0.0, ipfs-http-client@^60.0.1:
   version "60.0.1"
   resolved "https://registry.yarnpkg.com/ipfs-http-client/-/ipfs-http-client-60.0.1.tgz#d2e9ab430aad43a92a6e44008e534afba4fd22b9"
   integrity sha512-amwM5TNuf077J+/q27jPHfatC05vJuIbX6ZnlYLjc2QsjOCKsORNBqV3brNw7l+fPrijV1yrwEDLG3JEnKsfMw==
