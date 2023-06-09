@@ -11,7 +11,7 @@ export interface State {
     minimumBond: string;
 }
 
-export interface OptionForArbitrator extends SelectOption {
+export interface OptionForArbitrator extends SelectOption<Address> {
     icon: FunctionComponent<SVGProps<SVGSVGElement>>;
     disputeFee?: string;
 }

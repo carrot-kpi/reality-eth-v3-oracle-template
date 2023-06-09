@@ -1095,10 +1095,10 @@
     bufferutil "4.0.5"
     utf-8-validate "5.0.7"
 
-"@carrot-kpi/host-frontend@^0.7.4":
-  version "0.7.4"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/host-frontend/-/host-frontend-0.7.4.tgz#69dc8136dad2c73c0d33890448c898e7405aca59"
-  integrity sha512-4WfRd3BDqL6eo3qnJSMci2aImQN1QBShSJpDsFoZq4iA6QTFKifO47Jt0erp5jedvUGklIHA+dLcmm0Y04/Lxg==
+"@carrot-kpi/host-frontend@^0.7.5":
+  version "0.7.5"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/host-frontend/-/host-frontend-0.7.5.tgz#0f935c67b65c05557052884080026cd6531d2bec"
+  integrity sha512-fLLtdqPt9XWaQWZIOfL2QubupuDBroL2Q2OcGPDAiQ02GHEKAevcGQa97Gxt7XJp3LKPWrUHIlL1dnRM57iAdA==
   dependencies:
     "@carrot-kpi/react" "*"
     "@carrot-kpi/sdk" "*"
@@ -1149,10 +1149,10 @@
   resolved "https://registry.yarnpkg.com/@carrot-kpi/switzer-font/-/switzer-font-0.1.0.tgz#2046a14543d382d06b88ccc36354fff3648c0563"
   integrity sha512-BMDeIYgXPTRGYc67EnUJiZqRedHUvQkSFBt7yFx0LxgdDjcW/Xb//KB+4NS0KRM1iiWTaJarfIz3wfHrTcbrGQ==
 
-"@carrot-kpi/ui@*", "@carrot-kpi/ui@^0.48.0":
-  version "0.48.0"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/ui/-/ui-0.48.0.tgz#1d2add8d604b4859536d733a28c1319d99961f84"
-  integrity sha512-/FlS+DlxIrt7PYvfvMcptF+qDs7B216g7LfXVssjOECKaWzh05DMl5mkqIT0cTf3qP9u2FT1QGnEu2FN0cv37Q==
+"@carrot-kpi/ui@*", "@carrot-kpi/ui@^0.48.2":
+  version "0.48.2"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/ui/-/ui-0.48.2.tgz#f28529c5dc2fe0feb637c8cbae1d051b94650210"
+  integrity sha512-Juj/+6wz+Xmo8THECfUDSS5HpOyfqrv8+AxYiGnt5ZjlgTL2weRgXYO746dOiguwkMQnjVaTXkYIcbWvztJJ6w==
   dependencies:
     "@carrot-kpi/sdk" "*"
     "@popperjs/core" "^2.11.8"
@@ -3241,9 +3241,9 @@
     "@types/estree" "*"
 
 "@types/eslint@*":
-  version "8.40.0"
-  resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-8.40.0.tgz#ae73dc9ec5237f2794c4f79efd6a4c73b13daf23"
-  integrity sha512-nbq2mvc/tBrK9zQQuItvjJl++GTN5j06DaPtp3hZCpngmG6Q3xoyEmd0TwZI0gAy/G1X0zhGBbr2imsGFdFV0g==
+  version "8.40.1"
+  resolved "https://registry.yarnpkg.com/@types/eslint/-/eslint-8.40.1.tgz#92edc592c3575b52a8e790cd5ec04efe28f3d24c"
+  integrity sha512-vRb792M4mF1FBT+eoLecmkpLXwxsBHvWWRGJjzbYANBM6DtiJc6yETyv4rqDA6QNjF1pkj1U7LMA6dGb3VYlHw==
   dependencies:
     "@types/estree" "*"
     "@types/json-schema" "*"
@@ -3559,9 +3559,9 @@
     "@types/node" "*"
 
 "@types/ws@^8.5.1":
-  version "8.5.4"
-  resolved "https://registry.yarnpkg.com/@types/ws/-/ws-8.5.4.tgz#bb10e36116d6e570dd943735f86c933c1587b8a5"
-  integrity sha512-zdQDHKUgcX/zBc4GrwsE/7dVdAD8JR4EuiAXiiUhhfyIJXXb2+PrGshFyeXWQPMmmZ2XxgaqclgpIC7eTXc1mg==
+  version "8.5.5"
+  resolved "https://registry.yarnpkg.com/@types/ws/-/ws-8.5.5.tgz#af587964aa06682702ee6dcbc7be41a80e4b28eb"
+  integrity sha512-lwhs8hktwxSjf9UaZ9tG5M03PGogvFaH8gUgLNbN9HKIg0dvv6q+gkSuJ8HN4/VbyxkuLzCjlN7GquQ0gUJfIg==
   dependencies:
     "@types/node" "*"
 
@@ -4937,9 +4937,9 @@ caniuse-api@^3.0.0:
     lodash.uniq "^4.5.0"
 
 caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001464, caniuse-lite@^1.0.30001489:
-  version "1.0.30001495"
-  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001495.tgz#64a0ccef1911a9dcff647115b4430f8eff1ef2d9"
-  integrity sha512-F6x5IEuigtUfU5ZMQK2jsy5JqUUlEFRVZq8bO2a+ysq5K7jD6PPc9YXZj78xDNS3uNchesp1Jw47YXEqr+Viyg==
+  version "1.0.30001497"
+  resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001497.tgz#0e5387b98e7dbf9c4f743fb16e92cbf0ca780714"
+  integrity sha512-I4/duVK4wL6rAK/aKZl3HXB4g+lIZvaT4VLAn2rCgJ38jVLb0lv2Xug6QuqmxXFVRJMF74SPPWPJ/1Sdm3vCzw==
 
 carrot-scripts@0.22.1:
   version "0.22.1"
@@ -12159,10 +12159,10 @@ viem@^0.3.36:
     isomorphic-ws "5.0.0"
     ws "8.12.0"
 
-viem@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/viem/-/viem-1.0.0.tgz#28709e40addf74d5be45c96b73e521b014694c0c"
-  integrity sha512-JqdO5TYSuv+/cV9xOmHUKB6qXeyLHtl3gcYYHnfFstfdzivfBttmKtwHiZPdffvcr5DqKsYFT5LLrFnfz5vfLQ==
+viem@^1.0.0, viem@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-1.0.2.tgz#0798c80598daddc05b7132b642ae2f60811c4fbe"
+  integrity sha512-3Bn+CuInU8zsdKqqzFDWL018x4B9HDjPIISztReGcBjikY+04tP7CrQQCf1lbinK3wWrEoFU9VDiptCciNjUQA==
   dependencies:
     "@adraffy/ens-normalize" "1.9.0"
     "@noble/curves" "1.0.0"

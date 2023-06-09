@@ -105,7 +105,7 @@ export const Component = ({
             : null
     );
     const [realityTemplateId, setRealityTemplateId] =
-        useState<SelectOption | null>(
+        useState<SelectOption<number> | null>(
             state.realityTemplateId !== null &&
                 state.realityTemplateId !== undefined
                 ? REALITY_TEMPLATE_OPTIONS.find(
@@ -115,9 +115,8 @@ export const Component = ({
         );
     const [question, setQuestion] = useState(state.question || "");
 
-    const [questionTimeout, setQuestionTimeout] = useState<SelectOption | null>(
-        null
-    );
+    const [questionTimeout, setQuestionTimeout] =
+        useState<SelectOption<number> | null>(null);
     const [openingTimestamp, setOpeningTimestamp] = useState<Dayjs | null>(
         null
     );

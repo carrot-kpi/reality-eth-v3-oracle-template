@@ -205,7 +205,7 @@ class Fetcher implements IPartialFetcher {
                         },
                     ],
                     reopeneQuestionEventLogs[0].topics[2]
-                );
+                ) as [Hex];
 
                 originalQuestionId = reopenedQuestionIdLog;
                 break;
@@ -268,7 +268,7 @@ class Fetcher implements IPartialFetcher {
                         },
                     ],
                     newAndReopenLog.topics[1]
-                );
+                ) as [Hex];
 
                 const newQuestionEventLogs = await publicClient.getLogs({
                     address: realityV3Address,
@@ -291,7 +291,7 @@ class Fetcher implements IPartialFetcher {
                             },
                         ],
                         newLog.topics[1]
-                    );
+                    ) as [Hex];
 
                     questionsHistory.push({
                         logIndex: newLog.logIndex,
@@ -357,11 +357,11 @@ class Fetcher implements IPartialFetcher {
                 const [questionId] = decodeAbiParameters(
                     [{ type: "bytes32", name: "question_id" }],
                     newAnswerLog.topics[1]
-                );
+                ) as [Hex];
                 const [answerer] = decodeAbiParameters(
                     [{ type: "address", name: "answerer" }],
                     newAnswerLog.topics[2]
-                );
+                ) as [Address];
                 const [answer, hash, bond, timestamp] = decodeAbiParameters(
                     [
                         { type: "bytes32", name: "answer" },
@@ -371,7 +371,7 @@ class Fetcher implements IPartialFetcher {
                         { type: "bool", name: "commitment" },
                     ],
                     newAnswerLog.data
-                );
+                ) as [Hex, Hex, bigint, bigint, boolean];
 
                 // if the question's history hash is 0x00 it means the rewards are already been claimed,
                 // so we need to ignore its answers
@@ -409,7 +409,7 @@ class Fetcher implements IPartialFetcher {
                         },
                     ],
                     newQuestionEventLogs[0].topics[1]
-                );
+                ) as [Hex];
 
                 if (questionId === originalQuestionId) break;
             }
