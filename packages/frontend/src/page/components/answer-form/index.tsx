@@ -639,6 +639,10 @@ export const AnswerForm = ({
 
     // TODO: remove console log
     console.log({
+        chainId: chain?.id,
+        disputeFee,
+        arbitratorAddress:
+            TRUSTED_REALITY_ARBITRATORS[chain?.id as SupportedChainId],
         finalized,
         requestArbitrationAsync,
         requestArbitrationError: error,
