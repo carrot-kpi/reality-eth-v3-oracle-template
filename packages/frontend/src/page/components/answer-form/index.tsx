@@ -268,7 +268,6 @@ export const AnswerForm = ({
                 !!chain &&
                 !!chain.id &&
                 !finalized &&
-                !!disputeFee &&
                 !isAnswerPendingArbitration(question) &&
                 !isAnswerMissing(question),
         }
