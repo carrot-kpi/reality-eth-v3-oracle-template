@@ -14,7 +14,7 @@ export enum SupportedChainId {
 export const TRUSTED_REALITY_ARBITRATORS: Record<SupportedChainId, Address> = {
     [SupportedChainId.GNOSIS]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0xFC4AB7D9D2bD20Bd2F518ef47b8160d95BD2Ac16",
+        : "0xd5192f7DB2c20764aa66336F61f711e3Fe9CC43C",
     [SupportedChainId.SEPOLIA]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
         : "0x54ca9Bc25Fd623c94f5E1db4f7CEe846513AA844",
