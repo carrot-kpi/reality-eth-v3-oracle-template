@@ -691,19 +691,6 @@ export const AnswerForm = ({
         };
     }, [claimMultipleAndWithdrawAsync, onTx, t, publicClient]);
 
-    // TODO: remove console log
-    console.log({
-        chainId: chain?.id,
-        disputeFee,
-        arbitratorAddress:
-            TRUSTED_REALITY_ARBITRATORS[chain?.id as SupportedChainId],
-        finalized,
-        requestArbitrationAsync,
-        requestArbitrationError: error,
-        answerMissing: isAnswerMissing(question),
-        pendingArbitration: isAnswerPendingArbitration(question),
-    });
-
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
     const requestArbitrationDisabled =
