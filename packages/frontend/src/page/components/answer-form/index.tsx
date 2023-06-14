@@ -1,6 +1,6 @@
 import {
-    NamespacedTranslateFunction,
-    OraclePageProps,
+    type NamespacedTranslateFunction,
+    type OraclePageProps,
     TxType,
     useNativeCurrency,
 } from "@carrot-kpi/react";
@@ -16,8 +16,8 @@ import {
     Popover,
 } from "@carrot-kpi/ui";
 import {
-    ChangeEvent,
-    ReactElement,
+    type ChangeEvent,
+    type ReactElement,
     useCallback,
     useEffect,
     useMemo,
@@ -32,6 +32,16 @@ import {
     useBalance,
     usePublicClient,
 } from "wagmi";
+import {
+    bytesToHex,
+    formatUnits,
+    isHex,
+    numberToHex,
+    parseUnits,
+    toBytes,
+    zeroAddress,
+} from "viem";
+import type { Hex, Hash, Address } from "viem";
 import {
     ANSWERED_TOO_SOON_REALITY_ANSWER,
     BooleanAnswer,
@@ -49,7 +59,7 @@ import {
     isAnswerPendingArbitration,
     isQuestionFinalized,
 } from "../../../utils";
-import { NumberFormatValue, RealityQuestion } from "../../types";
+import type { NumberFormatValue, RealityQuestion } from "../../types";
 import { Answer } from "./answer";
 import REALITY_ETH_V3_ABI from "../../../abis/reality-eth-v3";
 import REALITY_ORACLE_V3_ABI from "../../../abis/reality-oracle-v3";
@@ -65,20 +75,10 @@ import {
     ResolvedOracleWithData,
 } from "@carrot-kpi/sdk";
 import { unixTimestamp } from "../../../utils/dates";
-import { useRealityQuestionResponses } from "../../../hooks/useRealityQuestionResponses";
 import { useQuestionContent } from "../../../hooks/useQuestionContent";
 import { Arbitrator } from "./arbitrator";
 import Danger from "../../../assets/danger";
-import {
-    bytesToHex,
-    formatUnits,
-    isHex,
-    numberToHex,
-    parseUnits,
-    toBytes,
-    zeroAddress,
-} from "viem";
-import type { Hex, Hash, Address } from "viem";
+import { useRealityClaimableHistory } from "../../../hooks/useRealityClaimableHistory";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -101,10 +101,9 @@ export const AnswerForm = ({
 }: AnswerFormProps): ReactElement => {
     const publicClient = usePublicClient();
 
-    const { loading: loadingAnswers, responses } = useRealityQuestionResponses(
-        realityAddress,
-        question.id
-    );
+    const finalized = isQuestionFinalized(question);
+    const { loading: loadingClaimableHistory, claimable } =
+        useRealityClaimableHistory(realityAddress, question.id, finalized);
     const { loading: loadingContent, content } = useQuestionContent(
         question.content
     );
@@ -153,35 +152,90 @@ export const AnswerForm = ({
     }, [bond, nativeCurrency.decimals]);
 
     const claimWinningsPayload = useMemo(() => {
-        const payload = responses.reduce(
+        const payload = Object.keys(claimable).reduce(
             (
                 accumulator: {
+                    [key: string]: {
+                        historyHashes: Hash[];
+                        answerers: Address[];
+                        bonds: bigint[];
+                        responses: Hex[];
+                    };
+                },
+                questionId
+            ) => {
+                if (!accumulator[questionId]) {
+                    accumulator[questionId] = {
+                        historyHashes: [],
+                        answerers: [],
+                        bonds: [],
+                        responses: [],
+                    };
+                }
+
+                accumulator[questionId].historyHashes.push(
+                    ...claimable[questionId as Hex].map((answer) => answer.hash)
+                );
+                accumulator[questionId].answerers.push(
+                    ...claimable[questionId as Hex].map(
+                        (answer) => answer.answerer
+                    )
+                );
+                accumulator[questionId].bonds.push(
+                    ...claimable[questionId as Hex].map((answer) => answer.bond)
+                );
+                accumulator[questionId].responses.push(
+                    ...claimable[questionId as Hex].map(
+                        (answer) => answer.answer
+                    )
+                );
+
+                return accumulator;
+            },
+            {}
+        );
+
+        const mergedPayload = Object.keys(payload).reduce(
+            (
+                accumulator: {
+                    historyLengths: bigint[];
                     historyHashes: Hash[];
                     answerers: Address[];
                     bonds: bigint[];
                     responses: Hex[];
                 },
-                answer
+                questionId
             ) => {
-                accumulator.historyHashes.push(answer.hash);
-                accumulator.answerers.push(answer.answerer);
-                accumulator.bonds.push(answer.bond);
-                accumulator.responses.push(answer.answer);
+                // the last history hash must be empty
+                payload[questionId].historyHashes.reverse().shift();
+                payload[questionId].historyHashes.push(BYTES32_ZERO);
+                payload[questionId].answerers.reverse();
+                payload[questionId].bonds.reverse();
+                payload[questionId].responses.reverse();
+
+                accumulator.historyLengths.push(
+                    BigInt(payload[questionId].historyHashes.length)
+                );
+                accumulator.historyHashes.push(
+                    ...payload[questionId].historyHashes
+                );
+                accumulator.answerers.push(...payload[questionId].answerers);
+                accumulator.bonds.push(...payload[questionId].bonds);
+                accumulator.responses.push(...payload[questionId].responses);
 
                 return accumulator;
             },
-            { historyHashes: [], answerers: [], bonds: [], responses: [] }
+            {
+                historyLengths: [],
+                historyHashes: [],
+                answerers: [],
+                bonds: [],
+                responses: [],
+            }
         );
 
-        // the last history hash must be empty
-        payload.historyHashes.reverse().shift();
-        payload.historyHashes.push(BYTES32_ZERO);
-        payload.answerers.reverse();
-        payload.bonds.reverse();
-        payload.responses.reverse();
-
-        return payload;
-    }, [responses]);
+        return mergedPayload;
+    }, [claimable]);
 
     const { data: disputeFee } = useContractRead({
         address:
@@ -217,7 +271,6 @@ export const AnswerForm = ({
     const { writeAsync: postAnswerAsync } =
         useContractWrite(submitAnswerConfig);
 
-    const finalized = isQuestionFinalized(question);
     const { config: reopenQuestionConfig } = usePrepareContractWrite({
         chainId: chain?.id,
         address: realityAddress,
@@ -282,8 +335,8 @@ export const AnswerForm = ({
         abi: REALITY_ETH_V3_ABI,
         functionName: "claimMultipleAndWithdrawBalance",
         args: [
-            [question.id],
-            [BigInt(claimWinningsPayload.historyHashes.length)],
+            Object.keys(claimable) as Hex[],
+            claimWinningsPayload.historyLengths,
             claimWinningsPayload.historyHashes,
             claimWinningsPayload.answerers,
             claimWinningsPayload.bonds,
@@ -292,7 +345,9 @@ export const AnswerForm = ({
         enabled:
             !!chain?.id &&
             !!question.id &&
+            Object.keys(claimable).length > 0 &&
             finalized &&
+            !loadingClaimableHistory &&
             !!claimWinningsPayload &&
             claimWinningsPayload.historyHashes.length > 0 &&
             claimWinningsPayload.answerers.length > 0 &&
@@ -1008,11 +1063,14 @@ export const AnswerForm = ({
                             onClick={handleClaimMultipleAndWithdrawSubmit}
                             disabled={
                                 !claimMultipleAndWithdrawAsync ||
-                                BigInt(question.historyHash) === 0n ||
-                                (BigInt(question.historyHash) === 0n &&
+                                question.historyHash === BYTES32_ZERO ||
+                                (question.historyHash === BYTES32_ZERO &&
                                     withdrawableBalance === 0n)
                             }
-                            loading={loadingAnswers || claimingAndWithdrawing}
+                            loading={
+                                loadingClaimableHistory ||
+                                claimingAndWithdrawing
+                            }
                             size="small"
                         >
                             {t("label.question.form.withdrawWinnings")}

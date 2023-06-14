@@ -1,7 +1,7 @@
 import { ChainId } from "@carrot-kpi/sdk";
-import { SelectOption } from "@carrot-kpi/ui";
+import type { SelectOption } from "@carrot-kpi/ui";
 import CarrotIcon from "../assets/carrot";
-import { OptionForArbitrator } from "../creation-form/types";
+import type { OptionForArbitrator } from "../creation-form/types";
 import { type Address } from "viem";
 
 // TODO: add arbitrum goerli to supported chains
@@ -127,7 +127,7 @@ export const REALITY_DAPP_ENDPOINT = "https://reality.eth.link/app/index.html";
 
 export const REALITY_WEBSITE = "https://reality.eth.limo";
 
-export const REALITY_TEMPLATE_OPTIONS: SelectOption[] = [
+export const REALITY_TEMPLATE_OPTIONS: SelectOption<number>[] = [
     {
         label: "Yes/no",
         value: SupportedRealityTemplates.BOOL,

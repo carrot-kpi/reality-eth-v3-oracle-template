@@ -37,7 +37,10 @@ export const QuestionDataFields = `
 `;
 
 export interface GetQuestionQueryResponse {
-    question?: SubgraphQuestion & { reopenedBy?: SubgraphQuestion };
+    question?: SubgraphQuestion & {
+        reopenedBy?: SubgraphQuestion;
+        reopens?: SubgraphQuestion;
+    };
 }
 
 export const GetQuestionQuery = `
@@ -45,6 +48,9 @@ export const GetQuestionQuery = `
         question(id: $id) {
             ${QuestionDataFields}
             reopenedBy {
+                ${QuestionDataFields}
+            }
+            reopens {
                 ${QuestionDataFields}
             }
         }

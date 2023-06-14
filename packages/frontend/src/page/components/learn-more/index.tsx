@@ -1,6 +1,6 @@
-import { NamespacedTranslateFunction } from "@carrot-kpi/react";
+import type { NamespacedTranslateFunction } from "@carrot-kpi/react";
 import { Button, Typography } from "@carrot-kpi/ui";
-import { ReactElement } from "react";
+import type { ReactElement } from "react";
 import { REALITY_WEBSITE } from "../../../commons";
 import External from "../../../assets/external";
 

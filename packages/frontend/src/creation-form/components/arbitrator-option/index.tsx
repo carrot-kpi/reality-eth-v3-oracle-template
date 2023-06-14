@@ -1,5 +1,5 @@
 import { Skeleton, Typography } from "@carrot-kpi/ui";
-import { OptionForArbitrator } from "../../types";
+import type { OptionForArbitrator } from "../../types";
 import { useNetwork } from "wagmi";
 
 export const ArbitratorOption = ({

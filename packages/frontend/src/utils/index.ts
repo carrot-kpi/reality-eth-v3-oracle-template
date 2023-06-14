@@ -5,7 +5,7 @@ import {
     REALITY_DAPP_ENDPOINT,
     SupportedRealityTemplates,
 } from "../commons";
-import { RealityQuestion } from "../page/types";
+import type { RealityQuestion } from "../page/types";
 import dayjs from "dayjs";
 
 export const shortenAddress = (address?: string) => {

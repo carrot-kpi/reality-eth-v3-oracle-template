@@ -1,6 +1,6 @@
 import { Typography } from "@carrot-kpi/ui";
 import { cx } from "class-variance-authority";
-import { ReactElement, ReactNode } from "react";
+import type { ReactElement, ReactNode } from "react";
 
 interface AnswerInfoProps {
     label: string;

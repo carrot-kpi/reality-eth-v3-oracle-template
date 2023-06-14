@@ -1,9 +1,9 @@
-import { ReactElement, useEffect, useState } from "react";
+import { type ReactElement, useEffect, useState } from "react";
 import dayjs from "dayjs";
 import Duration from "dayjs/plugin/duration";
 import { CountdownFrame } from "./countdown-frame";
 import { VerticalDivider } from "./vertical-divider";
-import { NamespacedTranslateFunction } from "@carrot-kpi/react";
+import type { NamespacedTranslateFunction } from "@carrot-kpi/react";
 
 dayjs.extend(Duration);
 

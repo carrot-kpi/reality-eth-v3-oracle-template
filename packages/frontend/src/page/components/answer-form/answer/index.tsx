@@ -1,10 +1,10 @@
 import {
-    NamespacedTranslateFunction,
+    type NamespacedTranslateFunction,
     useNativeCurrency,
 } from "@carrot-kpi/react";
 import { Skeleton, Timer, Typography } from "@carrot-kpi/ui";
 import { cva } from "class-variance-authority";
-import { ReactElement } from "react";
+import type { ReactElement } from "react";
 import { BYTES32_ZERO } from "../../../../commons";
 import {
     isAnsweredTooSoon,
@@ -15,7 +15,7 @@ import {
     isAnswerMissing,
     isAnswerPendingArbitration,
 } from "../../../../utils";
-import { RealityQuestion } from "../../../types";
+import type { RealityQuestion } from "../../../types";
 import { AnswerInfo } from "../../answer-info";
 import { formatUnits } from "viem";
 
@@ -121,7 +121,7 @@ export const Answer = ({
                     }
                 >
                     {loadingQuestion ? (
-                        <Skeleton width="220px" variant="2xl" />
+                        <Skeleton width="220px" variant="xl" />
                     ) : (
                         <Typography>{currentAnswerValue}</Typography>
                     )}
@@ -134,7 +134,7 @@ export const Answer = ({
                         }
                     >
                         {loadingQuestion ? (
-                            <Skeleton width="150px" variant="2xl" />
+                            <Skeleton width="150px" variant="xl" />
                         ) : !!finalizingInLabel ? (
                             <Typography>{finalizingInLabel}</Typography>
                         ) : (
@@ -154,7 +154,7 @@ export const Answer = ({
                     className={bondBoxStyles({ pendingArbitration })}
                 >
                     {loadingQuestion ? (
-                        <Skeleton width="150px" variant="2xl" />
+                        <Skeleton width="150px" variant="xl" />
                     ) : (
                         <Typography>
                             {/* FIXME: reintroduce commify to make number easier to read */}

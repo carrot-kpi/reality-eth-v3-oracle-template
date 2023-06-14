@@ -1,5 +1,5 @@
-import {
-    FetchAnswersHistoryParams,
+import type {
+    FetchClaimableHistoryParams,
     FetchQuestionParams,
     IPartialFetcher,
     SupportedInChainParams,
@@ -11,13 +11,14 @@ import {
     SupportedChainId,
 } from "../../commons";
 import { enforce, query } from "@carrot-kpi/sdk";
-import { RealityResponse, RealityQuestion } from "../../page/types";
+import type { RealityResponse, RealityQuestion } from "../../page/types";
 import {
     GetQuestionQuery,
-    GetQuestionQueryResponse,
+    type GetQuestionQueryResponse,
+    type GetResponsesQueryResponse,
     GetResponsesQuery,
-    GetResponsesQueryResponse,
 } from "./queries";
+import { type Hex } from "viem";
 
 class Fetcher implements IPartialFetcher {
     public supportedInChain({ chainId }: SupportedInChainParams): boolean {
@@ -73,12 +74,12 @@ class Fetcher implements IPartialFetcher {
         };
     }
 
-    public async fetchAnswersHistory({
+    public async fetchClaimableHistory({
         realityV3Address,
         questionId,
         publicClient,
-    }: FetchAnswersHistoryParams): Promise<RealityResponse[]> {
-        if (!realityV3Address || !questionId) return [];
+    }: FetchClaimableHistoryParams): Promise<Record<Hex, RealityResponse[]>> {
+        if (!questionId || !realityV3Address) return {};
 
         const chainId = await publicClient.getChainId();
         enforce(
@@ -87,32 +88,38 @@ class Fetcher implements IPartialFetcher {
         );
         const subgraphURL = SUBGRAPH_URL[chainId as SupportedChainId];
         enforce(!!subgraphURL, `no subgraph available in chain ${chainId}`);
-        const { question } = await query<GetResponsesQueryResponse>(
-            subgraphURL,
-            GetResponsesQuery,
-            {
-                questionId: `${realityV3Address?.toLowerCase()}-${questionId?.toLowerCase()}`,
-            }
-        );
-        if (
-            !question ||
-            question.responses.some((response) => !response.answer)
-        )
-            return [];
-        const responses: RealityResponse[] = [];
-        for (let i = 0; i < question.responses.length; i++) {
-            const rawResponse = question.responses[i];
-            const answer = rawResponse.answer;
-            if (!answer) return [];
-            responses.push({
-                answer,
-                answerer: rawResponse.user,
-                bond: BigInt(rawResponse.bond),
-                hash: rawResponse.historyHash,
-                timestamp: BigInt(rawResponse.timestamp),
-            });
+
+        let answersHistory: Record<Hex, Required<RealityResponse>[]> = {};
+        let currentQuestionId: Hex = questionId;
+        while (true) {
+            const getQuestionResponse = await query<GetQuestionQueryResponse>(
+                subgraphURL,
+                GetQuestionQuery,
+                {
+                    id: `${realityV3Address.toLowerCase()}-${currentQuestionId.toLowerCase()}`,
+                }
+            );
+
+            if (!getQuestionResponse.question) break;
+
+            const getResponsesResponse = await query<GetResponsesQueryResponse>(
+                subgraphURL,
+                GetResponsesQuery,
+                {
+                    id: `${realityV3Address.toLowerCase()}-${currentQuestionId.toLowerCase()}`,
+                }
+            );
+
+            answersHistory = {
+                ...answersHistory,
+                [currentQuestionId]: getResponsesResponse.question?.responses,
+            };
+
+            if (!getQuestionResponse.question.reopens?.id) break;
+            currentQuestionId = getQuestionResponse.question.reopens.id;
         }
-        return responses;
+
+        return answersHistory;
     }
 }
 

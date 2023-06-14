@@ -1,12 +1,13 @@
 import { type PublicClient } from "wagmi";
-import { RealityResponse, RealityQuestion } from "../page/types";
-import {
-    FullFetcherFetchAnswersHistoryParams,
+import type { RealityResponse, RealityQuestion } from "../page/types";
+import type {
+    FullFetcherFetchClaimableHistoryParams,
     FullFetcherFetchQuestionParams,
     IFullFetcher,
 } from "./abstraction";
 import { OnChainFetcher } from "./on-chain";
 import { SubgraphFetcher } from "./subgraph";
+import { type Hex } from "viem";
 
 export * from "./abstraction";
 
@@ -49,23 +50,25 @@ class FullFetcher implements IFullFetcher {
               });
     }
 
-    public async fetchAnswersHistory({
+    public async fetchClaimableHistory({
         preferDecentralization,
         publicClient,
         realityV3Address,
         questionId,
-    }: FullFetcherFetchAnswersHistoryParams): Promise<RealityResponse[]> {
+    }: FullFetcherFetchClaimableHistoryParams): Promise<
+        Record<Hex, RealityResponse[]>
+    > {
         const useSubgraph = await this.shouldUseSubgraph({
             publicClient,
             preferDecentralization,
         });
         return useSubgraph
-            ? SubgraphFetcher.fetchAnswersHistory({
+            ? SubgraphFetcher.fetchClaimableHistory({
                   publicClient,
                   realityV3Address,
                   questionId,
               })
-            : OnChainFetcher.fetchAnswersHistory({
+            : OnChainFetcher.fetchClaimableHistory({
                   publicClient,
                   realityV3Address,
                   questionId,

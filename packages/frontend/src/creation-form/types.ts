@@ -1,5 +1,5 @@
-import { SelectOption } from "@carrot-kpi/ui";
-import { FunctionComponent, SVGProps } from "react";
+import type { SelectOption } from "@carrot-kpi/ui";
+import type { FunctionComponent, SVGProps } from "react";
 import { type Address } from "viem";
 
 export interface State {
@@ -11,7 +11,7 @@ export interface State {
     minimumBond: string;
 }
 
-export interface OptionForArbitrator extends SelectOption {
+export interface OptionForArbitrator extends SelectOption<Address> {
     icon: FunctionComponent<SVGProps<SVGSVGElement>>;
     disputeFee?: string;
 }

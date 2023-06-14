@@ -1,8 +1,8 @@
 import "../global.css";
 import "@carrot-kpi/ui/styles.css";
 
-import { ReactElement, useEffect, useState } from "react";
-import { OracleRemotePageProps } from "@carrot-kpi/react";
+import { type ReactElement, useEffect, useState } from "react";
+import type { OracleRemotePageProps } from "@carrot-kpi/react";
 import { useWatchRealityQuestion } from "../hooks/useWatchRealityQuestion";
 import { Loader } from "@carrot-kpi/ui";
 import { AnswerForm } from "./components/answer-form";

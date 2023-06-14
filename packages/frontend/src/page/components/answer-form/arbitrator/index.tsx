@@ -2,7 +2,7 @@ import { Popover, Typography } from "@carrot-kpi/ui";
 import { useCallback, useEffect, useState } from "react";
 import { useNetwork } from "wagmi";
 import { ARBITRATORS_BY_CHAIN, SupportedChainId } from "../../../../commons";
-import { OptionForArbitrator } from "../../../../creation-form/types";
+import type { OptionForArbitrator } from "../../../../creation-form/types";
 import { shortenAddress } from "../../../../utils";
 
 const ArbitratorOption = ({ label, icon: Icon }: OptionForArbitrator) => {

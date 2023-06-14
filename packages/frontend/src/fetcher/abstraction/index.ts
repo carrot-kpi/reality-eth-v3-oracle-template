@@ -1,5 +1,5 @@
 import { type PublicClient } from "wagmi";
-import { RealityResponse, RealityQuestion } from "../../page/types";
+import type { RealityResponse, RealityQuestion } from "../../page/types";
 import { ChainId } from "@carrot-kpi/sdk";
 import type { Address, Hex } from "viem";
 
@@ -14,13 +14,13 @@ export interface FetchQuestionParams {
     questionId?: Hex;
 }
 
-export interface FetchAnswersHistoryParams {
+export interface FetchClaimableHistoryParams {
     publicClient: PublicClient;
     realityV3Address?: Address;
     questionId?: Hex;
 }
 
-export interface FetchAnswersHistoryParams {
+export interface FetchClaimableQuestionsParams {
     publicClient: PublicClient;
     realityV3Address?: Address;
     questionId?: Hex;
@@ -31,9 +31,9 @@ export interface IPartialFetcher {
 
     fetchQuestion(params: FetchQuestionParams): Promise<RealityQuestion | null>;
 
-    fetchAnswersHistory(
-        params: FetchAnswersHistoryParams
-    ): Promise<RealityResponse[] | null>;
+    fetchClaimableHistory(
+        params: FetchClaimableHistoryParams
+    ): Promise<Record<Hex, RealityResponse[]>>;
 }
 
 export interface DecentralizationParams {
@@ -45,15 +45,15 @@ type WithDecentralizationParams<T> = T & DecentralizationParams;
 export type FullFetcherFetchQuestionParams =
     WithDecentralizationParams<FetchQuestionParams>;
 
-export type FullFetcherFetchAnswersHistoryParams =
-    WithDecentralizationParams<FetchQuestionParams>;
+export type FullFetcherFetchClaimableHistoryParams =
+    WithDecentralizationParams<FetchClaimableHistoryParams>;
 
 export interface IFullFetcher {
     fetchQuestion(
         params: FullFetcherFetchQuestionParams
     ): Promise<RealityQuestion | null>;
 
-    fetchAnswersHistory(
-        params: FullFetcherFetchAnswersHistoryParams
-    ): Promise<RealityResponse[]>;
+    fetchClaimableHistory(
+        params: FullFetcherFetchClaimableHistoryParams
+    ): Promise<Record<Hex, RealityResponse[]>>;
 }

@@ -1,4 +1,4 @@
-import { SVGIconProps } from "./types";
+import type { SVGIconProps } from "./types";
 
 const Carrot = (props: SVGIconProps) => {
     return (

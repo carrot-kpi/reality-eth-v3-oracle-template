@@ -1,4 +1,4 @@
-import { OracleRemoteCreationFormProps } from "@carrot-kpi/react";
+import type { OracleRemoteCreationFormProps } from "@carrot-kpi/react";
 import { Component as CreationForm } from "../../src/creation-form";
 
 export const Component = (props: OracleRemoteCreationFormProps<unknown>) => {
