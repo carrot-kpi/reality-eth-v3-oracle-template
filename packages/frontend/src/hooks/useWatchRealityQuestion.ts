@@ -4,6 +4,7 @@ import { useBlockNumber, usePublicClient } from "wagmi";
 import { Fetcher } from "../fetcher";
 import type { RealityQuestion } from "../page/types";
 import type { Address, Hex } from "viem";
+import { isQuestionFinalized, isQuestionReopenable } from "../utils";
 
 export function useWatchRealityQuestion(
     realityV3Address?: Address,
@@ -18,13 +19,15 @@ export function useWatchRealityQuestion(
     const preferDecentralization = usePreferDecentralization();
 
     const [loading, setLoading] = useState(false);
+    const [finalized, setFinalized] = useState(false);
     const [realityQuestion, setOnChainQuestion] =
         useState<RealityQuestion | null>(null);
 
     useEffect(() => {
         let cancelled = false;
         const fetchData = async (): Promise<void> => {
-            if (!realityV3Address || !question || !questionId) return;
+            if (!realityV3Address || !question || !questionId || finalized)
+                return;
             if (!cancelled) setLoading(true);
             try {
                 const fetched = await Fetcher.fetchQuestion({
@@ -34,7 +37,14 @@ export function useWatchRealityQuestion(
                     question,
                     questionId,
                 });
-                if (!cancelled) setOnChainQuestion(fetched);
+                if (!cancelled) {
+                    setOnChainQuestion(fetched);
+                    setFinalized(
+                        !!fetched &&
+                            isQuestionFinalized(fetched) &&
+                            !isQuestionReopenable(fetched)
+                    );
+                }
             } catch (error) {
                 console.error("error fetching reality v3 question", error);
             } finally {
@@ -51,6 +61,7 @@ export function useWatchRealityQuestion(
         questionId,
         blockNumber.data,
         realityV3Address,
+        finalized,
         preferDecentralization,
     ]);
 
