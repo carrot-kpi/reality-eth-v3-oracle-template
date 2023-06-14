@@ -17,7 +17,7 @@ export function useWatchRealityQuestion(
     const blockNumber = useBlockNumber();
     const preferDecentralization = usePreferDecentralization();
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [realityQuestion, setOnChainQuestion] =
         useState<RealityQuestion | null>(null);
 

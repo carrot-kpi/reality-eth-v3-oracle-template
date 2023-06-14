@@ -20,7 +20,7 @@ export function useRealityClaimableHistory(
     const ipfsGatewayURL = useIPFSGatewayURL();
     const preferDecentralization = usePreferDecentralization();
 
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [claimable, setClaimable] = useState<Record<Hex, RealityResponse[]>>(
         {}
     );
