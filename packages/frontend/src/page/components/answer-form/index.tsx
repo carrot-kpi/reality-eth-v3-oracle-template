@@ -306,25 +306,23 @@ export const AnswerForm = ({
     const { writeAsync: finalizeOracleAsync } =
         useContractWrite(finalizeOracleConfig);
 
-    const { config: requestArbitrationConfig, error } = usePrepareContractWrite(
-        {
-            chainId: chain?.id,
-            address:
-                !!chain && chain.id && chain.id in SupportedChainId
-                    ? TRUSTED_REALITY_ARBITRATORS[chain.id as SupportedChainId]
-                    : undefined,
-            abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
-            functionName: "requestArbitration",
-            args: [question.id, 0n],
-            value: disputeFee || 0n,
-            enabled:
-                !!chain &&
-                !!chain.id &&
-                !finalized &&
-                !isAnswerPendingArbitration(question) &&
-                !isAnswerMissing(question),
-        }
-    );
+    const { config: requestArbitrationConfig } = usePrepareContractWrite({
+        chainId: chain?.id,
+        address:
+            !!chain && chain.id && chain.id in SupportedChainId
+                ? TRUSTED_REALITY_ARBITRATORS[chain.id as SupportedChainId]
+                : undefined,
+        abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
+        functionName: "requestArbitration",
+        args: [question.id, 0n],
+        value: disputeFee || 0n,
+        enabled:
+            !!chain &&
+            !!chain.id &&
+            !finalized &&
+            !isAnswerPendingArbitration(question) &&
+            !isAnswerMissing(question),
+    });
     const { writeAsync: requestArbitrationAsync } = useContractWrite(
         requestArbitrationConfig
     );
