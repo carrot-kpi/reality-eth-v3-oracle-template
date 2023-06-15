@@ -8,7 +8,10 @@ import {
     useMemo,
     useState,
 } from "react";
-import { type OracleRemoteCreationFormProps } from "@carrot-kpi/react";
+import {
+    type OracleInitializationBundleGetter,
+    type OracleRemoteCreationFormProps,
+} from "@carrot-kpi/react";
 import {
     Select,
     type SelectOption,
@@ -30,9 +33,10 @@ import type { OptionForArbitrator, State } from "./types";
 import { ArbitratorOption } from "./components/arbitrator-option";
 import dayjs, { Dayjs } from "dayjs";
 import durationPlugin from "dayjs/plugin/duration";
-import { useArbitratorsDisputeFee } from "../hooks/useArbitratorsDisputeFee";
+import { useArbitratorsFees } from "../hooks/useArbitratorsFees";
 import { encodeAbiParameters, parseUnits } from "viem";
 import { type Address } from "viem";
+import { Amount, formatCurrencyAmount } from "@carrot-kpi/sdk";
 
 dayjs.extend(durationPlugin);
 
@@ -74,20 +78,37 @@ export const Component = ({
         [chain]
     );
 
-    const { fees: arbitratorDisputeFees } =
-        useArbitratorsDisputeFee(arbitratorAddresses);
+    const { fees: arbitratorsFees, loading: loadingFees } =
+        useArbitratorsFees(arbitratorAddresses);
 
     const arbitratorsByChain = useMemo(
         () =>
-            !chain || !(chain.id in SupportedChainId)
+            !chain || !(chain.id in SupportedChainId) || loadingFees
                 ? []
-                : ARBITRATORS_BY_CHAIN[chain.id as SupportedChainId].map(
-                      (arbitrator) => ({
-                          ...arbitrator,
-                          disputeFee: arbitratorDisputeFees[arbitrator.value],
-                      })
+                : ARBITRATORS_BY_CHAIN[chain.id as SupportedChainId].reduce(
+                      (accumulator: OptionForArbitrator[], arbitrator) => {
+                          // in case there was an error fetching fees for a given arbitrator,
+                          // we won't show it in the list
+                          const fees = arbitratorsFees[arbitrator.value];
+                          if (!fees) return accumulator;
+                          accumulator.push({
+                              ...arbitrator,
+                              fees: {
+                                  question: new Amount(
+                                      chain.nativeCurrency,
+                                      fees.question
+                                  ),
+                                  dispute: new Amount(
+                                      chain.nativeCurrency,
+                                      fees.dispute
+                                  ),
+                              },
+                          });
+                          return accumulator;
+                      },
+                      []
                   ),
-        [chain, arbitratorDisputeFees]
+        [chain, loadingFees, arbitratorsFees]
     );
 
     const timeoutOptions = TIMEOUT_OPTIONS.map((option) => {
@@ -175,7 +196,9 @@ export const Component = ({
             openingTimestamp: openingTimestamp ? openingTimestamp.unix() : null,
             minimumBond,
         };
-        let initializationDataGetter = undefined;
+        let initializationDataGetter:
+            | OracleInitializationBundleGetter
+            | undefined = undefined;
         if (
             chain &&
             arbitrator &&
@@ -217,7 +240,10 @@ export const Component = ({
                         formattedMinimumBond,
                     ]
                 );
-                return { data: initializationData, value: 0n };
+                return {
+                    data: initializationData,
+                    value: arbitrator.fees ? arbitrator.fees.question.raw : 0n,
+                };
             };
         }
         onChange(newState, initializationDataGetter);
@@ -291,6 +317,36 @@ export const Component = ({
                 </a>
                 .
             </Typography>
+            {chain &&
+                arbitrator?.fees &&
+                (arbitrator.fees.question.isPositive() ||
+                    arbitrator.fees.dispute.isPositive()) && (
+                    <div className="mt-1 mb-b rounded-xl flex flex-col p-4 border border-orange bg-orange bg-opacity-20 gap-3">
+                        <Typography className={{ root: "text-orange" }}>
+                            {t("warning.arbitrator.fees")}
+                        </Typography>
+                        <div className="flex flex-col">
+                            {arbitrator.fees.question.isPositive() && (
+                                <Typography className={{ root: "text-orange" }}>
+                                    {t("warning.arbitrator.fees.question")}:{" "}
+                                    {formatCurrencyAmount(
+                                        arbitrator.fees.question,
+                                        true
+                                    )}
+                                </Typography>
+                            )}
+                            {arbitrator.fees.dispute.isPositive() && (
+                                <Typography className={{ root: "text-orange" }}>
+                                    {t("warning.arbitrator.fees.dispute")}:{" "}
+                                    {formatCurrencyAmount(
+                                        arbitrator.fees.dispute,
+                                        true
+                                    )}
+                                </Typography>
+                            )}
+                        </div>
+                    </div>
+                )}
             <div className="flex flex-col gap-2 md:flex-row">
                 <div className="w-full md:w-2/3">
                     <Select

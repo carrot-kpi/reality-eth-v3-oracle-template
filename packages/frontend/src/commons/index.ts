@@ -23,6 +23,16 @@ export const TRUSTED_REALITY_ARBITRATORS: Record<SupportedChainId, Address> = {
         : "0x87d24272071593B4a7907fd133E74EC30025D4F9",
 };
 
+// Make ABSOLUTELY sure these addresses are in sync with the
+// codegen-chain-specific-contracts.js script in the contracts
+// package
+export const REALITY_V3_ADDRESS: Record<SupportedChainId, Address> = {
+    [SupportedChainId.GNOSIS]: "0xE78996A233895bE74a66F451f1019cA9734205cc",
+    [SupportedChainId.SEPOLIA]: "0x64a0745EF9d3772d9739D9350873eD3703bE45eC",
+    [SupportedChainId.SCROLL_TESTNET]:
+        "0xF2D17C08B6A3A60b5A32b95bC9621D292831446b",
+};
+
 export const ARBITRATORS_BY_CHAIN: Record<
     SupportedChainId,
     OptionForArbitrator[]
