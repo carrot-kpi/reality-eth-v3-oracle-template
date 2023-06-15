@@ -701,6 +701,7 @@ export const AnswerForm = ({
         if (requestArbitrationDisabled) return;
         setDisputeFeePopoverOpen(true);
     }, [requestArbitrationDisabled]);
+
     const handleRequestArbitrationMouseLeave = useCallback(() => {
         setDisputeFeePopoverOpen(false);
     }, []);

@@ -32,5 +32,8 @@
     "error.question.empty": "A question is required",
     "error.question.timeout.empty": "The minimum question timeout is {{minimum}} seconds",
     "error.opening.timestamp.tooSoon": "At least {{periodsAmount}} full answer windows should be available between the opening timestamp and the KPI token expiration.",
-    "error.minimum.bond.empty": "A minimum bond is required (it can be 0)"
+    "error.minimum.bond.empty": "A minimum bond is required (it can be 0)",
+    "warning.arbitrator.fees": "The picked arbitrator charges some fees for the service:",
+    "warning.arbitrator.fees.question": "Question fee",
+    "warning.arbitrator.fees.dispute": "Dispute fee"
 }

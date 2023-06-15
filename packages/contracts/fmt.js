@@ -15,8 +15,8 @@ if (!arg) {
 const format = arg === "format";
 
 const srcBasePath = resolve("./src");
-const testsBasePath = resolve("./tests");
-const scriptsBasePath = resolve("./scripts");
+const testsBasePath = resolve("./test");
+const scriptsBasePath = resolve("./script");
 
 execSync(
     `forge fmt ${
