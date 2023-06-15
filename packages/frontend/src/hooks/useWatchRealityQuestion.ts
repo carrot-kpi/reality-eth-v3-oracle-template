@@ -37,14 +37,12 @@ export function useWatchRealityQuestion(
                     question,
                     questionId,
                 });
-                if (!cancelled) {
-                    setOnChainQuestion(fetched);
-                    setFinalized(
-                        !!fetched &&
-                            isQuestionFinalized(fetched) &&
-                            !isQuestionReopenable(fetched)
-                    );
-                }
+                if (!cancelled) setOnChainQuestion(fetched);
+                const questionFinalized =
+                    !!fetched &&
+                    isQuestionFinalized(fetched) &&
+                    !isQuestionReopenable(fetched);
+                if (questionFinalized) setFinalized(questionFinalized);
             } catch (error) {
                 console.error("error fetching reality v3 question", error);
             } finally {
