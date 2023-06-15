@@ -83,5 +83,5 @@ export const formatRealityEthQuestionLink = (
     questionId: string,
     contractAddress: string
 ) => {
-    return `${REALITY_DAPP_ENDPOINT}#!/question/${contractAddress}-${questionId}`;
+    return `${REALITY_DAPP_ENDPOINT}#!/question/${contractAddress.toLowerCase()}-${questionId.toLowerCase()}`;
 };
