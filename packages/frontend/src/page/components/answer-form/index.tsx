@@ -822,7 +822,7 @@ export const AnswerForm = ({
                 </div>
             )}
             {!open && (
-                <div className="px-6 pt-6 flex flex-col gap-5">
+                <div className="px-6 pt-6 flex flex-col gap-5 mb-6">
                     <Typography>{t("label.question.timeLeft")}</Typography>
                     <OpeningCountdown
                         t={t}
