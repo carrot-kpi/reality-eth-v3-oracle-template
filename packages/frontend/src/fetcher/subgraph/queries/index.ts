@@ -44,8 +44,8 @@ export interface GetQuestionQueryResponse {
 }
 
 export const GetQuestionQuery = `
-    query getQuestionByID($id: ID!) {
-        question(id: $id) {
+    query getQuestionByID($questionId: ID!) {
+        question(id: $questionId) {
             ${QuestionDataFields}
             reopenedBy {
                 ${QuestionDataFields}

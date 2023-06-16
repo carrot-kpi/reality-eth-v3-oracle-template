@@ -46,7 +46,7 @@ class Fetcher implements IPartialFetcher {
             subgraphURL,
             GetQuestionQuery,
             {
-                id: `${realityV3Address.toLowerCase()}-${questionId.toLowerCase()}`,
+                questionId: `${realityV3Address.toLowerCase()}-${questionId.toLowerCase()}`,
             }
         );
         if (!question) return null;
@@ -96,7 +96,7 @@ class Fetcher implements IPartialFetcher {
                 subgraphURL,
                 GetQuestionQuery,
                 {
-                    id: `${realityV3Address.toLowerCase()}-${currentQuestionId.toLowerCase()}`,
+                    questionId: `${realityV3Address.toLowerCase()}-${currentQuestionId.toLowerCase()}`,
                 }
             );
 
@@ -106,7 +106,7 @@ class Fetcher implements IPartialFetcher {
                 subgraphURL,
                 GetResponsesQuery,
                 {
-                    id: `${realityV3Address.toLowerCase()}-${currentQuestionId.toLowerCase()}`,
+                    questionId: `${realityV3Address.toLowerCase()}-${currentQuestionId.toLowerCase()}`,
                 }
             );
 
