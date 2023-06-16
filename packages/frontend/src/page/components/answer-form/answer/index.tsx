@@ -1,23 +1,23 @@
 import {
-    type NamespacedTranslateFunction,
     useNativeCurrency,
+    type NamespacedTranslateFunction,
 } from "@carrot-kpi/react";
-import { Timer, Typography } from "@carrot-kpi/ui";
+import { Skeleton, Timer, Typography } from "@carrot-kpi/ui";
 import { cva } from "class-variance-authority";
-import type { ReactElement } from "react";
+import { useEffect, useState, type ReactElement } from "react";
+import { formatUnits } from "viem";
 import { BYTES32_ZERO } from "../../../../commons";
 import {
-    isAnsweredTooSoon,
     isAnswerInvalid,
-    isAnswerPurelyBoolean,
-    isQuestionFinalized,
-    isAnswerPurelyNumerical,
     isAnswerMissing,
     isAnswerPendingArbitration,
+    isAnswerPurelyBoolean,
+    isAnswerPurelyNumerical,
+    isAnsweredTooSoon,
+    isQuestionFinalized,
 } from "../../../../utils";
 import type { RealityQuestion } from "../../../types";
 import { AnswerInfo } from "../../answer-info";
-import { formatUnits } from "viem";
 
 const answerBoxStyles = cva(
     [
@@ -70,11 +70,9 @@ export const Answer = ({
     const nativeCurrency = useNativeCurrency();
     const finalized = isQuestionFinalized(question);
 
+    const [currentAnswerValue, setCurrentAnswerValue] = useState("");
+
     const formattedBond = formatUnits(question.bond, nativeCurrency.decimals);
-    const purelyBoolean = isAnswerPurelyBoolean(question);
-    const purelyNumerical = isAnswerPurelyNumerical(question);
-    const invalid = isAnswerInvalid(question);
-    const answeredTooSoon = isAnsweredTooSoon(question);
     const pendingArbitration = isAnswerPendingArbitration(question);
 
     const currentAnswerTitle = finalized
@@ -85,29 +83,32 @@ export const Answer = ({
         : finalized
         ? t("label.answer.form.finalized")
         : null;
-    let currentAnswerValue = null;
 
-    if (loadingQuestion) {
-        // do nothing
-    } else if (pendingArbitration) {
-        currentAnswerValue = t("label.answer.arbitrating");
-    } else if (isAnswerMissing(question)) {
-        currentAnswerValue = t("label.answer.form.missing");
-    } else if (purelyBoolean) {
-        currentAnswerValue =
-            question.bestAnswer === BYTES32_ZERO
-                ? t("label.answer.form.no")
-                : t("label.answer.form.yes");
-    } else if (purelyNumerical) {
-        {
+    useEffect(() => {
+        if (loadingQuestion) return; // do nothing
+
+        const purelyBoolean = isAnswerPurelyBoolean(question);
+        const purelyNumerical = isAnswerPurelyNumerical(question);
+        const invalid = isAnswerInvalid(question);
+        const answeredTooSoon = isAnsweredTooSoon(question);
+        let newValue = "";
+
+        if (pendingArbitration) newValue = t("label.answer.arbitrating");
+        else if (isAnswerMissing(question))
+            newValue = t("label.answer.form.missing");
+        else if (purelyBoolean)
+            newValue =
+                question.bestAnswer === BYTES32_ZERO
+                    ? t("label.answer.form.no")
+                    : t("label.answer.form.yes");
+        else if (purelyNumerical)
             /* FIXME: reintroduce commify to make number easier to read */
-        }
-        currentAnswerValue = formatUnits(BigInt(question.bestAnswer), 18);
-    } else if (invalid) {
-        currentAnswerValue = t("label.answer.form.invalid");
-    } else if (answeredTooSoon) {
-        currentAnswerValue = t("label.answer.form.tooSoon");
-    }
+            newValue = formatUnits(BigInt(question.bestAnswer), 18);
+        else if (invalid) newValue = t("label.answer.form.invalid");
+        else if (answeredTooSoon) newValue = t("label.answer.form.tooSoon");
+
+        setCurrentAnswerValue(newValue);
+    }, [loadingQuestion, pendingArbitration, question, t]);
 
     return (
         <div className="flex flex-col md:flex-row justify-between border-b-0 md:border-b border-black dark:border-white">
@@ -120,7 +121,11 @@ export const Answer = ({
                             : undefined
                     }
                 >
-                    <Typography>{currentAnswerValue}</Typography>
+                    {loadingQuestion && !currentAnswerValue ? (
+                        <Skeleton width="220px" variant="xl" />
+                    ) : (
+                        <Typography>{currentAnswerValue}</Typography>
+                    )}
                 </AnswerInfo>
                 {!pendingArbitration && (
                     <AnswerInfo
