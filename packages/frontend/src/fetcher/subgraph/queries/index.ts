@@ -88,3 +88,19 @@ export const GetResponsesQuery = `
         }
     }
 `;
+
+export interface IsAnswererQueryResponse {
+    question?: {
+        responses: SubgraphResponse[];
+    };
+}
+
+export const IsAnswererQuery = `
+    query isAnswerer($questionId: ID!, $user: Bytes!) {
+        question(id: $questionId) {
+            responses(where: { user: $user }) {
+                ${ResponseDataFields}
+            }
+        }
+    }
+`;

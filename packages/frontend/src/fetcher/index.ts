@@ -1,6 +1,7 @@
 import { type PublicClient } from "wagmi";
 import type { RealityResponse, RealityQuestion } from "../page/types";
 import type {
+    FullFetcheIsAnswererParams,
     FullFetcherFetchClaimableHistoryParams,
     FullFetcherFetchQuestionParams,
     IFullFetcher,
@@ -72,6 +73,32 @@ class FullFetcher implements IFullFetcher {
                   publicClient,
                   realityV3Address,
                   questionId,
+              });
+    }
+
+    public async isAnswerer({
+        preferDecentralization,
+        publicClient,
+        realityV3Address,
+        questionId,
+        address,
+    }: FullFetcheIsAnswererParams): Promise<boolean> {
+        const useSubgraph = await this.shouldUseSubgraph({
+            publicClient,
+            preferDecentralization,
+        });
+        return useSubgraph
+            ? SubgraphFetcher.isAnswerer({
+                  publicClient,
+                  realityV3Address,
+                  questionId,
+                  address,
+              })
+            : OnChainFetcher.isAnswerer({
+                  publicClient,
+                  realityV3Address,
+                  questionId,
+                  address,
               });
     }
 }
