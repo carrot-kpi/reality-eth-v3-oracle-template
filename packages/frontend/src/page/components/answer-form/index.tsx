@@ -758,6 +758,12 @@ export const AnswerForm = ({
         !requestArbitrationAsync ||
         isAnswerMissing(question) ||
         isAnswerPendingArbitration(question);
+    const claimAndWithdrawVisible =
+        withdrawableBalance !== undefined &&
+        withdrawableBalance === 0n &&
+        question.historyHash !== BYTES32_ZERO;
+    const withdrawVisible =
+        withdrawableBalance !== undefined && withdrawableBalance > 0n;
 
     const handleRequestArbitrationMouseEnter = useCallback(() => {
         if (requestArbitrationDisabled) return;
@@ -1120,49 +1126,44 @@ export const AnswerForm = ({
                                 {t("label.question.form.finalize")}
                             </Button>
                         )}
-                        {withdrawableBalance !== undefined &&
-                            withdrawableBalance === 0n && (
-                                <Button
-                                    onClick={
-                                        handleClaimMultipleAndWithdrawSubmit
-                                    }
-                                    disabled={
-                                        !answerer ||
-                                        !claimMultipleAndWithdrawAsync ||
-                                        question.historyHash === BYTES32_ZERO ||
-                                        question.historyHash === BYTES32_ZERO
-                                    }
-                                    loading={
-                                        loadingAnswerer ||
-                                        loadingClaimableHistory ||
-                                        claimingAndWithdrawing
-                                    }
-                                    size="small"
-                                >
-                                    {t(
-                                        "label.question.form.claimAndwithdrawWinnings"
-                                    )}
-                                </Button>
-                            )}
-                        {withdrawableBalance !== undefined &&
-                            withdrawableBalance > 0n && (
-                                <Button
-                                    onClick={handleWithdrawSubmit}
-                                    disabled={
-                                        !answerer ||
-                                        !withdrawAsync ||
-                                        withdrawableBalance === 0n
-                                    }
-                                    loading={
-                                        loadingAnswerer ||
-                                        loadingWithdrawableBalance ||
-                                        withdrawing
-                                    }
-                                    size="small"
-                                >
-                                    {t("label.question.form.withdrawWinnings")}
-                                </Button>
-                            )}
+                        {claimAndWithdrawVisible && (
+                            <Button
+                                onClick={handleClaimMultipleAndWithdrawSubmit}
+                                disabled={
+                                    !answerer ||
+                                    !claimMultipleAndWithdrawAsync ||
+                                    question.historyHash === BYTES32_ZERO
+                                }
+                                loading={
+                                    loadingAnswerer ||
+                                    loadingClaimableHistory ||
+                                    claimingAndWithdrawing
+                                }
+                                size="small"
+                            >
+                                {t(
+                                    "label.question.form.claimAndwithdrawWinnings"
+                                )}
+                            </Button>
+                        )}
+                        {withdrawVisible && (
+                            <Button
+                                onClick={handleWithdrawSubmit}
+                                disabled={
+                                    !answerer ||
+                                    !withdrawAsync ||
+                                    withdrawableBalance === 0n
+                                }
+                                loading={
+                                    loadingAnswerer ||
+                                    loadingWithdrawableBalance ||
+                                    withdrawing
+                                }
+                                size="small"
+                            >
+                                {t("label.question.form.withdrawWinnings")}
+                            </Button>
+                        )}
                     </div>
                 ))}
         </div>
