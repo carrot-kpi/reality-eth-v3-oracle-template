@@ -1174,10 +1174,10 @@
     tailwind-merge "^1.13.1"
     viem "^1.0.7"
 
-"@carrot-kpi/ui@^0.48.5":
-  version "0.48.5"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/ui/-/ui-0.48.5.tgz#208056308550506a4948bb6649efff941847369c"
-  integrity sha512-iYlZsgrSQasOWiguQh3l8WNmpABSbvxySF/K/mZrmVMMn6fb9HYsHIYHqNKMwNjosyYixzcl9uUPZ1jbfanB/Q==
+"@carrot-kpi/ui@^0.48.6":
+  version "0.48.6"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/ui/-/ui-0.48.6.tgz#4c31bfd6cd0c26a3af8b182d6ef0350ad1e89df0"
+  integrity sha512-zEhU+H4syIz6ZRXev2V1gKvpKF5GggE+lrDefRXBQBSmXqMMKENBbj7X9O6XHXks4ld0o8a2s7XjK6GaVJi8og==
   dependencies:
     "@carrot-kpi/sdk" "*"
     "@popperjs/core" "^2.11.8"
