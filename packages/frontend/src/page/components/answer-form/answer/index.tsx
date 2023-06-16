@@ -73,10 +73,6 @@ export const Answer = ({
     const [currentAnswerValue, setCurrentAnswerValue] = useState("");
 
     const formattedBond = formatUnits(question.bond, nativeCurrency.decimals);
-    const purelyBoolean = isAnswerPurelyBoolean(question);
-    const purelyNumerical = isAnswerPurelyNumerical(question);
-    const invalid = isAnswerInvalid(question);
-    const answeredTooSoon = isAnsweredTooSoon(question);
     const pendingArbitration = isAnswerPendingArbitration(question);
 
     const currentAnswerTitle = finalized
@@ -91,6 +87,10 @@ export const Answer = ({
     useEffect(() => {
         if (loadingQuestion) return; // do nothing
 
+        const purelyBoolean = isAnswerPurelyBoolean(question);
+        const purelyNumerical = isAnswerPurelyNumerical(question);
+        const invalid = isAnswerInvalid(question);
+        const answeredTooSoon = isAnsweredTooSoon(question);
         let newValue = "";
 
         if (pendingArbitration) newValue = t("label.answer.arbitrating");
@@ -108,16 +108,7 @@ export const Answer = ({
         else if (answeredTooSoon) newValue = t("label.answer.form.tooSoon");
 
         setCurrentAnswerValue(newValue);
-    }, [
-        answeredTooSoon,
-        invalid,
-        loadingQuestion,
-        pendingArbitration,
-        purelyBoolean,
-        purelyNumerical,
-        question,
-        t,
-    ]);
+    }, [loadingQuestion, pendingArbitration, question, t]);
 
     return (
         <div className="flex flex-col md:flex-row justify-between border-b-0 md:border-b border-black dark:border-white">
