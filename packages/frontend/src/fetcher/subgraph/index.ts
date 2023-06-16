@@ -138,7 +138,7 @@ class Fetcher implements IPartialFetcher {
                 subgraphURL,
                 GetQuestionQuery,
                 {
-                    id: `${realityV3Address.toLowerCase()}-${currentQuestionId.toLowerCase()}`,
+                    questionId: `${realityV3Address.toLowerCase()}-${currentQuestionId.toLowerCase()}`,
                 }
             );
             if (!getQuestionResponse.question) break;
