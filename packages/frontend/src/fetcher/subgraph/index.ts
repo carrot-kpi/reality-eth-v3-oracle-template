@@ -51,26 +51,31 @@ class Fetcher implements IPartialFetcher {
         );
         if (!question) return null;
 
+        // handle reopenings by always using the latest
+        // reopener question, if any
+        const finalQuestion = question.reopenedBy || question;
+
         return {
-            id: question.reopenedBy?.id ? question.reopenedBy.id : question.id,
-            reopenedId: question.reopenedBy?.id ? question.id : undefined,
-            historyHash: question.historyHash || BYTES32_ZERO,
-            templateId: Number(question.template.templateId),
-            content: question.data,
-            contentHash: question.contentHash,
-            arbitrator: question.arbitrator,
-            timeout: Number(question.timeout),
-            openingTimestamp: Number(question.openingTimestamp),
+            id: finalQuestion.id,
+            reopenedId:
+                questionId === finalQuestion.id ? undefined : questionId,
+            historyHash: finalQuestion.historyHash || BYTES32_ZERO,
+            templateId: Number(finalQuestion.template.templateId),
+            content: finalQuestion.data,
+            contentHash: finalQuestion.contentHash,
+            arbitrator: finalQuestion.arbitrator,
+            timeout: Number(finalQuestion.timeout),
+            openingTimestamp: Number(finalQuestion.openingTimestamp),
             finalizationTimestamp:
-                question.finalizationTimestamp ===
+                finalQuestion.finalizationTimestamp ===
                 SUBGRAPH_CURRENT_ANSWER_FINALIZATION_TIMESTAMP_NULL_VALUE
                     ? 0
-                    : Number(question.finalizationTimestamp),
-            pendingArbitration: question.pendingArbitration,
-            bounty: BigInt(question.bounty),
-            bestAnswer: question.currentAnswer || BYTES32_ZERO,
-            bond: BigInt(question.currentAnswerBond),
-            minBond: BigInt(question.minBond),
+                    : Number(finalQuestion.finalizationTimestamp),
+            pendingArbitration: finalQuestion.pendingArbitration,
+            bounty: BigInt(finalQuestion.bounty),
+            bestAnswer: finalQuestion.currentAnswer || BYTES32_ZERO,
+            bond: BigInt(finalQuestion.currentAnswerBond),
+            minBond: BigInt(finalQuestion.minBond),
         };
     }
 
