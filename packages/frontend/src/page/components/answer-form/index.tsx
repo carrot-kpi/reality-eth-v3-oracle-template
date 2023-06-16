@@ -1120,41 +1120,49 @@ export const AnswerForm = ({
                                 {t("label.question.form.finalize")}
                             </Button>
                         )}
-                        <Button
-                            onClick={handleClaimMultipleAndWithdrawSubmit}
-                            disabled={
-                                !answerer ||
-                                !claimMultipleAndWithdrawAsync ||
-                                question.historyHash === BYTES32_ZERO ||
-                                question.historyHash === BYTES32_ZERO
-                            }
-                            loading={
-                                loadingAnswerer ||
-                                loadingClaimableHistory ||
-                                claimingAndWithdrawing
-                            }
-                            size="small"
-                        >
-                            {t("label.question.form.claimAndwithdrawWinnings")}
-                        </Button>
-                        {!!withdrawableBalance && withdrawableBalance > 0n && (
-                            <Button
-                                onClick={handleWithdrawSubmit}
-                                disabled={
-                                    !answerer ||
-                                    !withdrawAsync ||
-                                    withdrawableBalance === 0n
-                                }
-                                loading={
-                                    loadingAnswerer ||
-                                    loadingWithdrawableBalance ||
-                                    withdrawing
-                                }
-                                size="small"
-                            >
-                                {t("label.question.form.withdrawWinnings")}
-                            </Button>
-                        )}
+                        {withdrawableBalance !== undefined &&
+                            withdrawableBalance === 0n && (
+                                <Button
+                                    onClick={
+                                        handleClaimMultipleAndWithdrawSubmit
+                                    }
+                                    disabled={
+                                        !answerer ||
+                                        !claimMultipleAndWithdrawAsync ||
+                                        question.historyHash === BYTES32_ZERO ||
+                                        question.historyHash === BYTES32_ZERO
+                                    }
+                                    loading={
+                                        loadingAnswerer ||
+                                        loadingClaimableHistory ||
+                                        claimingAndWithdrawing
+                                    }
+                                    size="small"
+                                >
+                                    {t(
+                                        "label.question.form.claimAndwithdrawWinnings"
+                                    )}
+                                </Button>
+                            )}
+                        {withdrawableBalance !== undefined &&
+                            withdrawableBalance > 0n && (
+                                <Button
+                                    onClick={handleWithdrawSubmit}
+                                    disabled={
+                                        !answerer ||
+                                        !withdrawAsync ||
+                                        withdrawableBalance === 0n
+                                    }
+                                    loading={
+                                        loadingAnswerer ||
+                                        loadingWithdrawableBalance ||
+                                        withdrawing
+                                    }
+                                    size="small"
+                                >
+                                    {t("label.question.form.withdrawWinnings")}
+                                </Button>
+                            )}
                     </div>
                 ))}
         </div>
