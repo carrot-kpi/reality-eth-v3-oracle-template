@@ -26,6 +26,13 @@ export interface FetchClaimableQuestionsParams {
     questionId?: Hex;
 }
 
+export interface IsAnswererParams {
+    publicClient: PublicClient;
+    realityV3Address?: Address;
+    questionId?: Hex;
+    address?: Address;
+}
+
 export interface IPartialFetcher {
     supportedInChain(params: SupportedInChainParams): boolean;
 
@@ -34,6 +41,8 @@ export interface IPartialFetcher {
     fetchClaimableHistory(
         params: FetchClaimableHistoryParams
     ): Promise<Record<Hex, RealityResponse[]>>;
+
+    isAnswerer(params: IsAnswererParams): Promise<boolean>;
 }
 
 export interface DecentralizationParams {
@@ -48,6 +57,9 @@ export type FullFetcherFetchQuestionParams =
 export type FullFetcherFetchClaimableHistoryParams =
     WithDecentralizationParams<FetchClaimableHistoryParams>;
 
+export type FullFetcheIsAnswererParams =
+    WithDecentralizationParams<IsAnswererParams>;
+
 export interface IFullFetcher {
     fetchQuestion(
         params: FullFetcherFetchQuestionParams
@@ -56,4 +68,6 @@ export interface IFullFetcher {
     fetchClaimableHistory(
         params: FullFetcherFetchClaimableHistoryParams
     ): Promise<Record<Hex, RealityResponse[]>>;
+
+    isAnswerer(params: FullFetcheIsAnswererParams): Promise<boolean>;
 }

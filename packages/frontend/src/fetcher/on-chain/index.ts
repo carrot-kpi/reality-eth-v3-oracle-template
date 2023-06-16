@@ -2,14 +2,11 @@ import type {
     FetchClaimableHistoryParams,
     FetchQuestionParams,
     IPartialFetcher,
+    IsAnswererParams,
 } from "../abstraction";
-import {
-    BYTES32_ZERO,
-    REALITY_TEMPLATE_OPTIONS,
-    SupportedChainId,
-} from "../../commons";
+import { BYTES32_ZERO, REALITY_TEMPLATE_OPTIONS } from "../../commons";
 import REALITY_ETH_V3_ABI from "../../abis/reality-eth-v3";
-import { enforce, isCID } from "@carrot-kpi/sdk";
+import { enforce, isCID, ChainId, CHAIN_ADDRESSES } from "@carrot-kpi/sdk";
 import type { RealityResponse, RealityQuestion } from "../../page/types";
 import {
     type Address,
@@ -56,10 +53,7 @@ class Fetcher implements IPartialFetcher {
             return null;
 
         const chainId = await publicClient.getChainId();
-        enforce(
-            chainId in SupportedChainId,
-            `unsupported chain with id ${chainId}`
-        );
+        enforce(chainId in ChainId, `unsupported chain with id ${chainId}`);
         const realityContract = getContract({
             abi: REALITY_ETH_V3_ABI,
             address: realityV3Address,
@@ -112,11 +106,7 @@ class Fetcher implements IPartialFetcher {
         questionId,
     }: FetchClaimableHistoryParams): Promise<Record<Hex, RealityResponse[]>> {
         if (!realityV3Address || !questionId) return {};
-        const chainId = await publicClient.getChainId();
-        enforce(
-            chainId in SupportedChainId,
-            `unsupported chain with id ${chainId}`
-        );
+        await this.validate({ publicClient });
 
         const realityContract = getContract({
             abi: REALITY_ETH_V3_ABI,
@@ -169,6 +159,97 @@ class Fetcher implements IPartialFetcher {
                     }),
             };
         }, {});
+    }
+
+    public async isAnswerer({
+        publicClient,
+        realityV3Address,
+        questionId,
+        address,
+    }: IsAnswererParams): Promise<boolean> {
+        if (!realityV3Address || !questionId || !address) return false;
+        await this.validate({ publicClient });
+
+        const realityContract = getContract({
+            abi: REALITY_ETH_V3_ABI,
+            address: realityV3Address,
+            publicClient,
+        });
+        const reopener = await realityContract.read.reopener_questions([
+            questionId,
+        ]);
+
+        let originalQuestionId = questionId;
+        if (reopener) {
+            originalQuestionId = await this.fetchOriginalQuestionId(
+                publicClient,
+                realityV3Address,
+                questionId
+            );
+        }
+
+        const questionsHistory = await this.fetchQuestionsHistory(
+            publicClient,
+            realityV3Address,
+            originalQuestionId
+        );
+
+        let answerer = false;
+        let toBlock = await publicClient.getBlockNumber();
+        let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+        while (true) {
+            const newAnwersEventLogs = await publicClient.getLogs({
+                address: realityV3Address,
+                event: parseAbiItem(
+                    "event LogNewAnswer(bytes32 answer,bytes32 indexed question_id,bytes32 history_hash,address indexed user,uint256 bond,uint256 ts,bool is_commitment)"
+                ),
+                args: {
+                    question_id: questionsHistory.map(
+                        (question) => question.questionId
+                    ),
+                    user: address,
+                },
+                fromBlock,
+                toBlock,
+            });
+            const newQuestionEventLogs = await publicClient.getLogs({
+                address: realityV3Address,
+                event: parseAbiItem(
+                    "event LogNewQuestion(bytes32 indexed question_id,address indexed user,uint256 template_id,string question,bytes32 indexed content_hash,address arbitrator,uint32 timeout,uint32 opening_ts,uint256 nonce,uint256 created)"
+                ),
+                args: {
+                    question_id: originalQuestionId,
+                },
+                fromBlock,
+                toBlock,
+            });
+
+            // exit at the first found answer
+            if (newAnwersEventLogs.length > 0) {
+                answerer = true;
+                break;
+            }
+
+            // once the original question has been found exit the whole fetch
+            if (newQuestionEventLogs[0]) {
+                const [questionId] = decodeAbiParameters(
+                    [
+                        {
+                            type: "bytes32",
+                            name: "question_id",
+                        },
+                    ],
+                    newQuestionEventLogs[0].topics[1]
+                ) as [Hex];
+
+                if (questionId === originalQuestionId) break;
+            }
+
+            toBlock = fromBlock - 1n;
+            fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+        }
+
+        return answerer;
     }
 
     private async fetchOriginalQuestionId(
@@ -419,6 +500,17 @@ class Fetcher implements IPartialFetcher {
         }
 
         return answersHistory;
+    }
+
+    private async validate({
+        publicClient,
+    }: {
+        publicClient: PublicClient;
+    }): Promise<void> {
+        const chainId = await publicClient.getChainId();
+        enforce(chainId in ChainId, `unsupported chain with id ${chainId}`);
+        const chainAddresses = CHAIN_ADDRESSES[chainId as ChainId];
+        enforce(!!chainAddresses, `no addresses available in chain ${chainId}`);
     }
 }
 

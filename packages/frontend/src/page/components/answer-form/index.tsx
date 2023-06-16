@@ -80,6 +80,7 @@ import { Arbitrator } from "./arbitrator";
 import Danger from "../../../assets/danger";
 import { useRealityClaimableHistory } from "../../../hooks/useRealityClaimableHistory";
 import { useArbitratorFees } from "../../../hooks/useAbritratorFees";
+import { useIsAnswerer } from "../../../hooks/useIsAnswerer";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -102,11 +103,23 @@ export const AnswerForm = ({
 }: AnswerFormProps): ReactElement => {
     const publicClient = usePublicClient();
 
+    const { chain } = useNetwork();
+    const nativeCurrency = useNativeCurrency();
+    const { address: connectedAddress } = useAccount();
+    const { data: userNativeCurrencyBalance } = useBalance({
+        address: connectedAddress,
+    });
     const finalized = isQuestionFinalized(question);
     const { loading: loadingClaimableHistory, claimable } =
         useRealityClaimableHistory(realityAddress, question.id, finalized);
     const { loading: loadingContent, content } = useQuestionContent(
         question.content
+    );
+    const { loading: loadingAnswerer, answerer } = useIsAnswerer(
+        realityAddress,
+        question.id,
+        connectedAddress,
+        finalized
     );
 
     const [open, setOpen] = useState(false);
@@ -125,6 +138,7 @@ export const AnswerForm = ({
     const [finalizingOracle, setFinalizingOracle] = useState(false);
     const [requestingArbitration, setRequestingArbitration] = useState(false);
     const [claimingAndWithdrawing, setClaimingAndWithdrawing] = useState(false);
+    const [withdrawing, setWithdrawing] = useState(false);
     const [moreOptionValue, setMoreOptionValue] = useState({
         invalid: false,
         anweredTooSoon: false,
@@ -135,13 +149,6 @@ export const AnswerForm = ({
         value: "",
     });
     const [bondErrorText, setBondErrorText] = useState("");
-
-    const { chain } = useNetwork();
-    const nativeCurrency = useNativeCurrency();
-    const { address: connectedAddress } = useAccount();
-    const { data: userNativeCurrencyBalance } = useBalance({
-        address: connectedAddress,
-    });
 
     const minimumBond =
         question.bond === 0n ? question.minBond : question.bond * 2n;
@@ -250,14 +257,15 @@ export const AnswerForm = ({
 
     const { fees } = useArbitratorFees(arbitratorAddress);
 
-    const { data: withdrawableBalance } = useContractRead({
-        address: realityAddress,
-        abi: REALITY_ETH_V3_ABI,
-        functionName: "balanceOf",
-        args: connectedAddress && [connectedAddress],
-        enabled: !!connectedAddress,
-        watch: true,
-    });
+    const { data: withdrawableBalance, isLoading: loadingWithdrawableBalance } =
+        useContractRead({
+            address: realityAddress,
+            abi: REALITY_ETH_V3_ABI,
+            functionName: "balanceOf",
+            args: connectedAddress && [connectedAddress],
+            enabled: !!connectedAddress,
+            watch: true,
+        });
 
     const { config: submitAnswerConfig } = usePrepareContractWrite({
         chainId: chain?.id,
@@ -354,13 +362,21 @@ export const AnswerForm = ({
             claimWinningsPayload.answerers.length > 0 &&
             claimWinningsPayload.bonds.length > 0 &&
             claimWinningsPayload.responses.length > 0 &&
-            (question.historyHash !== BYTES32_ZERO ||
-                withdrawableBalance !== 0n) &&
+            question.historyHash !== BYTES32_ZERO &&
             !isAnswerMissing(question),
     });
     const { writeAsync: claimMultipleAndWithdrawAsync } = useContractWrite(
         claimMultipleAndWithdrawConfig
     );
+
+    const { config: withdrawConfig } = usePrepareContractWrite({
+        chainId: chain?.id,
+        address: realityAddress,
+        abi: REALITY_ETH_V3_ABI,
+        functionName: "withdraw",
+        enabled: finalized && !!withdrawableBalance && withdrawableBalance > 0n,
+    });
+    const { writeAsync: withdrawAsync } = useContractWrite(withdrawConfig);
 
     useEffect(() => {
         setSubmitAnswerDisabled(
@@ -691,6 +707,49 @@ export const AnswerForm = ({
             cancelled = true;
         };
     }, [claimMultipleAndWithdrawAsync, onTx, t, publicClient]);
+
+    const handleWithdrawSubmit = useCallback(() => {
+        if (!withdrawAsync) return;
+        let cancelled = false;
+        const submitWithdraw = async () => {
+            if (!cancelled) setWithdrawing(true);
+            try {
+                const tx = await withdrawAsync();
+                const receipt = await publicClient.waitForTransactionReceipt({
+                    hash: tx.hash,
+                });
+
+                onTx({
+                    type: TxType.CUSTOM,
+                    from: receipt.from,
+                    hash: tx.hash,
+                    payload: {
+                        summary: t("label.transaction.winningsWithdrawn"),
+                    },
+                    receipt: {
+                        from: receipt.from,
+                        transactionIndex: receipt.transactionIndex,
+                        blockHash: receipt.blockHash,
+                        transactionHash: receipt.transactionHash,
+                        to: receipt.to || zeroAddress,
+                        contractAddress: receipt.contractAddress || zeroAddress,
+                        blockNumber: Number(receipt.blockNumber),
+                        status: receipt.status === "success" ? 1 : 0,
+                    },
+                    timestamp: unixTimestamp(new Date()),
+                });
+                if (cancelled) return;
+            } catch (error) {
+                console.error("error claiming winnings", error);
+            } finally {
+                if (!cancelled) setWithdrawing(false);
+            }
+        };
+        void submitWithdraw();
+        return () => {
+            cancelled = true;
+        };
+    }, [withdrawAsync, onTx, t, publicClient]);
 
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
@@ -1064,19 +1123,38 @@ export const AnswerForm = ({
                         <Button
                             onClick={handleClaimMultipleAndWithdrawSubmit}
                             disabled={
+                                !answerer ||
                                 !claimMultipleAndWithdrawAsync ||
                                 question.historyHash === BYTES32_ZERO ||
-                                (question.historyHash === BYTES32_ZERO &&
-                                    withdrawableBalance === 0n)
+                                question.historyHash === BYTES32_ZERO
                             }
                             loading={
+                                loadingAnswerer ||
                                 loadingClaimableHistory ||
                                 claimingAndWithdrawing
                             }
                             size="small"
                         >
-                            {t("label.question.form.withdrawWinnings")}
+                            {t("label.question.form.claimAndwithdrawWinnings")}
                         </Button>
+                        {!!withdrawableBalance && withdrawableBalance > 0n && (
+                            <Button
+                                onClick={handleWithdrawSubmit}
+                                disabled={
+                                    !answerer ||
+                                    !withdrawAsync ||
+                                    withdrawableBalance === 0n
+                                }
+                                loading={
+                                    loadingAnswerer ||
+                                    loadingWithdrawableBalance ||
+                                    withdrawing
+                                }
+                                size="small"
+                            >
+                                {t("label.question.form.withdrawWinnings")}
+                            </Button>
+                        )}
                     </div>
                 ))}
         </div>
