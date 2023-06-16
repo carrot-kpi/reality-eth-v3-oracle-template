@@ -79,6 +79,7 @@ import { useQuestionContent } from "../../../hooks/useQuestionContent";
 import { Arbitrator } from "./arbitrator";
 import Danger from "../../../assets/danger";
 import { useRealityClaimableHistory } from "../../../hooks/useRealityClaimableHistory";
+import { useArbitratorFees } from "../../../hooks/useAbritratorFees";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -137,9 +138,9 @@ export const AnswerForm = ({
 
     const { chain } = useNetwork();
     const nativeCurrency = useNativeCurrency();
-    const { address } = useAccount();
+    const { address: connectedAddress } = useAccount();
     const { data: userNativeCurrencyBalance } = useBalance({
-        address,
+        address: connectedAddress,
     });
 
     const minimumBond =
@@ -237,24 +238,24 @@ export const AnswerForm = ({
         return mergedPayload;
     }, [claimable]);
 
-    const { data: disputeFee } = useContractRead({
-        address:
+    const arbitratorAddress = useMemo(
+        () =>
             !!chain && chain.id && chain.id in SupportedChainId
                 ? (TRUSTED_REALITY_ARBITRATORS[chain.id as SupportedChainId] as
                       | Address
                       | undefined)
                 : undefined,
-        abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
-        functionName: "getDisputeFee",
-        enabled: !!chain && !!chain.id,
-    });
+        [chain]
+    );
+
+    const { fees } = useArbitratorFees(arbitratorAddress);
 
     const { data: withdrawableBalance } = useContractRead({
         address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "balanceOf",
-        args: address && [address],
-        enabled: !!address,
+        args: connectedAddress && [connectedAddress],
+        enabled: !!connectedAddress,
         watch: true,
     });
 
@@ -286,8 +287,9 @@ export const AnswerForm = ({
             question.minBond,
             question.reopenedId || question.id,
         ],
-        value: 0n,
-        enabled: !!chain?.id && finalized && isAnsweredTooSoon(question),
+        value: fees?.question || 0n,
+        enabled:
+            !!fees && !!chain?.id && finalized && isAnsweredTooSoon(question),
     });
     const { writeAsync: reopenAnswerAsync } =
         useContractWrite(reopenQuestionConfig);
@@ -315,8 +317,9 @@ export const AnswerForm = ({
         abi: TRUSTED_REALITY_ARBITRATOR_V3_ABI,
         functionName: "requestArbitration",
         args: [question.id, 0n],
-        value: disputeFee || 0n,
+        value: fees?.dispute || 0n,
         enabled:
+            !!fees &&
             !!chain &&
             !!chain.id &&
             !finalized &&
@@ -791,7 +794,7 @@ export const AnswerForm = ({
                     )}
                 </QuestionInfo>
             </div>
-            {!finalized && open && (
+            {!finalized && open && connectedAddress && (
                 <Typography className={{ root: "px-6 mt-6" }}>
                     {isAnswerPendingArbitration(question) ? (
                         t("label.question.arbitrating.subtitle")
@@ -811,163 +814,11 @@ export const AnswerForm = ({
                     )}
                 </Typography>
             )}
-            {open && !isAnswerPendingArbitration(question) && !finalized && (
-                <div className="px-6 flex flex-col gap-4 mt-6">
-                    {question.templateId === SupportedRealityTemplates.BOOL && (
-                        <RadioGroup
-                            id="bool-template"
-                            className={{
-                                radioInputsWrapper:
-                                    "flex flex-col gap-8 md:flex-row md:gap-11",
-                            }}
-                        >
-                            <Radio
-                                id="bool-template-yes"
-                                name="bool-answer"
-                                label={t("label.question.form.yes")}
-                                value={BooleanAnswer.YES}
-                                checked={booleanValue === BooleanAnswer.YES}
-                                disabled={answerInputDisabled}
-                                onChange={handleBooleanRadioChange}
-                                className={{
-                                    inputWrapper: inputStyles({
-                                        disabled: answerInputDisabled,
-                                    }),
-                                }}
-                            />
-                            <Radio
-                                id="bool-template-no"
-                                name="bool-answer"
-                                label={t("label.question.form.no")}
-                                value={BooleanAnswer.NO}
-                                checked={booleanValue === BooleanAnswer.NO}
-                                disabled={answerInputDisabled}
-                                onChange={handleBooleanRadioChange}
-                                className={{
-                                    inputWrapper: inputStyles({
-                                        disabled: answerInputDisabled,
-                                    }),
-                                }}
-                            />
-                            <Radio
-                                id="bool-template-invalid"
-                                name="bool-answer"
-                                label={t("label.question.form.invalid")}
-                                info={
-                                    <Typography variant="sm">
-                                        {t("invalid.info")}
-                                    </Typography>
-                                }
-                                value={BooleanAnswer.INVALID_REALITY_ANSWER}
-                                checked={
-                                    booleanValue ===
-                                    BooleanAnswer.INVALID_REALITY_ANSWER
-                                }
-                                disabled={answerInputDisabled}
-                                onChange={handleBooleanRadioChange}
-                                className={{
-                                    infoPopover: infoPopoverStyles(),
-                                    inputWrapper: inputStyles({
-                                        disabled: answerInputDisabled,
-                                    }),
-                                }}
-                            />
-                            <Radio
-                                id="bool-template-too-soon"
-                                name="bool-answer"
-                                label={t("label.question.form.tooSoon")}
-                                info={
-                                    <Typography variant="sm">
-                                        {t("tooSoon.info")}
-                                    </Typography>
-                                }
-                                value={
-                                    BooleanAnswer.ANSWERED_TOO_SOON_REALITY_ANSWER
-                                }
-                                checked={
-                                    booleanValue ===
-                                    BooleanAnswer.ANSWERED_TOO_SOON_REALITY_ANSWER
-                                }
-                                disabled={answerInputDisabled}
-                                onChange={handleBooleanRadioChange}
-                                className={{
-                                    infoPopover: infoPopoverStyles(),
-                                    inputWrapper: inputStyles({
-                                        disabled: answerInputDisabled,
-                                    }),
-                                }}
-                            />
-                        </RadioGroup>
-                    )}
-                    {question.templateId === SupportedRealityTemplates.UINT && (
-                        <div className="flex flex-col lg:items-center lg:flex-row gap-8">
-                            <NumberInput
-                                id="uint-template"
-                                placeholder={"0.0"}
-                                allowNegative={false}
-                                min={0}
-                                value={numberValue.formattedValue}
-                                disabled={answerInputDisabled}
-                                onValueChange={setNumberValue}
-                                className={{
-                                    inputWrapper: inputStyles({
-                                        disabled: answerInputDisabled,
-                                    }),
-                                }}
-                            />
-                            <Checkbox
-                                id="invalid"
-                                label={t("label.question.form.invalid")}
-                                info={
-                                    <Typography variant="sm">
-                                        {t("invalid.info")}
-                                    </Typography>
-                                }
-                                checked={moreOptionValue.invalid}
-                                onChange={handleInvalidChange}
-                                className={{
-                                    infoPopover: infoPopoverStyles(),
-                                    inputWrapper: inputStyles({
-                                        disabled:
-                                            finalized ||
-                                            moreOptionValue.anweredTooSoon,
-                                        full: false,
-                                    }),
-                                }}
-                            />
-                            <Checkbox
-                                id="too-soon"
-                                label={t("label.question.form.tooSoon")}
-                                info={
-                                    <Typography variant="sm">
-                                        {t("tooSoon.info")}
-                                    </Typography>
-                                }
-                                checked={moreOptionValue.anweredTooSoon}
-                                onChange={handleAnsweredTooSoonChange}
-                                className={{
-                                    infoPopover: infoPopoverStyles(),
-                                    inputWrapper: inputStyles({
-                                        disabled:
-                                            finalized ||
-                                            moreOptionValue.invalid,
-                                        full: false,
-                                    }),
-                                }}
-                            />
-                        </div>
-                    )}
-                    <BondInput
-                        t={t}
-                        value={bond}
-                        placeholder={formatUnits(
-                            minimumBond,
-                            nativeCurrency.decimals
-                        )}
-                        errorText={bondErrorText}
-                        onChange={handleBondChange}
-                        disabled={finalized}
-                    />
+            {!connectedAddress && (
+                <div className="flex p-6 h-60 items-center justify-center w-full max-w-6xl bg-gray-200 dark:bg-black">
+                    <Typography uppercase>
+                        {t("label.answer.form.noWallet")}
+                    </Typography>
                 </div>
             )}
             {!open && (
@@ -981,8 +832,173 @@ export const AnswerForm = ({
                 </div>
             )}
             {open &&
+                connectedAddress &&
+                !isAnswerPendingArbitration(question) &&
+                !finalized && (
+                    <div className="px-6 flex flex-col gap-4 mt-6">
+                        {question.templateId ===
+                            SupportedRealityTemplates.BOOL && (
+                            <RadioGroup
+                                id="bool-template"
+                                className={{
+                                    radioInputsWrapper:
+                                        "flex flex-col gap-8 md:flex-row md:gap-11",
+                                }}
+                            >
+                                <Radio
+                                    id="bool-template-yes"
+                                    name="bool-answer"
+                                    label={t("label.question.form.yes")}
+                                    value={BooleanAnswer.YES}
+                                    checked={booleanValue === BooleanAnswer.YES}
+                                    disabled={answerInputDisabled}
+                                    onChange={handleBooleanRadioChange}
+                                    className={{
+                                        inputWrapper: inputStyles({
+                                            disabled: answerInputDisabled,
+                                        }),
+                                    }}
+                                />
+                                <Radio
+                                    id="bool-template-no"
+                                    name="bool-answer"
+                                    label={t("label.question.form.no")}
+                                    value={BooleanAnswer.NO}
+                                    checked={booleanValue === BooleanAnswer.NO}
+                                    disabled={answerInputDisabled}
+                                    onChange={handleBooleanRadioChange}
+                                    className={{
+                                        inputWrapper: inputStyles({
+                                            disabled: answerInputDisabled,
+                                        }),
+                                    }}
+                                />
+                                <Radio
+                                    id="bool-template-invalid"
+                                    name="bool-answer"
+                                    label={t("label.question.form.invalid")}
+                                    info={
+                                        <Typography variant="sm">
+                                            {t("invalid.info")}
+                                        </Typography>
+                                    }
+                                    value={BooleanAnswer.INVALID_REALITY_ANSWER}
+                                    checked={
+                                        booleanValue ===
+                                        BooleanAnswer.INVALID_REALITY_ANSWER
+                                    }
+                                    disabled={answerInputDisabled}
+                                    onChange={handleBooleanRadioChange}
+                                    className={{
+                                        infoPopover: infoPopoverStyles(),
+                                        inputWrapper: inputStyles({
+                                            disabled: answerInputDisabled,
+                                        }),
+                                    }}
+                                />
+                                <Radio
+                                    id="bool-template-too-soon"
+                                    name="bool-answer"
+                                    label={t("label.question.form.tooSoon")}
+                                    info={
+                                        <Typography variant="sm">
+                                            {t("tooSoon.info")}
+                                        </Typography>
+                                    }
+                                    value={
+                                        BooleanAnswer.ANSWERED_TOO_SOON_REALITY_ANSWER
+                                    }
+                                    checked={
+                                        booleanValue ===
+                                        BooleanAnswer.ANSWERED_TOO_SOON_REALITY_ANSWER
+                                    }
+                                    disabled={answerInputDisabled}
+                                    onChange={handleBooleanRadioChange}
+                                    className={{
+                                        infoPopover: infoPopoverStyles(),
+                                        inputWrapper: inputStyles({
+                                            disabled: answerInputDisabled,
+                                        }),
+                                    }}
+                                />
+                            </RadioGroup>
+                        )}
+                        {question.templateId ===
+                            SupportedRealityTemplates.UINT && (
+                            <div className="flex flex-col lg:items-center lg:flex-row gap-8">
+                                <NumberInput
+                                    id="uint-template"
+                                    placeholder={"0.0"}
+                                    allowNegative={false}
+                                    min={0}
+                                    value={numberValue.formattedValue}
+                                    disabled={answerInputDisabled}
+                                    onValueChange={setNumberValue}
+                                    className={{
+                                        inputWrapper: inputStyles({
+                                            disabled: answerInputDisabled,
+                                        }),
+                                    }}
+                                />
+                                <Checkbox
+                                    id="invalid"
+                                    label={t("label.question.form.invalid")}
+                                    info={
+                                        <Typography variant="sm">
+                                            {t("invalid.info")}
+                                        </Typography>
+                                    }
+                                    checked={moreOptionValue.invalid}
+                                    onChange={handleInvalidChange}
+                                    className={{
+                                        infoPopover: infoPopoverStyles(),
+                                        inputWrapper: inputStyles({
+                                            disabled:
+                                                finalized ||
+                                                moreOptionValue.anweredTooSoon,
+                                            full: false,
+                                        }),
+                                    }}
+                                />
+                                <Checkbox
+                                    id="too-soon"
+                                    label={t("label.question.form.tooSoon")}
+                                    info={
+                                        <Typography variant="sm">
+                                            {t("tooSoon.info")}
+                                        </Typography>
+                                    }
+                                    checked={moreOptionValue.anweredTooSoon}
+                                    onChange={handleAnsweredTooSoonChange}
+                                    className={{
+                                        infoPopover: infoPopoverStyles(),
+                                        inputWrapper: inputStyles({
+                                            disabled:
+                                                finalized ||
+                                                moreOptionValue.invalid,
+                                            full: false,
+                                        }),
+                                    }}
+                                />
+                            </div>
+                        )}
+                        <BondInput
+                            t={t}
+                            value={bond}
+                            placeholder={formatUnits(
+                                minimumBond,
+                                nativeCurrency.decimals
+                            )}
+                            errorText={bondErrorText}
+                            onChange={handleBondChange}
+                            disabled={finalized}
+                        />
+                    </div>
+                )}
+            {open &&
+                connectedAddress &&
                 (!isAnswerPendingArbitration(question) && !finalized ? (
-                    <div className="px-6 flex flex-col md:flex-row gap-5 mt-6">
+                    <div className="px-6 flex flex-col md:flex-row gap-5 mt-6 mb-6">
                         <Button
                             onClick={handleSubmit}
                             disabled={submitAnswerDisabled}
@@ -1002,7 +1018,7 @@ export const AnswerForm = ({
                         >
                             {t("label.question.form.requestArbitration")}
                         </Button>
-                        {!!disputeFee && disputeFee !== 0n && (
+                        {!!fees && fees.dispute !== 0n && (
                             <Popover
                                 anchor={disputeFeePopoverAnchor}
                                 open={disputeFeePopoverOpen}
@@ -1012,7 +1028,7 @@ export const AnswerForm = ({
                                     {t("label.question.arbitrator.disputeFee", {
                                         /* FIXME: reintroduce commify to make number easier to read */
                                         fee: formatUnits(
-                                            disputeFee,
+                                            fees.dispute,
                                             nativeCurrency.decimals
                                         ),
                                         symbol: chain?.nativeCurrency.symbol,
@@ -1022,7 +1038,7 @@ export const AnswerForm = ({
                         )}
                     </div>
                 ) : (
-                    <div className="px-6 flex gap-5 mt-6">
+                    <div className="px-6 flex gap-5 mt-6 mb-6">
                         {isAnsweredTooSoon(question) && (
                             <Button
                                 onClick={handleReopenSubmit}

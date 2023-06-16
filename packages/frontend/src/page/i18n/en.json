@@ -27,6 +27,7 @@
     "label.answer.current": "Current answer",
     "label.answer.final": "Final answer",
     "label.answer.arbitrating": "Awaiting arbitration",
+    "label.answer.form.noWallet": "No wallet connected",
     "label.answer.form.missing": "No answer submitted yet",
     "label.answer.form.yes": "Yes",
     "label.answer.form.no": "No",
