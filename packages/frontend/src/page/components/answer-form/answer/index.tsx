@@ -2,7 +2,7 @@ import {
     type NamespacedTranslateFunction,
     useNativeCurrency,
 } from "@carrot-kpi/react";
-import { Skeleton, Timer, Typography } from "@carrot-kpi/ui";
+import { Timer, Typography } from "@carrot-kpi/ui";
 import { cva } from "class-variance-authority";
 import type { ReactElement } from "react";
 import { BYTES32_ZERO } from "../../../../commons";
@@ -120,11 +120,7 @@ export const Answer = ({
                             : undefined
                     }
                 >
-                    {loadingQuestion ? (
-                        <Skeleton width="220px" variant="xl" />
-                    ) : (
-                        <Typography>{currentAnswerValue}</Typography>
-                    )}
+                    <Typography>{currentAnswerValue}</Typography>
                 </AnswerInfo>
                 {!pendingArbitration && (
                     <AnswerInfo
@@ -133,9 +129,7 @@ export const Answer = ({
                             "border-b md:border-b-0 border-r-0 border-black dark:border-white"
                         }
                     >
-                        {loadingQuestion ? (
-                            <Skeleton width="150px" variant="xl" />
-                        ) : !!finalizingInLabel ? (
+                        {!!finalizingInLabel ? (
                             <Typography>{finalizingInLabel}</Typography>
                         ) : (
                             // TODO: Timer could support bigint values
@@ -153,14 +147,10 @@ export const Answer = ({
                     label={t("label.answer.form.bonded")}
                     className={bondBoxStyles({ pendingArbitration })}
                 >
-                    {loadingQuestion ? (
-                        <Skeleton width="150px" variant="xl" />
-                    ) : (
-                        <Typography>
-                            {/* FIXME: reintroduce commify to make number easier to read */}
-                            {`${formattedBond} ${nativeCurrency.symbol}`}
-                        </Typography>
-                    )}
+                    <Typography>
+                        {/* FIXME: reintroduce commify to make number easier to read */}
+                        {`${formattedBond} ${nativeCurrency.symbol}`}
+                    </Typography>
                 </AnswerInfo>
             )}
         </div>
