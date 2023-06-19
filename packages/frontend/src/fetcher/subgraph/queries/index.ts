@@ -59,7 +59,7 @@ export const GetQuestionQuery = `
 
 export interface SubgraphResponse {
     historyHash: Hash;
-    user: Address;
+    answerer: Address;
     bond: string;
     answer?: Hex;
     timestamp: string;
@@ -67,7 +67,7 @@ export interface SubgraphResponse {
 
 export const ResponseDataFields = `
     historyHash
-    user
+    answerer: user
     bond
     answer
     timestamp
