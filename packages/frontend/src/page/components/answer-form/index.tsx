@@ -759,6 +759,7 @@ export const AnswerForm = ({
         isAnswerMissing(question) ||
         isAnswerPendingArbitration(question);
     const claimAndWithdrawVisible =
+        answerer &&
         withdrawableBalance !== undefined &&
         withdrawableBalance === 0n &&
         question.historyHash !== BYTES32_ZERO;
