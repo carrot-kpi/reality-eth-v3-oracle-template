@@ -775,17 +775,6 @@ export const AnswerForm = ({
         setDisputeFeePopoverOpen(false);
     }, []);
 
-    // TODO: remove after testing is done
-    console.log("CLAIM_WITHDRAW_CONDITION", {
-        answerer,
-        claimable,
-        finalized,
-        claimWinningsPayload,
-        missing: isAnswerMissing(question),
-        claimMultipleAndWithdrawAsync,
-        hash: question.historyHash,
-    });
-
     return (
         <div className="flex flex-col">
             {kpiToken.expired && !oracle.finalized && (
