@@ -759,6 +759,7 @@ export const AnswerForm = ({
         isAnswerMissing(question) ||
         isAnswerPendingArbitration(question);
     const claimAndWithdrawVisible =
+        answerer &&
         withdrawableBalance !== undefined &&
         withdrawableBalance === 0n &&
         question.historyHash !== BYTES32_ZERO;
@@ -773,17 +774,6 @@ export const AnswerForm = ({
     const handleRequestArbitrationMouseLeave = useCallback(() => {
         setDisputeFeePopoverOpen(false);
     }, []);
-
-    // TODO: remove after testing is done
-    console.log("CLAIM_WITHDRAW_CONDITION", {
-        answerer,
-        claimable,
-        finalized,
-        claimWinningsPayload,
-        missing: isAnswerMissing(question),
-        claimMultipleAndWithdrawAsync,
-        hash: question.historyHash,
-    });
 
     return (
         <div className="flex flex-col">
