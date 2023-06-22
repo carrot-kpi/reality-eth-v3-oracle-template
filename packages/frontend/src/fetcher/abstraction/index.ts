@@ -24,12 +24,6 @@ export interface FetchClaimableHistoryParams extends BaseParams {
     questionId?: Hex;
 }
 
-export interface FetchClaimableQuestionsParams {
-    publicClient: PublicClient;
-    realityV3Address?: Address;
-    questionId?: Hex;
-}
-
 export interface IsAnswererParams extends BaseParams {
     publicClient: PublicClient;
     realityV3Address?: Address;
