@@ -56,6 +56,7 @@ class FullFetcher implements IFullFetcher {
         publicClient,
         realityV3Address,
         questionId,
+        devMode,
     }: FullFetcherFetchClaimableHistoryParams): Promise<
         Record<Hex, RealityResponse[]>
     > {
@@ -68,11 +69,13 @@ class FullFetcher implements IFullFetcher {
                   publicClient,
                   realityV3Address,
                   questionId,
+                  devMode,
               })
             : OnChainFetcher.fetchClaimableHistory({
                   publicClient,
                   realityV3Address,
                   questionId,
+                  devMode,
               });
     }
 
@@ -82,6 +85,7 @@ class FullFetcher implements IFullFetcher {
         realityV3Address,
         questionId,
         address,
+        devMode,
     }: FullFetcheIsAnswererParams): Promise<boolean> {
         const useSubgraph = await this.shouldUseSubgraph({
             publicClient,
@@ -93,12 +97,14 @@ class FullFetcher implements IFullFetcher {
                   realityV3Address,
                   questionId,
                   address,
+                  devMode,
               })
             : OnChainFetcher.isAnswerer({
                   publicClient,
                   realityV3Address,
                   questionId,
                   address,
+                  devMode,
               });
     }
 }

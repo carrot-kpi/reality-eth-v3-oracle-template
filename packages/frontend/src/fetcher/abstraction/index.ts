@@ -3,6 +3,10 @@ import type { RealityResponse, RealityQuestion } from "../../page/types";
 import { ChainId } from "@carrot-kpi/sdk";
 import type { Address, Hex } from "viem";
 
+export interface BaseParams {
+    devMode: boolean;
+}
+
 export interface SupportedInChainParams {
     chainId: ChainId;
 }
@@ -14,7 +18,7 @@ export interface FetchQuestionParams {
     questionId?: Hex;
 }
 
-export interface FetchClaimableHistoryParams {
+export interface FetchClaimableHistoryParams extends BaseParams {
     publicClient: PublicClient;
     realityV3Address?: Address;
     questionId?: Hex;
@@ -26,7 +30,7 @@ export interface FetchClaimableQuestionsParams {
     questionId?: Hex;
 }
 
-export interface IsAnswererParams {
+export interface IsAnswererParams extends BaseParams {
     publicClient: PublicClient;
     realityV3Address?: Address;
     questionId?: Hex;

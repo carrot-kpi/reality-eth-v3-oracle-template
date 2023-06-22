@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+    useDevMode,
     useIPFSGatewayURL,
     usePreferDecentralization,
 } from "@carrot-kpi/react";
@@ -16,6 +17,7 @@ export function useRealityClaimableHistory(
     loading: boolean;
     claimable: Record<Hex, RealityResponse[]>;
 } {
+    const devMode = useDevMode();
     const publicClient = usePublicClient();
     const ipfsGatewayURL = useIPFSGatewayURL();
     const preferDecentralization = usePreferDecentralization();
@@ -42,6 +44,7 @@ export function useRealityClaimableHistory(
                     publicClient,
                     realityV3Address,
                     questionId,
+                    devMode,
                 });
                 if (!cancelled) setClaimable(fetched);
             } catch (error) {
@@ -64,6 +67,7 @@ export function useRealityClaimableHistory(
         ipfsGatewayURL,
         realityV3Address,
         preferDecentralization,
+        devMode,
     ]);
 
     return { loading, claimable };
