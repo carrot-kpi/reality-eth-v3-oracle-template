@@ -17,7 +17,7 @@ import {
 } from "viem";
 import { type Hex } from "viem";
 
-const LOGS_BLOCKS_SIZE = __DEV__ ? 10n : 5_000n;
+const LOGS_BLOCKS_SIZE = __DEV__ ? 1000n : 5_000n;
 
 type HistoryQuestion = {
     logIndex: number | null;
