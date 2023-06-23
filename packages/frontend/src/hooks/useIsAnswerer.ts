@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import {
+    useDevMode,
     useIPFSGatewayURL,
     usePreferDecentralization,
 } from "@carrot-kpi/react";
@@ -16,6 +17,7 @@ export function useIsAnswerer(
     loading: boolean;
     answerer: boolean;
 } {
+    const devMode = useDevMode();
     const publicClient = usePublicClient();
     const ipfsGatewayURL = useIPFSGatewayURL();
     const preferDecentralization = usePreferDecentralization();
@@ -41,6 +43,7 @@ export function useIsAnswerer(
                     realityV3Address,
                     questionId,
                     address,
+                    devMode,
                 });
                 if (!cancelled) setAnswerer(fetched);
             } catch (error) {
@@ -64,6 +67,7 @@ export function useIsAnswerer(
         ipfsGatewayURL,
         realityV3Address,
         preferDecentralization,
+        devMode,
     ]);
 
     return { loading, answerer };

@@ -17,8 +17,6 @@ import {
 } from "viem";
 import { type Hex } from "viem";
 
-const LOGS_BLOCKS_SIZE = __DEV__ ? 1000n : 5_000n;
-
 type HistoryQuestion = {
     logIndex: number | null;
     blockNumber: bigint | null;
@@ -33,6 +31,10 @@ type HistoryRealityResponse = Record<
 class Fetcher implements IPartialFetcher {
     public supportedInChain(): boolean {
         return true;
+    }
+
+    private logsRange({ devMode }: { devMode: boolean }): bigint {
+        return devMode ? 10n : 5_000n;
     }
 
     public async fetchQuestion({
@@ -104,6 +106,7 @@ class Fetcher implements IPartialFetcher {
         publicClient,
         realityV3Address,
         questionId,
+        devMode,
     }: FetchClaimableHistoryParams): Promise<Record<Hex, RealityResponse[]>> {
         if (!realityV3Address || !questionId) return {};
         await this.validate({ publicClient });
@@ -122,20 +125,23 @@ class Fetcher implements IPartialFetcher {
             originalQuestionId = await this.fetchOriginalQuestionId(
                 publicClient,
                 realityV3Address,
-                questionId
+                questionId,
+                devMode
             );
         }
 
         const questionsHistory = await this.fetchQuestionsHistory(
             publicClient,
             realityV3Address,
-            originalQuestionId
+            originalQuestionId,
+            devMode
         );
         const answersHistory = await this.fetchAnswersHistory(
             publicClient,
             realityV3Address,
             originalQuestionId,
-            questionsHistory
+            questionsHistory,
+            devMode
         );
 
         // TODO: question ids are not correctly sorted, but it doesn't seem to bother Reality claim function
@@ -166,6 +172,7 @@ class Fetcher implements IPartialFetcher {
         realityV3Address,
         questionId,
         address,
+        devMode,
     }: IsAnswererParams): Promise<boolean> {
         if (!realityV3Address || !questionId || !address) return false;
         await this.validate({ publicClient });
@@ -184,19 +191,23 @@ class Fetcher implements IPartialFetcher {
             originalQuestionId = await this.fetchOriginalQuestionId(
                 publicClient,
                 realityV3Address,
-                questionId
+                questionId,
+                devMode
             );
         }
 
         const questionsHistory = await this.fetchQuestionsHistory(
             publicClient,
             realityV3Address,
-            originalQuestionId
+            originalQuestionId,
+            devMode
         );
+
+        const logsRange = this.logsRange({ devMode });
 
         let answerer = false;
         let toBlock = await publicClient.getBlockNumber();
-        let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+        let fromBlock = toBlock - logsRange;
         while (true) {
             const newAnwersEventLogs = await publicClient.getLogs({
                 address: realityV3Address,
@@ -246,7 +257,7 @@ class Fetcher implements IPartialFetcher {
             }
 
             toBlock = fromBlock - 1n;
-            fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+            fromBlock = toBlock - logsRange;
         }
 
         return answerer;
@@ -255,10 +266,12 @@ class Fetcher implements IPartialFetcher {
     private async fetchOriginalQuestionId(
         publicClient: PublicClient,
         realityV3Address: Address,
-        questionId: Hex
+        questionId: Hex,
+        devMode: boolean
     ): Promise<Hex> {
         let toBlock = await publicClient.getBlockNumber();
-        let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+        const logsRange = this.logsRange({ devMode });
+        let fromBlock = toBlock - logsRange;
 
         let originalQuestionId: Hex;
         while (true) {
@@ -293,7 +306,7 @@ class Fetcher implements IPartialFetcher {
             }
 
             toBlock = fromBlock - 1n;
-            fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+            fromBlock = toBlock - logsRange;
         }
 
         return originalQuestionId;
@@ -302,12 +315,14 @@ class Fetcher implements IPartialFetcher {
     private async fetchQuestionsHistory(
         publicClient: PublicClient,
         realityV3Address: Address,
-        originalQuestionId: Hex
+        originalQuestionId: Hex,
+        devMode: boolean
     ): Promise<HistoryQuestion[]> {
         const questionsHistory: HistoryQuestion[] = [];
 
         let toBlock = await publicClient.getBlockNumber();
-        let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+        const logsRange = this.logsRange({ devMode });
+        let fromBlock = toBlock - logsRange;
         let shouldBreak = false;
         while (true) {
             const reopenQuestionEventLogs = await publicClient.getLogs({
@@ -387,7 +402,7 @@ class Fetcher implements IPartialFetcher {
 
             if (shouldBreak) break;
             toBlock = fromBlock - 1n;
-            fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+            fromBlock = toBlock - logsRange;
         }
 
         return questionsHistory;
@@ -397,7 +412,8 @@ class Fetcher implements IPartialFetcher {
         publicClient: PublicClient,
         realityV3Address: Address,
         originalQuestionId: Hex,
-        questionsHistory: HistoryQuestion[]
+        questionsHistory: HistoryQuestion[],
+        devMode: boolean
     ): Promise<HistoryRealityResponse> {
         const realityContract = getContract({
             abi: REALITY_ETH_V3_ABI,
@@ -407,7 +423,8 @@ class Fetcher implements IPartialFetcher {
 
         let answersHistory: HistoryRealityResponse = {};
         let toBlock = await publicClient.getBlockNumber();
-        let fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+        const logsRange = this.logsRange({ devMode });
+        let fromBlock = toBlock - logsRange;
         while (true) {
             const newAnwersEventLogs = await publicClient.getLogs({
                 address: realityV3Address,
@@ -496,7 +513,7 @@ class Fetcher implements IPartialFetcher {
             }
 
             toBlock = fromBlock - 1n;
-            fromBlock = toBlock - LOGS_BLOCKS_SIZE;
+            fromBlock = toBlock - logsRange;
         }
 
         return answersHistory;
