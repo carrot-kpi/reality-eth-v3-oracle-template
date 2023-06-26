@@ -60,7 +60,6 @@ const checkMinimumQuestionTimeoutWindows = (
 };
 
 export const Component = ({
-    t,
     state,
     kpiToken,
     onChange,
@@ -113,7 +112,7 @@ export const Component = ({
 
     const timeoutOptions = TIMEOUT_OPTIONS.map((option) => {
         return {
-            label: t(option.tKey),
+            label: "test",
             value: option.seconds,
         };
     });
@@ -158,10 +157,10 @@ export const Component = ({
         );
         if (!optionFromExternalState) return;
         setQuestionTimeout({
-            label: t(optionFromExternalState.tKey),
+            label: "Test",
             value: optionFromExternalState.seconds,
         });
-    }, [state.questionTimeout, t]);
+    }, [state.questionTimeout]);
 
     useEffect(() => {
         if (!state.openingTimestamp) return;
@@ -270,24 +269,17 @@ export const Component = ({
                     questionTimeout.value as number,
                     kpiToken.expiration
                 )
-                    ? t("error.opening.timestamp.tooSoon", {
-                          periodsAmount: MINIMUM_ANSWER_PERIODS_AMOUNT,
-                      })
+                    ? "Test"
                     : ""
             );
         }
-    }, [kpiToken?.expiration, openingTimestamp, questionTimeout, t]);
+    }, [kpiToken?.expiration, openingTimestamp, questionTimeout]);
 
-    const handleQuestionChange = useCallback(
-        (value: string) => {
-            const trimmedValue = stripHtml(value).trim();
-            setQuestion(value);
-            setQuestionErrorText(
-                !trimmedValue ? t("error.question.empty") : ""
-            );
-        },
-        [t]
-    );
+    const handleQuestionChange = useCallback((value: string) => {
+        const trimmedValue = stripHtml(value).trim();
+        setQuestion(value);
+        setQuestionErrorText(!trimmedValue ? "Test" : "");
+    }, []);
 
     const handleOpeningTimestampChange = useCallback((value: Date) => {
         setOpeningTimestamp(dayjs(value));
@@ -296,24 +288,22 @@ export const Component = ({
     const handleMinimumBondChange = useCallback(
         ({ value }: { value: string }) => {
             setMinimumBond(value);
-            setMinimumBondErrorText(
-                !value ? t("error.minimum.bond.empty") : ""
-            );
+            setMinimumBondErrorText(!value ? "Test" : "");
         },
-        [t]
+        []
     );
 
     return (
         <div className="flex flex-col gap-2 w-full">
             <Typography className={{ root: "mb-2" }}>
-                {t("info")}
+                {"Test"}
                 <a
                     className="text-orange underline"
                     target="_blank"
                     rel="noopener noreferrer"
                     href="https://reality.eth.limo/app/docs/html/index.html"
                 >
-                    {t("info.here")}
+                    {"Test"}
                 </a>
                 .
             </Typography>
@@ -323,12 +313,12 @@ export const Component = ({
                     arbitrator.fees.dispute.isPositive()) && (
                     <div className="mt-1 mb-b rounded-xl flex flex-col p-4 border border-orange bg-orange bg-opacity-20 gap-3">
                         <Typography className={{ root: "text-orange" }}>
-                            {t("warning.arbitrator.fees")}
+                            {"Test"}
                         </Typography>
                         <div className="flex flex-col">
                             {arbitrator.fees.question.isPositive() && (
                                 <Typography className={{ root: "text-orange" }}>
-                                    {t("warning.arbitrator.fees.question")}:{" "}
+                                    {"Test"}:{" "}
                                     {formatCurrencyAmount(
                                         arbitrator.fees.question,
                                         true
@@ -337,7 +327,7 @@ export const Component = ({
                             )}
                             {arbitrator.fees.dispute.isPositive() && (
                                 <Typography className={{ root: "text-orange" }}>
-                                    {t("warning.arbitrator.fees.dispute")}:{" "}
+                                    {"Test"}:{" "}
                                     {formatCurrencyAmount(
                                         arbitrator.fees.dispute,
                                         true
@@ -356,13 +346,9 @@ export const Component = ({
                             input: "w-full",
                             inputWrapper: "w-full",
                         }}
-                        label={t("label.arbitrator")}
-                        info={
-                            <Typography variant="sm">
-                                {t("info.arbitrator")}
-                            </Typography>
-                        }
-                        placeholder={t("placeholder.pick")}
+                        label={"Test"}
+                        info={<Typography variant="sm">{"Test"}</Typography>}
+                        placeholder={"Test"}
                         onChange={setArbitrator}
                         options={arbitratorsByChain}
                         renderOption={ArbitratorOption}
@@ -377,13 +363,9 @@ export const Component = ({
                             input: "w-full",
                             inputWrapper: "w-full",
                         }}
-                        label={t("label.reality.template")}
-                        info={
-                            <Typography variant="sm">
-                                {t("info.reality.template")}
-                            </Typography>
-                        }
-                        placeholder={t("placeholder.pick")}
+                        label={"Test"}
+                        info={<Typography variant="sm">{"Test"}</Typography>}
+                        placeholder={"Test"}
                         onChange={setRealityTemplateId}
                         options={REALITY_TEMPLATE_OPTIONS}
                         value={realityTemplateId}
@@ -399,13 +381,9 @@ export const Component = ({
                             input: "w-full",
                             inputWrapper: "w-full",
                         }}
-                        label={t("label.question.timeout")}
-                        info={
-                            <Typography variant="sm">
-                                {t("info.question.timeout")}
-                            </Typography>
-                        }
-                        placeholder={t("placeholder.number")}
+                        label={"Test"}
+                        info={<Typography variant="sm">{"Test"}</Typography>}
+                        placeholder={"Test"}
                         options={timeoutOptions}
                         onChange={setQuestionTimeout}
                         value={questionTimeout}
@@ -419,13 +397,9 @@ export const Component = ({
                             input: "w-full",
                             inputWrapper: "w-full",
                         }}
-                        label={t("label.opening.timestamp")}
-                        info={
-                            <Typography variant="sm">
-                                {t("info.opening.timestamp")}
-                            </Typography>
-                        }
-                        placeholder={t("placeholder.number")}
+                        label={"Test"}
+                        info={<Typography variant="sm">{"Test"}</Typography>}
+                        placeholder={"Test"}
                         min={minimumDate}
                         max={maximumDate}
                         onChange={handleOpeningTimestampChange}
@@ -442,13 +416,9 @@ export const Component = ({
                     input: "w-full",
                     inputWrapper: "w-full",
                 }}
-                label={t("label.minimum.bond")}
-                info={
-                    <Typography variant="sm">
-                        {t("info.minimum.bond")}
-                    </Typography>
-                }
-                placeholder={t("placeholder.number")}
+                label={"Test"}
+                info={<Typography variant="sm">{"Test"}</Typography>}
+                placeholder={"Test"}
                 onValueChange={handleMinimumBondChange}
                 value={minimumBond}
                 error={!!minimumBondErrorText}
@@ -456,11 +426,9 @@ export const Component = ({
             />
             <MarkdownInput
                 id="question"
-                label={t("label.question")}
-                info={
-                    <Typography variant="sm">{t("info.question")}</Typography>
-                }
-                placeholder={t("placeholder.pick")}
+                label={"Test"}
+                info={<Typography variant="sm">{"Test"}</Typography>}
+                placeholder={"Test"}
                 onChange={handleQuestionChange}
                 value={question}
                 error={!!questionErrorText}

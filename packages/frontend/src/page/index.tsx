@@ -10,7 +10,6 @@ import { decodeOracleData } from "../utils/data-decoding";
 import type { Hex, Address } from "viem";
 
 export const Component = ({
-    t,
     oracle,
     kpiToken,
     onTx,
@@ -49,7 +48,6 @@ export const Component = ({
     return (
         <div className="flex flex-col gap-3">
             <AnswerForm
-                t={t}
                 realityAddress={realityV3Address}
                 oracle={oracle}
                 kpiToken={kpiToken}
