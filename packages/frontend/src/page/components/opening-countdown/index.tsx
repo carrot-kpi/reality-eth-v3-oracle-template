@@ -3,12 +3,10 @@ import dayjs from "dayjs";
 import Duration from "dayjs/plugin/duration";
 import { CountdownFrame } from "./countdown-frame";
 import { VerticalDivider } from "./vertical-divider";
-import type { NamespacedTranslateFunction } from "@carrot-kpi/react";
 
 dayjs.extend(Duration);
 
 export interface TimerProps {
-    t: NamespacedTranslateFunction;
     to: number;
     countdown?: boolean;
     className?: {
@@ -20,7 +18,6 @@ export interface TimerProps {
 // TODO: we should investigate into rewriting the Timer component
 // of the UI lib to work wth this style
 export const OpeningCountdown = ({
-    t,
     to,
     countdown,
 }: TimerProps): ReactElement => {
@@ -40,26 +37,14 @@ export const OpeningCountdown = ({
 
     return (
         <div className="flex gap-3 justify-between md:justify-start sm:gap-3 md:gap-5 content-center">
-            <CountdownFrame
-                label={t("label.question.time.days")}
-                duration={duration}
-                format={"DD"}
-            />
+            <CountdownFrame label={"Test"} duration={duration} format={"DD"} />
+            <VerticalDivider />
+            <CountdownFrame label={"Test"} duration={duration} format={"HH"} />
+            <VerticalDivider />
+            <CountdownFrame label={"Test"} duration={duration} format={"mm"} />
             <VerticalDivider />
             <CountdownFrame
-                label={t("label.question.time.hours")}
-                duration={duration}
-                format={"HH"}
-            />
-            <VerticalDivider />
-            <CountdownFrame
-                label={t("label.question.time.minutes")}
-                duration={duration}
-                format={"mm"}
-            />
-            <VerticalDivider />
-            <CountdownFrame
-                label={t("label.question.time.seconds")}
+                label={"Test"}
                 duration={duration}
                 format={"ss"}
                 className={{ root: "hidden sm:flex" }}
