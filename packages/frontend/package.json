@@ -1,7 +1,7 @@
 {
     "type": "module",
     "name": "frontend",
-    "version": "0.1.0",
+    "version": "0.2.0",
     "description": "A preset for developing Carrot templates' frontend with React and Typescript.",
     "author": "Federico Luzzi <federico.luzzi@protonmail.com>",
     "license": "GPL-3.0-or-later",
