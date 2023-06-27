@@ -1,7 +1,4 @@
-import {
-    useNativeCurrency,
-    type NamespacedTranslateFunction,
-} from "@carrot-kpi/react";
+import { useNativeCurrency } from "@carrot-kpi/react";
 import { Skeleton, Timer, Typography } from "@carrot-kpi/ui";
 import { cva } from "class-variance-authority";
 import { useEffect, useState, type ReactElement } from "react";
@@ -57,13 +54,11 @@ const bondBoxStyles = cva(
 );
 
 interface AnswerProps {
-    t: NamespacedTranslateFunction;
     question: RealityQuestion;
     loadingQuestion: boolean;
 }
 
 export const Answer = ({
-    t,
     question,
     loadingQuestion,
 }: AnswerProps): ReactElement => {
@@ -75,13 +70,11 @@ export const Answer = ({
     const formattedBond = formatUnits(question.bond, nativeCurrency.decimals);
     const pendingArbitration = isAnswerPendingArbitration(question);
 
-    const currentAnswerTitle = finalized
-        ? t("label.answer.final")
-        : t("label.answer.current");
+    const currentAnswerTitle = finalized ? "Test" : "Test";
     const finalizingInLabel = isAnswerMissing(question)
         ? "-"
         : finalized
-        ? t("label.answer.form.finalized")
+        ? "Test"
         : null;
 
     useEffect(() => {
@@ -93,22 +86,18 @@ export const Answer = ({
         const answeredTooSoon = isAnsweredTooSoon(question);
         let newValue = "";
 
-        if (pendingArbitration) newValue = t("label.answer.arbitrating");
-        else if (isAnswerMissing(question))
-            newValue = t("label.answer.form.missing");
+        if (pendingArbitration) newValue = "Test";
+        else if (isAnswerMissing(question)) newValue = "Test";
         else if (purelyBoolean)
-            newValue =
-                question.bestAnswer === BYTES32_ZERO
-                    ? t("label.answer.form.no")
-                    : t("label.answer.form.yes");
+            newValue = question.bestAnswer === BYTES32_ZERO ? "Test" : "Test";
         else if (purelyNumerical)
             /* FIXME: reintroduce commify to make number easier to read */
             newValue = formatUnits(BigInt(question.bestAnswer), 18);
-        else if (invalid) newValue = t("label.answer.form.invalid");
-        else if (answeredTooSoon) newValue = t("label.answer.form.tooSoon");
+        else if (invalid) newValue = "Test";
+        else if (answeredTooSoon) newValue = "Test";
 
         setCurrentAnswerValue(newValue);
-    }, [loadingQuestion, pendingArbitration, question, t]);
+    }, [loadingQuestion, pendingArbitration, question]);
 
     return (
         <div className="flex flex-col md:flex-row justify-between border-b-0 md:border-b border-black dark:border-white">
@@ -129,7 +118,7 @@ export const Answer = ({
                 </AnswerInfo>
                 {!pendingArbitration && (
                     <AnswerInfo
-                        label={t("label.answer.form.finalizingIn")}
+                        label={"Test"}
                         className={
                             "border-b md:border-b-0 border-r-0 border-black dark:border-white"
                         }
@@ -149,7 +138,7 @@ export const Answer = ({
             </div>
             {!pendingArbitration && (
                 <AnswerInfo
-                    label={t("label.answer.form.bonded")}
+                    label={"Test"}
                     className={bondBoxStyles({ pendingArbitration })}
                 >
                     <Typography>
