@@ -1,33 +1,37 @@
 import {
+    type NamespacedTranslateFunction,
+    type OraclePageProps,
     TxType,
     useNativeCurrency,
-    type OraclePageProps,
 } from "@carrot-kpi/react";
-import {
-    ResolvedKPITokenWithData,
-    ResolvedOracleWithData,
-} from "@carrot-kpi/sdk";
 import {
     Button,
     Checkbox,
     Markdown,
     NumberInput,
-    Popover,
+    Typography,
     Radio,
     RadioGroup,
     Skeleton,
-    Typography,
+    Popover,
 } from "@carrot-kpi/ui";
-import dayjs from "dayjs";
 import {
+    type ChangeEvent,
+    type ReactElement,
     useCallback,
     useEffect,
     useMemo,
     useState,
-    type ChangeEvent,
-    type ReactElement,
 } from "react";
-import type { Address, Hash, Hex } from "viem";
+import {
+    usePrepareContractWrite,
+    useContractWrite,
+    useNetwork,
+    useContractRead,
+    useAccount,
+    useBalance,
+    usePublicClient,
+} from "wagmi";
 import {
     bytesToHex,
     formatUnits,
@@ -37,51 +41,49 @@ import {
     toBytes,
     zeroAddress,
 } from "viem";
-import {
-    useAccount,
-    useBalance,
-    useContractRead,
-    useContractWrite,
-    useNetwork,
-    usePrepareContractWrite,
-    usePublicClient,
-} from "wagmi";
-import REALITY_ETH_V3_ABI from "../../../abis/reality-eth-v3";
-import REALITY_ORACLE_V3_ABI from "../../../abis/reality-oracle-v3";
-import TRUSTED_REALITY_ARBITRATOR_V3_ABI from "../../../abis/trusted-reality-arbitrator-v3";
-import Danger from "../../../assets/danger";
-import External from "../../../assets/external";
+import type { Hex, Hash, Address } from "viem";
 import {
     ANSWERED_TOO_SOON_REALITY_ANSWER,
-    BYTES32_ZERO,
     BooleanAnswer,
+    BYTES32_ZERO,
     INVALID_REALITY_ANSWER,
     SupportedChainId,
     SupportedRealityTemplates,
     TRUSTED_REALITY_ARBITRATORS,
 } from "../../../commons";
-import { useArbitratorFees } from "../../../hooks/useAbritratorFees";
-import { useIsAnswerer } from "../../../hooks/useIsAnswerer";
-import { useQuestionContent } from "../../../hooks/useQuestionContent";
-import { useRealityClaimableHistory } from "../../../hooks/useRealityClaimableHistory";
 import {
     formatCountDownString,
     formatRealityEthQuestionLink,
+    isAnsweredTooSoon,
     isAnswerMissing,
     isAnswerPendingArbitration,
-    isAnsweredTooSoon,
     isQuestionFinalized,
 } from "../../../utils";
-import { unixTimestamp } from "../../../utils/dates";
 import type { NumberFormatValue, RealityQuestion } from "../../types";
-import { OpeningCountdown } from "../opening-countdown";
-import { QuestionInfo } from "../question-info";
 import { Answer } from "./answer";
-import { Arbitrator } from "./arbitrator";
+import REALITY_ETH_V3_ABI from "../../../abis/reality-eth-v3";
+import REALITY_ORACLE_V3_ABI from "../../../abis/reality-oracle-v3";
+import TRUSTED_REALITY_ARBITRATOR_V3_ABI from "../../../abis/trusted-reality-arbitrator-v3";
 import { BondInput } from "./bond-input";
+import dayjs from "dayjs";
 import { infoPopoverStyles, inputStyles } from "./common/styles";
+import { QuestionInfo } from "../question-info";
+import External from "../../../assets/external";
+import { OpeningCountdown } from "../opening-countdown";
+import {
+    ResolvedKPITokenWithData,
+    ResolvedOracleWithData,
+} from "@carrot-kpi/sdk";
+import { unixTimestamp } from "../../../utils/dates";
+import { useQuestionContent } from "../../../hooks/useQuestionContent";
+import { Arbitrator } from "./arbitrator";
+import Danger from "../../../assets/danger";
+import { useRealityClaimableHistory } from "../../../hooks/useRealityClaimableHistory";
+import { useArbitratorFees } from "../../../hooks/useAbritratorFees";
+import { useIsAnswerer } from "../../../hooks/useIsAnswerer";
 
 interface AnswerFormProps {
+    t: NamespacedTranslateFunction;
     realityAddress: Address;
     oracle: ResolvedOracleWithData;
     kpiToken: ResolvedKPITokenWithData;
@@ -91,6 +93,7 @@ interface AnswerFormProps {
 }
 
 export const AnswerForm = ({
+    t,
     realityAddress,
     oracle,
     kpiToken,
@@ -456,16 +459,28 @@ export const AnswerForm = ({
             );
             let bondErrorText = "";
             if (!value || !value.value || parsedBond === 0n)
-                bondErrorText = "Test";
+                bondErrorText = t("error.bond.empty");
             else if (
                 userNativeCurrencyBalance &&
                 parsedBond > userNativeCurrencyBalance.value
             )
-                bondErrorText = "Test";
-            else if (parsedBond < minimumBond) bondErrorText = "Test";
+                bondErrorText = t("error.bond.notEnoughBalanceInWallet", {
+                    symbol: nativeCurrency.symbol,
+                });
+            else if (parsedBond < minimumBond)
+                bondErrorText = t("error.bond.insufficient", {
+                    minBond: formatUnits(minimumBond, nativeCurrency.decimals),
+                    symbol: nativeCurrency.symbol,
+                });
             setBondErrorText(bondErrorText);
         },
-        [nativeCurrency.decimals, userNativeCurrencyBalance, minimumBond]
+        [
+            nativeCurrency.decimals,
+            nativeCurrency.symbol,
+            t,
+            userNativeCurrencyBalance,
+            minimumBond,
+        ]
     );
 
     const handleSubmit = useCallback(() => {
@@ -483,7 +498,11 @@ export const AnswerForm = ({
                     from: receipt.from,
                     hash: tx.hash,
                     payload: {
-                        summary: "Test",
+                        summary: t("label.transaction.answerSubmitted", {
+                            /* FIXME: reintroduce commify to make number easier to read */
+                            bond: formatUnits(finalBond, 18),
+                            symbol: chain?.nativeCurrency.symbol,
+                        }),
                     },
                     receipt: {
                         from: receipt.from,
@@ -507,7 +526,14 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [postAnswerAsync, onTx, publicClient]);
+    }, [
+        postAnswerAsync,
+        onTx,
+        t,
+        finalBond,
+        chain?.nativeCurrency.symbol,
+        publicClient,
+    ]);
 
     const handleReopenSubmit = useCallback(() => {
         if (!reopenAnswerAsync) return;
@@ -525,7 +551,7 @@ export const AnswerForm = ({
                     from: receipt.from,
                     hash: tx.hash,
                     payload: {
-                        summary: "Test",
+                        summary: t("label.transaction.reopenSubmitted"),
                     },
                     receipt: {
                         from: receipt.from,
@@ -552,7 +578,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [reopenAnswerAsync, onTx, publicClient]);
+    }, [reopenAnswerAsync, onTx, t, publicClient]);
 
     const handleFinalizeOracleSubmit = useCallback(() => {
         if (!finalizeOracleAsync) return;
@@ -570,7 +596,7 @@ export const AnswerForm = ({
                     from: receipt.from,
                     hash: tx.hash,
                     payload: {
-                        summary: "Test",
+                        summary: t("label.transaction.oracleFinalized"),
                     },
                     receipt: {
                         from: receipt.from,
@@ -594,7 +620,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [finalizeOracleAsync, onTx, publicClient]);
+    }, [finalizeOracleAsync, onTx, t, publicClient]);
 
     const handleRequestArbitrationSubmit = useCallback(() => {
         if (!requestArbitrationAsync) return;
@@ -612,7 +638,7 @@ export const AnswerForm = ({
                     from: receipt.from,
                     hash: tx.hash,
                     payload: {
-                        summary: "Test",
+                        summary: t("label.transaction.arbitrationRequested"),
                     },
                     receipt: {
                         from: receipt.from,
@@ -637,7 +663,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [requestArbitrationAsync, onTx, publicClient]);
+    }, [requestArbitrationAsync, onTx, t, publicClient]);
 
     const handleClaimMultipleAndWithdrawSubmit = useCallback(() => {
         if (!claimMultipleAndWithdrawAsync) return;
@@ -655,7 +681,7 @@ export const AnswerForm = ({
                     from: receipt.from,
                     hash: tx.hash,
                     payload: {
-                        summary: "Test",
+                        summary: t("label.transaction.winningsWithdrawn"),
                     },
                     receipt: {
                         from: receipt.from,
@@ -680,7 +706,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [claimMultipleAndWithdrawAsync, onTx, publicClient]);
+    }, [claimMultipleAndWithdrawAsync, onTx, t, publicClient]);
 
     const handleWithdrawSubmit = useCallback(() => {
         if (!withdrawAsync) return;
@@ -698,7 +724,7 @@ export const AnswerForm = ({
                     from: receipt.from,
                     hash: tx.hash,
                     payload: {
-                        summary: "Test",
+                        summary: t("label.transaction.winningsWithdrawn"),
                     },
                     receipt: {
                         from: receipt.from,
@@ -723,7 +749,7 @@ export const AnswerForm = ({
         return () => {
             cancelled = true;
         };
-    }, [withdrawAsync, onTx, publicClient]);
+    }, [withdrawAsync, onTx, t, publicClient]);
 
     const answerInputDisabled =
         finalized || moreOptionValue.invalid || moreOptionValue.anweredTooSoon;
@@ -754,13 +780,13 @@ export const AnswerForm = ({
             {kpiToken.expired && !oracle.finalized && (
                 <div className="p-6 flex gap-3 items-center border-b border-black bg-orange/40 dark:border-white">
                     <Danger width={36} height={36} />
-                    <Typography>{"Test"}</Typography>
+                    <Typography>{t("label.question.kpiExpired")}</Typography>
                 </div>
             )}
             <div className="flex flex-col md:flex-row justify-between">
                 <div className="w-full flex border-b border-black dark:border-white">
                     <QuestionInfo
-                        label={"Test"}
+                        label={t("label.question.arbitrator")}
                         className={{
                             root: "border-r-0 md:border-r border-black dark:border-white",
                         }}
@@ -769,7 +795,7 @@ export const AnswerForm = ({
                     </QuestionInfo>
                     {/* TODO: add rewards when implemented */}
                     {/* <QuestionInfo
-                        label={"Test"}
+                        label={t("label.question.rewards")}
                         className={{
                             root: "border-r-0 md:border-r dark:border-white",
                         }}
@@ -779,7 +805,7 @@ export const AnswerForm = ({
                 </div>
                 <div className="w-full flex border-b border-black dark:border-white">
                     <QuestionInfo
-                        label={"Test"}
+                        label={t("label.question.timeout")}
                         className={{
                             root: "border-r-0 md:border-r border-black dark:border-white",
                         }}
@@ -791,7 +817,7 @@ export const AnswerForm = ({
                 </div>
                 <div className="w-full flex border-b border-black dark:border-white">
                     <QuestionInfo
-                        label={"Test"}
+                        label={t("label.question.oracleLink")}
                         className={{
                             root: "border-r-0 border-black dark:border-white",
                         }}
@@ -812,11 +838,15 @@ export const AnswerForm = ({
                 </div>
             </div>
             {open && (
-                <Answer question={question} loadingQuestion={loadingQuestion} />
+                <Answer
+                    t={t}
+                    question={question}
+                    loadingQuestion={loadingQuestion}
+                />
             )}
             <div className="border-b border-black dark:border-white">
                 <QuestionInfo
-                    label={"Test"}
+                    label={t("label.question.question")}
                     className={{
                         root: "border-r-0 border-black dark:border-white",
                     }}
@@ -833,17 +863,17 @@ export const AnswerForm = ({
             {!finalized && open && connectedAddress && (
                 <Typography className={{ root: "px-6 mt-6" }}>
                     {isAnswerPendingArbitration(question) ? (
-                        "Test"
+                        t("label.question.arbitrating.subtitle")
                     ) : (
                         <>
-                            {"Test"}
+                            {t("label.question.subtitle.1")}
                             <a
                                 className="text-orange underline"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 href="https://reality.eth.limo/app/docs/html/index.html"
                             >
-                                {"Test"}
+                                {t("label.question.subtitle.2")}
                             </a>
                             .
                         </>
@@ -852,13 +882,16 @@ export const AnswerForm = ({
             )}
             {!connectedAddress && (
                 <div className="flex p-6 h-60 items-center justify-center w-full max-w-6xl bg-gray-200 dark:bg-black">
-                    <Typography uppercase>{"Test"}</Typography>
+                    <Typography uppercase>
+                        {t("label.answer.form.noWallet")}
+                    </Typography>
                 </div>
             )}
             {!open && (
                 <div className="px-6 pt-6 flex flex-col gap-5 mb-6">
-                    <Typography>{"Test"}</Typography>
+                    <Typography>{t("label.question.timeLeft")}</Typography>
                     <OpeningCountdown
+                        t={t}
                         to={question.openingTimestamp}
                         countdown={true}
                     />
@@ -881,7 +914,7 @@ export const AnswerForm = ({
                                 <Radio
                                     id="bool-template-yes"
                                     name="bool-answer"
-                                    label={"Test"}
+                                    label={t("label.question.form.yes")}
                                     value={BooleanAnswer.YES}
                                     checked={booleanValue === BooleanAnswer.YES}
                                     disabled={answerInputDisabled}
@@ -895,7 +928,7 @@ export const AnswerForm = ({
                                 <Radio
                                     id="bool-template-no"
                                     name="bool-answer"
-                                    label={"Test"}
+                                    label={t("label.question.form.no")}
                                     value={BooleanAnswer.NO}
                                     checked={booleanValue === BooleanAnswer.NO}
                                     disabled={answerInputDisabled}
@@ -909,10 +942,10 @@ export const AnswerForm = ({
                                 <Radio
                                     id="bool-template-invalid"
                                     name="bool-answer"
-                                    label={"Test"}
+                                    label={t("label.question.form.invalid")}
                                     info={
                                         <Typography variant="sm">
-                                            {"Test"}
+                                            {t("invalid.info")}
                                         </Typography>
                                     }
                                     value={BooleanAnswer.INVALID_REALITY_ANSWER}
@@ -932,10 +965,10 @@ export const AnswerForm = ({
                                 <Radio
                                     id="bool-template-too-soon"
                                     name="bool-answer"
-                                    label={"Test"}
+                                    label={t("label.question.form.tooSoon")}
                                     info={
                                         <Typography variant="sm">
-                                            {"Test"}
+                                            {t("tooSoon.info")}
                                         </Typography>
                                     }
                                     value={
@@ -975,10 +1008,10 @@ export const AnswerForm = ({
                                 />
                                 <Checkbox
                                     id="invalid"
-                                    label={"Test"}
+                                    label={t("label.question.form.invalid")}
                                     info={
                                         <Typography variant="sm">
-                                            {"Test"}
+                                            {t("invalid.info")}
                                         </Typography>
                                     }
                                     checked={moreOptionValue.invalid}
@@ -995,10 +1028,10 @@ export const AnswerForm = ({
                                 />
                                 <Checkbox
                                     id="too-soon"
-                                    label={"Test"}
+                                    label={t("label.question.form.tooSoon")}
                                     info={
                                         <Typography variant="sm">
-                                            {"Test"}
+                                            {t("tooSoon.info")}
                                         </Typography>
                                     }
                                     checked={moreOptionValue.anweredTooSoon}
@@ -1016,6 +1049,7 @@ export const AnswerForm = ({
                             </div>
                         )}
                         <BondInput
+                            t={t}
                             value={bond}
                             placeholder={formatUnits(
                                 minimumBond,
@@ -1037,7 +1071,7 @@ export const AnswerForm = ({
                             loading={submitting}
                             size="small"
                         >
-                            {"Test"}
+                            {t("label.question.form.confirm")}
                         </Button>
                         <Button
                             onClick={handleRequestArbitrationSubmit}
@@ -1048,7 +1082,7 @@ export const AnswerForm = ({
                             size="small"
                             ref={setDisputeFeePopoverAnchor}
                         >
-                            {"Test"}
+                            {t("label.question.form.requestArbitration")}
                         </Button>
                         {!!fees && fees.dispute !== 0n && (
                             <Popover
@@ -1056,7 +1090,16 @@ export const AnswerForm = ({
                                 open={disputeFeePopoverOpen}
                                 className={{ root: "px-3 py-2" }}
                             >
-                                <Typography variant="sm">{"Test"}</Typography>
+                                <Typography variant="sm">
+                                    {t("label.question.arbitrator.disputeFee", {
+                                        /* FIXME: reintroduce commify to make number easier to read */
+                                        fee: formatUnits(
+                                            fees.dispute,
+                                            nativeCurrency.decimals
+                                        ),
+                                        symbol: chain?.nativeCurrency.symbol,
+                                    })}
+                                </Typography>
                             </Popover>
                         )}
                     </div>
@@ -1069,7 +1112,7 @@ export const AnswerForm = ({
                                 loading={submitting}
                                 size="small"
                             >
-                                {"Test"}
+                                {t("label.question.form.reopen")}
                             </Button>
                         )}
                         {!isAnsweredTooSoon(question) && (
@@ -1081,7 +1124,7 @@ export const AnswerForm = ({
                                 loading={finalizingOracle}
                                 size="small"
                             >
-                                {"Test"}
+                                {t("label.question.form.finalize")}
                             </Button>
                         )}
                         {claimAndWithdrawVisible && (
@@ -1099,7 +1142,9 @@ export const AnswerForm = ({
                                 }
                                 size="small"
                             >
-                                {"Test"}
+                                {t(
+                                    "label.question.form.claimAndwithdrawWinnings"
+                                )}
                             </Button>
                         )}
                         {withdrawVisible && (
@@ -1117,7 +1162,7 @@ export const AnswerForm = ({
                                 }
                                 size="small"
                             >
-                                {"Test"}
+                                {t("label.question.form.withdrawWinnings")}
                             </Button>
                         )}
                     </div>
