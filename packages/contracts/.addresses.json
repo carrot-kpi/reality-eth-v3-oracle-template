@@ -1,14 +1,14 @@
 {
-    "11155111": {
-        "template": "0x2F8e3C513aB9e75D9E2B8F4C683E2577c908a411",
-        "arbitrator": "0x54ca9Bc25Fd623c94f5E1db4f7CEe846513AA844"
-    },
     "100": {
-        "template": "0xB65Bd5941e8bF11d7F0eF098BFd08CDD30841797",
-        "arbitrator": "0xd5192f7DB2c20764aa66336F61f711e3Fe9CC43C"
+        "template": "0x99Ac3323Db98b5423fB64C2d0AB219270503dF51",
+        "arbitrator": "0x8B754d790Da1dBB47Cf24be03edFea7b3eC31c7F"
+    },
+    "11155111": {
+        "template": "0xC341e9A39BA81880EF141F338456Af5277fBF74A",
+        "arbitrator": "0x2DeCdbFd3D8bFf96463A31F0E0Cd1CF923bB3624"
     },
     "534353": {
-        "template": "0x7528a83Ea462C8D9464efEc73A0530ddD6Dc004D",
-        "arbitrator": "0x87d24272071593B4a7907fd133E74EC30025D4F9"
+        "template": "0x326986A11e307bfe0c46c1CbaBDC6279F9a5dCe5",
+        "arbitrator": "0xd1c1153fd809Aae3bb431b586C032C4856abaeD4"
     }
 }

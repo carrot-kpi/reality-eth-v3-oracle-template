@@ -14,13 +14,13 @@ export enum SupportedChainId {
 export const TRUSTED_REALITY_ARBITRATORS: Record<SupportedChainId, Address> = {
     [SupportedChainId.GNOSIS]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0xd5192f7DB2c20764aa66336F61f711e3Fe9CC43C",
+        : "0x8B754d790Da1dBB47Cf24be03edFea7b3eC31c7F",
     [SupportedChainId.SEPOLIA]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0x54ca9Bc25Fd623c94f5E1db4f7CEe846513AA844",
+        : "0x2DeCdbFd3D8bFf96463A31F0E0Cd1CF923bB3624",
     [SupportedChainId.SCROLL_TESTNET]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0x87d24272071593B4a7907fd133E74EC30025D4F9",
+        : "0xd1c1153fd809Aae3bb431b586C032C4856abaeD4",
 };
 
 // Make ABSOLUTELY sure these addresses are in sync with the
