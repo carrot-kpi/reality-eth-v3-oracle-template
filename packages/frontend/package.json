@@ -66,10 +66,10 @@
         "webpack-dev-server": "^4.15.0"
     },
     "dependencies": {
-        "@carrot-kpi/react": "^0.50.0",
-        "@carrot-kpi/sdk": "^1.28.2",
+        "@carrot-kpi/react": "^0.50.1",
+        "@carrot-kpi/sdk": "^1.29.0",
         "@carrot-kpi/shared-state": "^0.3.1",
-        "@carrot-kpi/ui": "^0.48.7",
+        "@carrot-kpi/ui": "^0.48.8",
         "@fontsource/ibm-plex-mono": "^5.0.2",
         "class-variance-authority": "^0.6.1",
         "dayjs": "^1.11.8",
