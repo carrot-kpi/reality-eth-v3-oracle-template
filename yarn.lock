@@ -1095,10 +1095,10 @@
     bufferutil "4.0.5"
     utf-8-validate "5.0.7"
 
-"@carrot-kpi/host-frontend@^0.11.0":
-  version "0.11.0"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/host-frontend/-/host-frontend-0.11.0.tgz#329a42f23a6a3cec2c773e6c11a44271893ee14c"
-  integrity sha512-NkE6Rdom1lCdN0tqtS0dGActYUyEkW2e4fDSimiEm8uQeEQr1z2rAUH0+amGAgWaRzPD8s2PcTB2QE5/EKJjRQ==
+"@carrot-kpi/host-frontend@^0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/host-frontend/-/host-frontend-0.11.1.tgz#e85daf0a25a22c939ebac0a560406b0304847f78"
+  integrity sha512-LX93eiZAC9Eq5uSZx1PoYIFB7+kK2G2lt1DS/7o7+XRtckrJ6+EGPdbFDl+Gs3mD0O8w3dx6E4kmx33qc+VPWA==
   dependencies:
     "@carrot-kpi/react" "*"
     "@carrot-kpi/sdk" "*"
@@ -1127,10 +1127,10 @@
     react-use "^17.4.0"
     viem "^1.0.0"
 
-"@carrot-kpi/react@^0.50.1":
-  version "0.50.1"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/react/-/react-0.50.1.tgz#d1de5047db0a5215da172151d7a861e87812bdf4"
-  integrity sha512-zjXxInC8rcmSjT1bQmrBNzFbhgEr0byDlgeHAu6yINLxGql1pFC0SK/e0h4l3LsflufWizAgJoe96Sf+zpq4DQ==
+"@carrot-kpi/react@^0.50.2":
+  version "0.50.2"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/react/-/react-0.50.2.tgz#297bc648a4c951698748e48160ec1fe284be07e0"
+  integrity sha512-ehKgkRZ7QX36MLDiE0TeBkczA9d0JlT9Y3q/jGSx+jZLKAOr11sBdecqzWnluN9jWI5miSKHBvZSES3YqnoE4w==
   dependencies:
     "@carrot-kpi/sdk" "*"
     "@tanstack/query-sync-storage-persister" "^4.29.17"
@@ -1280,13 +1280,6 @@
   dependencies:
     conventional-changelog-conventionalcommits "^5.0.0"
 
-"@commitlint/config-conventional@^17.6.6":
-  version "17.6.6"
-  resolved "https://registry.yarnpkg.com/@commitlint/config-conventional/-/config-conventional-17.6.6.tgz#5452aa601d34503b88530ba38432116bcffdd005"
-  integrity sha512-phqPz3BDhfj49FUYuuZIuDiw+7T6gNAEy7Yew1IBHqSohVUCWOK2FXMSAExzS2/9X+ET93g0Uz83KjiHDOOFag==
-  dependencies:
-    conventional-changelog-conventionalcommits "^5.0.0"
-
 "@commitlint/config-validator@^17.4.4":
   version "17.4.4"
   resolved "https://registry.yarnpkg.com/@commitlint/config-validator/-/config-validator-17.4.4.tgz#d0742705719559a101d2ee49c0c514044af6d64d"
@@ -1327,16 +1320,6 @@
   dependencies:
     "@commitlint/types" "^17.4.4"
     semver "7.5.2"
-
-"@commitlint/lint@^17.6.6":
-  version "17.6.6"
-  resolved "https://registry.yarnpkg.com/@commitlint/lint/-/lint-17.6.6.tgz#d7ff64b6783f2bda56526195a66e6bb587e1fe1a"
-  integrity sha512-5bN+dnHcRLkTvwCHYMS7Xpbr+9uNi0Kq5NR3v4+oPNx6pYXt8ACuw9luhM/yMgHYwW0ajIR20wkPAFkZLEMGmg==
-  dependencies:
-    "@commitlint/is-ignored" "^17.6.6"
-    "@commitlint/parse" "^17.6.5"
-    "@commitlint/rules" "^17.6.5"
-    "@commitlint/types" "^17.4.4"
 
 "@commitlint/lint@^17.6.6":
   version "17.6.6"
@@ -5145,11 +5128,6 @@ cli-spinners@^2.6.1:
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/cli-spinners/-/cli-spinners-2.9.0.tgz#5881d0ad96381e117bbe07ad91f2008fe6ffd8db"
   integrity sha512-4/aL9X3Wh0yiMQlE+eeRhWP6vclO3QRtw1JHKIT0FFUs5FjpFmESqtMvYZ0+lbzBw900b95mS0hohy+qn2VK/g==
-
-client-only@0.0.1:
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/client-only/-/client-only-0.0.1.tgz#38bba5d403c41ab150bff64a95c85013cf73bca1"
-  integrity sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==
 
 cliui@^6.0.0:
   version "6.0.0"
@@ -11021,13 +10999,6 @@ semver@7.5.2:
   dependencies:
     lru-cache "^6.0.0"
 
-semver@7.5.2:
-  version "7.5.2"
-  resolved "https://registry.yarnpkg.com/semver/-/semver-7.5.2.tgz#5b851e66d1be07c1cdaf37dfc856f543325a2beb"
-  integrity sha512-SoftuTROv/cRjCze/scjGyiDtcUyxw1rgYQSZY7XTmtR5hX+dm76iDbTH8TkLPHCQmlbQVSSbNZCPM2hb0knnQ==
-  dependencies:
-    lru-cache "^6.0.0"
-
 semver@7.x, semver@^7.3.4, semver@^7.3.5, semver@^7.3.7, semver@^7.3.8:
   version "7.5.3"
   resolved "https://registry.yarnpkg.com/semver/-/semver-7.5.3.tgz#161ce8c2c6b4b3bdca6caadc9fa3317a4c4fe88e"
@@ -11930,18 +11901,6 @@ turbo-windows-arm64@1.10.6:
   version "1.10.6"
   resolved "https://registry.yarnpkg.com/turbo-windows-arm64/-/turbo-windows-arm64-1.10.6.tgz#1e43480584106568df196d0d10964a4eae9b5752"
   integrity sha512-vTQaRG3/s2XTreOBr6J9HKFtjzusvwGQg0GtuW2+9Z7fizdzP8MuhaDbN6FhKHcWC81PQPD61TBIKTVTsYOEZg==
-
-turbo@^1.10.6:
-  version "1.10.6"
-  resolved "https://registry.yarnpkg.com/turbo/-/turbo-1.10.6.tgz#021c410d1598bb2c75090cb97e152953de5e2759"
-  integrity sha512-0/wbjw4HvmPP1abVWHTdeFRfCA9cn5oxCPP5bDixagLzvDgGWE3xfdlsyGmq779Ekr9vjtDPgC2Y4JlXEhyryw==
-  optionalDependencies:
-    turbo-darwin-64 "1.10.6"
-    turbo-darwin-arm64 "1.10.6"
-    turbo-linux-64 "1.10.6"
-    turbo-linux-arm64 "1.10.6"
-    turbo-windows-64 "1.10.6"
-    turbo-windows-arm64 "1.10.6"
 
 turbo@^1.10.6:
   version "1.10.6"
