@@ -1095,10 +1095,10 @@
     bufferutil "4.0.5"
     utf-8-validate "5.0.7"
 
-"@carrot-kpi/host-frontend@^0.10.0":
-  version "0.10.0"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/host-frontend/-/host-frontend-0.10.0.tgz#0b854b5a4e5c8121e4b5c5324e4557c833f9ef18"
-  integrity sha512-qozx/481GJrewbjQDbVt0Ig1njjOiQInV+r2r+yOh1VVfmSNGvXh5Xi8wqxD6hFEikNUTtbNImYFksYMYXN3Fw==
+"@carrot-kpi/host-frontend@^0.11.0":
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/host-frontend/-/host-frontend-0.11.0.tgz#329a42f23a6a3cec2c773e6c11a44271893ee14c"
+  integrity sha512-NkE6Rdom1lCdN0tqtS0dGActYUyEkW2e4fDSimiEm8uQeEQr1z2rAUH0+amGAgWaRzPD8s2PcTB2QE5/EKJjRQ==
   dependencies:
     "@carrot-kpi/react" "*"
     "@carrot-kpi/sdk" "*"
@@ -1127,10 +1127,10 @@
     react-use "^17.4.0"
     viem "^1.0.0"
 
-"@carrot-kpi/react@^0.50.0":
-  version "0.50.0"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/react/-/react-0.50.0.tgz#6fb2aa35ca328ec1b7a5f3e75a3ce63e50486996"
-  integrity sha512-vsAfNn2cDd2oyG/20xkkhXSKEmheuA+Wyfcfw5gxe+EVb/bcwircuezTN4s9lfnziZDR3ZpXs0bY2IOn2bQWwg==
+"@carrot-kpi/react@^0.50.1":
+  version "0.50.1"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/react/-/react-0.50.1.tgz#d1de5047db0a5215da172151d7a861e87812bdf4"
+  integrity sha512-zjXxInC8rcmSjT1bQmrBNzFbhgEr0byDlgeHAu6yINLxGql1pFC0SK/e0h4l3LsflufWizAgJoe96Sf+zpq4DQ==
   dependencies:
     "@carrot-kpi/sdk" "*"
     "@tanstack/query-sync-storage-persister" "^4.29.17"
@@ -1140,7 +1140,7 @@
     react-use "^17.4.0"
     viem "^1.1.7"
 
-"@carrot-kpi/sdk@*", "@carrot-kpi/sdk@^1.27.5":
+"@carrot-kpi/sdk@*":
   version "1.28.0"
   resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.28.0.tgz#ce496a2f5203f052451ed03cae7aca4904095b5c"
   integrity sha512-W7w48x6B0BRWDBYYelI3wyEGBRvXTIoMTgGmHPLrfDyu/Z6PzpIFJHxS0ebK0+8GK6Qj7hnrl1T6ggfjkEUbww==
@@ -1149,14 +1149,14 @@
     multiformats "^9.9.0"
     viem "^1.0.7"
 
-"@carrot-kpi/sdk@^1.28.2":
-  version "1.28.2"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.28.2.tgz#0866a3cbde0784da872c5832aad98d9d6b9e4497"
-  integrity sha512-EZG5LlsoZP/+CJFXuEirOt3yjccTbhpd8oW0fdI06/THPHyVvC0w7iAHk5W26tf7nYA+H+9Vl6xFXjPvrBSQRw==
+"@carrot-kpi/sdk@^1.29.0":
+  version "1.29.0"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/sdk/-/sdk-1.29.0.tgz#607da15b51e3a8aff8572b60b188a1197b2a13a3"
+  integrity sha512-ZrLL9xEdTyLBW21cH6tFa0CILiOnSRXehPPuvHjv8VWHHHIxBXc8e7ZfpS4oEq5smhQLPrt1XJyU8uNAsKsDdw==
   dependencies:
     decimal.js-light "^2.5.1"
     multiformats "^9.9.0"
-    viem "^1.1.6"
+    viem "^1.1.7"
 
 "@carrot-kpi/shared-state@^0.3.1":
   version "0.3.1"
@@ -1197,10 +1197,10 @@
     tailwind-merge "^1.13.1"
     viem "^1.0.7"
 
-"@carrot-kpi/ui@^0.48.7":
-  version "0.48.7"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/ui/-/ui-0.48.7.tgz#66d6235af19777096ba9be373f869dee5581d041"
-  integrity sha512-5TdEbyELLJc08Cuu8j+2h9uHZ/17q+MHu+YztJ67yKKfUT3/Ua9mHAxnwBgtki/VtBFmacWmWLkqWaelaEgauQ==
+"@carrot-kpi/ui@^0.48.8":
+  version "0.48.8"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/ui/-/ui-0.48.8.tgz#ad258166da66dac00b85c392eaba5a6d7cea6a13"
+  integrity sha512-MSTRUSviJD1gLXZdf+eAB8EbfVs3VoWMwJmIti/lLFxC3YocDiT+xmNWqoPf26yKADx8I7oR2JQLvCM4u+rS7w==
   dependencies:
     "@carrot-kpi/sdk" "*"
     "@popperjs/core" "^2.11.8"
@@ -1210,7 +1210,7 @@
     "@tiptap/starter-kit" "2.0.3"
     "@types/react-virtualized-auto-sizer" "^1.0.1"
     "@uniswap/token-lists" "1.0.0-beta.31"
-    class-variance-authority "^0.6.0"
+    class-variance-authority "^0.6.1"
     dayjs "^1.11.8"
     decimal.js-light "^2.5.1"
     rc-switch "^4.1.0"
@@ -1220,7 +1220,7 @@
     react-virtualized-auto-sizer "^1.0.20"
     react-window "^1.8.9"
     tailwind-merge "^1.13.2"
-    viem "^1.1.6"
+    viem "^1.1.7"
 
 "@chainsafe/is-ip@^2.0.1":
   version "2.0.1"
@@ -4254,6 +4254,11 @@ abab@^2.0.6:
   resolved "https://registry.yarnpkg.com/abab/-/abab-2.0.6.tgz#41b80f2c871d19686216b82309231cfd3cb3d291"
   integrity sha512-j2afSsaIENvHZN2B8GOpF566vZ5WVk5opAiMTvWgaQT8DkbOqsTfvNAvHoRGU2zzP8cPoqys+xHTRDWW8L+/BA==
 
+abitype@0.8.11:
+  version "0.8.11"
+  resolved "https://registry.yarnpkg.com/abitype/-/abitype-0.8.11.tgz#66e1cf2cbf46f48d0e57132d7c1c392447536cc1"
+  integrity sha512-bM4v2dKvX08sZ9IU38IN5BKmN+ZkOSd2oI4a9f0ejHYZQYV6cDr7j+d95ga0z2XHG36Y4jzoG5Z7qDqxp7fi/A==
+
 abitype@0.8.7:
   version "0.8.7"
   resolved "https://registry.yarnpkg.com/abitype/-/abitype-0.8.7.tgz#e4b3f051febd08111f486c0cc6a98fa72d033622"
@@ -4991,20 +4996,20 @@ caniuse-lite@^1.0.0, caniuse-lite@^1.0.30001464, caniuse-lite@^1.0.30001503:
   resolved "https://registry.yarnpkg.com/caniuse-lite/-/caniuse-lite-1.0.30001507.tgz#fae53f6286e7564783eadea9b447819410a59534"
   integrity sha512-SFpUDoSLCaE5XYL2jfqe9ova/pbQHEmbheDf5r4diNwbAgR3qxM9NQtfsiSscjqoya5K7kFcHPUQ+VsUkIJR4A==
 
-carrot-scripts@0.22.4:
-  version "0.22.4"
-  resolved "https://registry.yarnpkg.com/carrot-scripts/-/carrot-scripts-0.22.4.tgz#360e42e8182ef240e7c02427fb27b8c3bb0a2c08"
-  integrity sha512-PcoQAgGMzQinr0x/G5dVStBT0+2Noldl4Napfk2Lm+OksL6iKaIQJk/Y3wsCrgyzXTsdXXrfFBMln9hdNc9l2Q==
+carrot-scripts@0.22.5:
+  version "0.22.5"
+  resolved "https://registry.yarnpkg.com/carrot-scripts/-/carrot-scripts-0.22.5.tgz#25eebaa34a0894a8402aa00a87ead8eb1933e2d6"
+  integrity sha512-LDuUMx32oO8ATIwgp1X4xaqlBfb/Zd032LBtQ+V5LTECmtmRaDG8VH9ZWC7FmMApRlV7Okv3f0oxFa71TD9E+g==
   dependencies:
     "@carrot-kpi/ganache" "^0.2.0"
-    "@carrot-kpi/sdk" "^1.27.5"
+    "@carrot-kpi/sdk" "^1.29.0"
     chalk "^5.2.0"
     ethers "5"
     execa "^7.1.1"
     ipfs-http-client "^60.0.1"
     ora "^6.3.1"
     tsconfig "*"
-    viem "^1.0.2"
+    viem "^1.2.1"
 
 case-anything@^2.1.10:
   version "2.1.13"
@@ -12205,7 +12210,7 @@ vary@~1.1.2:
   resolved "https://registry.yarnpkg.com/vary/-/vary-1.1.2.tgz#2299f02c6ded30d4a5961b0b9f74524a18f634fc"
   integrity sha512-BNGbWLfd0eUPabhkXUVm0j8uuvREyTh5ovRa/dyow/BqAbZJyC+5fU+IzQOzmAKzYqYRAISoRhdQr3eIZ/PXqg==
 
-viem@^1.0.0, viem@^1.0.2, viem@^1.0.7:
+viem@^1.0.0, viem@^1.0.7:
   version "1.1.4"
   resolved "https://registry.yarnpkg.com/viem/-/viem-1.1.4.tgz#21be6d235fb387a391d4abdbbf95cd93bd066ffb"
   integrity sha512-3bJkS60Sw6Rf6a2ydKDnDxAI0PTZK0yGoyux2nqPSBoXBL+w9hXPNcnm8Uf6FlKce5sQadVRfi2n6MrgzablxA==
@@ -12220,7 +12225,22 @@ viem@^1.0.0, viem@^1.0.2, viem@^1.0.7:
     isomorphic-ws "5.0.0"
     ws "8.12.0"
 
-viem@^1.1.6, viem@^1.1.7, viem@^1.1.8:
+viem@^1.1.7, viem@^1.2.1:
+  version "1.2.5"
+  resolved "https://registry.yarnpkg.com/viem/-/viem-1.2.5.tgz#e9f80a57b80d8749624b4b31a98041549a25c5ad"
+  integrity sha512-AeQ1hiyPKXnWb/KTsxRLt7KZUmLgd6NTCe/GyQf+8TZO7ndXmSZf88swE+60v1bLT+FDUWXufKGJ2oNT129wXw==
+  dependencies:
+    "@adraffy/ens-normalize" "1.9.0"
+    "@noble/curves" "1.0.0"
+    "@noble/hashes" "1.3.0"
+    "@scure/bip32" "1.3.0"
+    "@scure/bip39" "1.2.0"
+    "@wagmi/chains" "1.2.0"
+    abitype "0.8.11"
+    isomorphic-ws "5.0.0"
+    ws "8.12.0"
+
+viem@^1.1.8:
   version "1.1.8"
   resolved "https://registry.yarnpkg.com/viem/-/viem-1.1.8.tgz#af5f8e2d3339be1db36405f3c0f15f5243658ce9"
   integrity sha512-sMIbBu/rKI4paCWvCxpDNAT7vO9nCtu9SKXdVk5lwMVRL/HmMFCiIBtvRO0IiqlrvZTFCWnPEMn7ndNRyb+NCQ==
