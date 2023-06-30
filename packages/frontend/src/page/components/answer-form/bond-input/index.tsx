@@ -1,8 +1,11 @@
 import type { NumberFormatValue } from "../../../types";
 import { NumberInput, Typography } from "@carrot-kpi/ui";
+import type { NamespacedTranslateFunction } from "@carrot-kpi/react";
 import { infoPopoverStyles, inputStyles } from "../common/styles";
+import { useNetwork } from "wagmi";
 
 interface BondInputProps {
+    t: NamespacedTranslateFunction;
     disabled?: boolean;
     value: NumberFormatValue;
     placeholder?: string;
@@ -11,25 +14,30 @@ interface BondInputProps {
 }
 
 export const BondInput = ({
+    t,
     disabled,
     value,
     placeholder,
     errorText,
     onChange,
 }: BondInputProps) => {
+    const { chain } = useNetwork();
+
     return (
         <NumberInput
             id="bond"
-            label={"Test"}
+            label={t("label.question.form.bond", {
+                symbol: chain?.nativeCurrency.symbol,
+            })}
             info={
                 <>
                     <Typography variant="sm" className={{ root: "mb-2" }}>
-                        {"Test"}
+                        {t("bond.info.1")}
                     </Typography>
                     <Typography variant="sm" className={{ root: "mb-2" }}>
-                        {"Test"}
+                        {t("bond.info.2")}
                     </Typography>
-                    <Typography variant="sm">{"Test"}</Typography>
+                    <Typography variant="sm">{t("bond.info.3")}</Typography>
                 </>
             }
             placeholder={placeholder || "0.0"}
