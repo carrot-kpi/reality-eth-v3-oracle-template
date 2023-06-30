@@ -1095,10 +1095,10 @@
     bufferutil "4.0.5"
     utf-8-validate "5.0.7"
 
-"@carrot-kpi/host-frontend@^0.11.1":
-  version "0.11.1"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/host-frontend/-/host-frontend-0.11.1.tgz#e85daf0a25a22c939ebac0a560406b0304847f78"
-  integrity sha512-LX93eiZAC9Eq5uSZx1PoYIFB7+kK2G2lt1DS/7o7+XRtckrJ6+EGPdbFDl+Gs3mD0O8w3dx6E4kmx33qc+VPWA==
+"@carrot-kpi/host-frontend@^0.11.2":
+  version "0.11.2"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/host-frontend/-/host-frontend-0.11.2.tgz#a282bb0b703bfe895891d4f3352099235d787245"
+  integrity sha512-T7SUATOT4VZFfl62i05qfFv+OoeQS4fXE74kO59jSAo1VnwBlkgqvyNFW+4F5aMCMndQoVSi0yt+4P7yEw77Gg==
   dependencies:
     "@carrot-kpi/react" "*"
     "@carrot-kpi/sdk" "*"
@@ -1127,10 +1127,10 @@
     react-use "^17.4.0"
     viem "^1.0.0"
 
-"@carrot-kpi/react@^0.50.2":
-  version "0.50.2"
-  resolved "https://registry.yarnpkg.com/@carrot-kpi/react/-/react-0.50.2.tgz#297bc648a4c951698748e48160ec1fe284be07e0"
-  integrity sha512-ehKgkRZ7QX36MLDiE0TeBkczA9d0JlT9Y3q/jGSx+jZLKAOr11sBdecqzWnluN9jWI5miSKHBvZSES3YqnoE4w==
+"@carrot-kpi/react@^0.50.3":
+  version "0.50.3"
+  resolved "https://registry.yarnpkg.com/@carrot-kpi/react/-/react-0.50.3.tgz#5ce14becc2dfba0fe229d35c2dabbe82ffc198bf"
+  integrity sha512-2pvQjxf+v/m0nC5QC3p/0p2XKt3ZoCwfsw0FZSlN8X7J25vPLnc1mncbp6O8fFX8Ihv8kyOWCPVB/2fRaKn8zA==
   dependencies:
     "@carrot-kpi/sdk" "*"
     "@tanstack/query-sync-storage-persister" "^4.29.17"
