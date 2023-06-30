@@ -234,7 +234,7 @@ export const Component = ({
                     [
                         arbitrator.value as Address,
                         BigInt(realityTemplateId.value),
-                        `${questionCid}-${realityTemplateId.value}`,
+                        questionCid,
                         questionTimeout.value as number,
                         openingTimestamp.unix(),
                         formattedMinimumBond,

@@ -42,12 +42,21 @@ class Fetcher implements IPartialFetcher {
         realityV3Address,
         questionId,
         question,
+        devMode,
     }: FetchQuestionParams): Promise<RealityQuestion | null> {
         if (!realityV3Address || !question || !questionId) return null;
-        const [cid, templateId] = question.split("-");
+        const cid = question;
+
+        const templateId = await this.fetchQuestionTemplateId(
+            publicClient,
+            realityV3Address,
+            questionId,
+            devMode
+        );
+
         if (
             !isCID(cid) ||
-            !templateId ||
+            isNaN(Number(templateId)) ||
             !REALITY_TEMPLATE_OPTIONS.find(
                 (validTemplate) => validTemplate.value === Number(templateId)
             )
@@ -517,6 +526,52 @@ class Fetcher implements IPartialFetcher {
         }
 
         return answersHistory;
+    }
+
+    private async fetchQuestionTemplateId(
+        publicClient: PublicClient,
+        realityV3Address: Address,
+        questionId: Address,
+        devMode: boolean
+    ): Promise<bigint> {
+        let toBlock = await publicClient.getBlockNumber();
+        const logsRange = this.logsRange({ devMode });
+        let fromBlock = toBlock - logsRange;
+
+        let questionTemplateId: bigint;
+        while (true) {
+            const newQuestionEventLogs = await publicClient.getLogs({
+                address: realityV3Address,
+                event: parseAbiItem(
+                    "event LogNewQuestion(bytes32 indexed question_id,address indexed user,uint256 template_id,string question,bytes32 indexed content_hash,address arbitrator,uint32 timeout,uint32 opening_ts,uint256 nonce,uint256 created)"
+                ),
+                args: {
+                    question_id: questionId,
+                },
+                fromBlock,
+                toBlock,
+            });
+
+            if (newQuestionEventLogs[0]) {
+                const [templateId] = decodeAbiParameters(
+                    [
+                        {
+                            type: "uint256",
+                            name: "template_id",
+                        },
+                    ],
+                    newQuestionEventLogs[0].data
+                ) as [bigint];
+
+                questionTemplateId = templateId;
+                break;
+            }
+
+            toBlock = fromBlock - 1n;
+            fromBlock = toBlock - logsRange;
+        }
+
+        return questionTemplateId;
     }
 
     private async validate({

@@ -11,7 +11,7 @@ export interface SupportedInChainParams {
     chainId: ChainId;
 }
 
-export interface FetchQuestionParams {
+export interface FetchQuestionParams extends BaseParams {
     publicClient: PublicClient;
     realityV3Address?: Address;
     question?: string;

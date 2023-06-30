@@ -1,4 +1,4 @@
-import { usePreferDecentralization } from "@carrot-kpi/react";
+import { useDevMode, usePreferDecentralization } from "@carrot-kpi/react";
 import { useEffect, useState } from "react";
 import { useBlockNumber, usePublicClient } from "wagmi";
 import { Fetcher } from "../fetcher";
@@ -14,6 +14,7 @@ export function useWatchRealityQuestion(
     loading: boolean;
     question: RealityQuestion | null;
 } {
+    const devMode = useDevMode();
     const publicClient = usePublicClient();
     const blockNumber = useBlockNumber();
     const preferDecentralization = usePreferDecentralization();
@@ -36,6 +37,7 @@ export function useWatchRealityQuestion(
                     realityV3Address,
                     question,
                     questionId,
+                    devMode,
                 });
                 if (!cancelled) setOnChainQuestion(fetched);
                 const questionFinalized =
@@ -61,6 +63,7 @@ export function useWatchRealityQuestion(
         realityV3Address,
         finalized,
         preferDecentralization,
+        devMode,
     ]);
 
     return { loading, question: realityQuestion };

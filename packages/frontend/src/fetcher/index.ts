@@ -31,6 +31,7 @@ class FullFetcher implements IFullFetcher {
         realityV3Address,
         question,
         questionId,
+        devMode,
     }: FullFetcherFetchQuestionParams): Promise<RealityQuestion | null> {
         const useSubgraph = await this.shouldUseSubgraph({
             publicClient,
@@ -42,12 +43,14 @@ class FullFetcher implements IFullFetcher {
                   realityV3Address,
                   question,
                   questionId,
+                  devMode,
               })
             : OnChainFetcher.fetchQuestion({
                   publicClient,
                   realityV3Address,
                   question,
                   questionId,
+                  devMode,
               });
     }
 
