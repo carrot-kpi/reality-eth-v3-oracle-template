@@ -34,7 +34,7 @@ class Fetcher implements IPartialFetcher {
     }
 
     private logsRange({ devMode }: { devMode: boolean }): bigint {
-        return devMode ? 10n : 5_000n;
+        return devMode ? 10n : 2_500n;
     }
 
     public async fetchQuestion({
