@@ -116,9 +116,7 @@ export const Answer = ({
                 <AnswerInfo
                     label={currentAnswerTitle}
                     className={
-                        !pendingArbitration
-                            ? "border-b md:border-b-0 border-black dark:border-white"
-                            : undefined
+                        "border-b md:border-b-0 border-black dark:border-white"
                     }
                 >
                     {loadingQuestion && !currentAnswerValue ? (
