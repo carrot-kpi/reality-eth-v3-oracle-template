@@ -854,7 +854,9 @@ export const AnswerForm = ({
                     {loadingContent ? (
                         <Skeleton width="100px" />
                     ) : (
-                        <Markdown className={{ root: "font-medium overflow-x-auto" }}>
+                        <Markdown
+                            className={{ root: "font-medium overflow-x-auto" }}
+                        >
                             {content}
                         </Markdown>
                     )}
