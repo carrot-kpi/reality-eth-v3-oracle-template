@@ -883,7 +883,7 @@ export const AnswerForm = ({
                 </Typography>
             )}
             {!connectedAddress && (
-                <div className="flex p-6 h-60 items-center justify-center w-full max-w-6xl bg-gray-200 dark:bg-black">
+                <div className="flex p-6 h-60 items-center justify-center w-full bg-gray-200 dark:bg-black">
                     <Typography uppercase>
                         {t("label.answer.form.noWallet")}
                     </Typography>
