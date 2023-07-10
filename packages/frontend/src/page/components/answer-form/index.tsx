@@ -6,12 +6,8 @@ import {
 } from "@carrot-kpi/react";
 import {
     Button,
-    Checkbox,
     Markdown,
-    NumberInput,
     Typography,
-    Radio,
-    RadioGroup,
     Skeleton,
     Popover,
 } from "@carrot-kpi/ui";
@@ -66,7 +62,6 @@ import REALITY_ORACLE_V3_ABI from "../../../abis/reality-oracle-v3";
 import TRUSTED_REALITY_ARBITRATOR_V3_ABI from "../../../abis/trusted-reality-arbitrator-v3";
 import { BondInput } from "./bond-input";
 import dayjs from "dayjs";
-import { infoPopoverStyles, inputStyles } from "./common/styles";
 import { QuestionInfo } from "../question-info";
 import External from "../../../assets/external";
 import { OpeningCountdown } from "../opening-countdown";
@@ -81,6 +76,8 @@ import Danger from "../../../assets/danger";
 import { useRealityClaimableHistory } from "../../../hooks/useRealityClaimableHistory";
 import { useArbitratorFees } from "../../../hooks/useAbritratorFees";
 import { useIsAnswerer } from "../../../hooks/useIsAnswerer";
+import { BooleanInputs } from "./boolean-inputs";
+import { ScalarInputs } from "./scalar-inputs";
 
 interface AnswerFormProps {
     t: NamespacedTranslateFunction;
@@ -102,7 +99,6 @@ export const AnswerForm = ({
     onTx,
 }: AnswerFormProps): ReactElement => {
     const publicClient = usePublicClient();
-
     const { chain } = useNetwork();
     const nativeCurrency = useNativeCurrency();
     const { address: connectedAddress } = useAccount();
@@ -259,11 +255,12 @@ export const AnswerForm = ({
 
     const { data: withdrawableBalance, isLoading: loadingWithdrawableBalance } =
         useContractRead({
+            chainId: chain?.id,
             address: realityAddress,
             abi: REALITY_ETH_V3_ABI,
             functionName: "balanceOf",
             args: connectedAddress && [connectedAddress],
-            enabled: !!connectedAddress,
+            enabled: !!chain?.id && !!connectedAddress && finalized,
             watch: true,
         });
 
@@ -374,7 +371,11 @@ export const AnswerForm = ({
         address: realityAddress,
         abi: REALITY_ETH_V3_ABI,
         functionName: "withdraw",
-        enabled: finalized && !!withdrawableBalance && withdrawableBalance > 0n,
+        enabled:
+            !!chain?.id &&
+            finalized &&
+            !!withdrawableBalance &&
+            withdrawableBalance > 0n,
     });
     const { writeAsync: withdrawAsync } = useContractWrite(withdrawConfig);
 
@@ -765,6 +766,11 @@ export const AnswerForm = ({
         question.historyHash !== BYTES32_ZERO;
     const withdrawVisible =
         withdrawableBalance !== undefined && withdrawableBalance > 0n;
+    const formInputsVisible =
+        open &&
+        connectedAddress &&
+        !isAnswerPendingArbitration(question) &&
+        !finalized;
 
     const handleRequestArbitrationMouseEnter = useCallback(() => {
         if (requestArbitrationDisabled) return;
@@ -899,276 +905,145 @@ export const AnswerForm = ({
                     />
                 </div>
             )}
-            {open &&
-                connectedAddress &&
-                !isAnswerPendingArbitration(question) &&
-                !finalized && (
-                    <div className="px-6 flex flex-col gap-4 mt-6">
-                        {question.templateId ===
-                            SupportedRealityTemplates.BOOL && (
-                            <RadioGroup
-                                id="bool-template"
-                                className={{
-                                    radioInputsWrapper:
-                                        "flex flex-col gap-8 md:flex-row md:gap-11",
-                                }}
-                            >
-                                <Radio
-                                    id="bool-template-yes"
-                                    name="bool-answer"
-                                    label={t("label.question.form.yes")}
-                                    value={BooleanAnswer.YES}
-                                    checked={booleanValue === BooleanAnswer.YES}
-                                    disabled={answerInputDisabled}
-                                    onChange={handleBooleanRadioChange}
-                                    className={{
-                                        inputWrapper: inputStyles({
-                                            disabled: answerInputDisabled,
-                                        }),
-                                    }}
-                                />
-                                <Radio
-                                    id="bool-template-no"
-                                    name="bool-answer"
-                                    label={t("label.question.form.no")}
-                                    value={BooleanAnswer.NO}
-                                    checked={booleanValue === BooleanAnswer.NO}
-                                    disabled={answerInputDisabled}
-                                    onChange={handleBooleanRadioChange}
-                                    className={{
-                                        inputWrapper: inputStyles({
-                                            disabled: answerInputDisabled,
-                                        }),
-                                    }}
-                                />
-                                <Radio
-                                    id="bool-template-invalid"
-                                    name="bool-answer"
-                                    label={t("label.question.form.invalid")}
-                                    info={
-                                        <Typography variant="sm">
-                                            {t("invalid.info")}
-                                        </Typography>
-                                    }
-                                    value={BooleanAnswer.INVALID_REALITY_ANSWER}
-                                    checked={
-                                        booleanValue ===
-                                        BooleanAnswer.INVALID_REALITY_ANSWER
-                                    }
-                                    disabled={answerInputDisabled}
-                                    onChange={handleBooleanRadioChange}
-                                    className={{
-                                        infoPopover: infoPopoverStyles(),
-                                        inputWrapper: inputStyles({
-                                            disabled: answerInputDisabled,
-                                        }),
-                                    }}
-                                />
-                                <Radio
-                                    id="bool-template-too-soon"
-                                    name="bool-answer"
-                                    label={t("label.question.form.tooSoon")}
-                                    info={
-                                        <Typography variant="sm">
-                                            {t("tooSoon.info")}
-                                        </Typography>
-                                    }
-                                    value={
-                                        BooleanAnswer.ANSWERED_TOO_SOON_REALITY_ANSWER
-                                    }
-                                    checked={
-                                        booleanValue ===
-                                        BooleanAnswer.ANSWERED_TOO_SOON_REALITY_ANSWER
-                                    }
-                                    disabled={answerInputDisabled}
-                                    onChange={handleBooleanRadioChange}
-                                    className={{
-                                        infoPopover: infoPopoverStyles(),
-                                        inputWrapper: inputStyles({
-                                            disabled: answerInputDisabled,
-                                        }),
-                                    }}
-                                />
-                            </RadioGroup>
-                        )}
-                        {question.templateId ===
-                            SupportedRealityTemplates.UINT && (
-                            <div className="flex flex-col lg:items-center lg:flex-row gap-8">
-                                <NumberInput
-                                    id="uint-template"
-                                    placeholder={"0.0"}
-                                    allowNegative={false}
-                                    min={0}
-                                    value={numberValue.formattedValue}
-                                    disabled={answerInputDisabled}
-                                    onValueChange={setNumberValue}
-                                    className={{
-                                        inputWrapper: inputStyles({
-                                            disabled: answerInputDisabled,
-                                        }),
-                                    }}
-                                />
-                                <Checkbox
-                                    id="invalid"
-                                    label={t("label.question.form.invalid")}
-                                    info={
-                                        <Typography variant="sm">
-                                            {t("invalid.info")}
-                                        </Typography>
-                                    }
-                                    checked={moreOptionValue.invalid}
-                                    onChange={handleInvalidChange}
-                                    className={{
-                                        infoPopover: infoPopoverStyles(),
-                                        inputWrapper: inputStyles({
-                                            disabled:
-                                                finalized ||
-                                                moreOptionValue.anweredTooSoon,
-                                            full: false,
-                                        }),
-                                    }}
-                                />
-                                <Checkbox
-                                    id="too-soon"
-                                    label={t("label.question.form.tooSoon")}
-                                    info={
-                                        <Typography variant="sm">
-                                            {t("tooSoon.info")}
-                                        </Typography>
-                                    }
-                                    checked={moreOptionValue.anweredTooSoon}
-                                    onChange={handleAnsweredTooSoonChange}
-                                    className={{
-                                        infoPopover: infoPopoverStyles(),
-                                        inputWrapper: inputStyles({
-                                            disabled:
-                                                finalized ||
-                                                moreOptionValue.invalid,
-                                            full: false,
-                                        }),
-                                    }}
-                                />
-                            </div>
-                        )}
-                        <BondInput
+            {formInputsVisible && (
+                <div className="px-6 flex flex-col gap-4 mt-6">
+                    {question.templateId === SupportedRealityTemplates.BOOL && (
+                        <BooleanInputs
                             t={t}
-                            value={bond}
-                            placeholder={formatUnits(
-                                minimumBond,
-                                nativeCurrency.decimals
-                            )}
-                            errorText={bondErrorText}
-                            onChange={handleBondChange}
-                            disabled={finalized}
+                            answer={booleanValue}
+                            disabled={answerInputDisabled}
+                            onChange={handleBooleanRadioChange}
                         />
-                    </div>
-                )}
+                    )}
+                    {question.templateId === SupportedRealityTemplates.UINT && (
+                        <ScalarInputs
+                            t={t}
+                            scalarAnswer={numberValue}
+                            scalarDisabled={answerInputDisabled}
+                            onScalarAnswerChange={setNumberValue}
+                            moreOptionsAnswer={moreOptionValue}
+                            onAnsweredTooSoonChange={
+                                handleAnsweredTooSoonChange
+                            }
+                            onInvalidChange={handleInvalidChange}
+                        />
+                    )}
+                    <BondInput
+                        t={t}
+                        value={bond}
+                        placeholder={formatUnits(
+                            minimumBond,
+                            nativeCurrency.decimals
+                        )}
+                        errorText={bondErrorText}
+                        onChange={handleBondChange}
+                        disabled={finalized}
+                    />
+                </div>
+            )}
             {open &&
-                connectedAddress &&
-                (!isAnswerPendingArbitration(question) && !finalized ? (
-                    <div className="px-6 flex flex-col md:flex-row gap-5 mt-6 mb-6">
+            connectedAddress &&
+            !isAnswerPendingArbitration(question) &&
+            !finalized ? (
+                <div className="px-6 flex flex-col md:flex-row gap-5 mt-6 mb-6">
+                    <Button
+                        onClick={handleSubmit}
+                        disabled={submitAnswerDisabled}
+                        loading={submitting}
+                        size="small"
+                    >
+                        {t("label.question.form.confirm")}
+                    </Button>
+                    <Button
+                        onClick={handleRequestArbitrationSubmit}
+                        onMouseEnter={handleRequestArbitrationMouseEnter}
+                        onMouseLeave={handleRequestArbitrationMouseLeave}
+                        disabled={requestArbitrationDisabled}
+                        loading={requestingArbitration}
+                        size="small"
+                        ref={setDisputeFeePopoverAnchor}
+                    >
+                        {t("label.question.form.requestArbitration")}
+                    </Button>
+                    {!!fees && fees.dispute !== 0n && (
+                        <Popover
+                            anchor={disputeFeePopoverAnchor}
+                            open={disputeFeePopoverOpen}
+                            className={{ root: "px-3 py-2" }}
+                        >
+                            <Typography variant="sm">
+                                {t("label.question.arbitrator.disputeFee", {
+                                    /* FIXME: reintroduce commify to make number easier to read */
+                                    fee: formatUnits(
+                                        fees.dispute,
+                                        nativeCurrency.decimals
+                                    ),
+                                    symbol: chain?.nativeCurrency.symbol,
+                                })}
+                            </Typography>
+                        </Popover>
+                    )}
+                </div>
+            ) : (
+                <div className="px-6 flex flex-col md:flex-row gap-5 mt-6 mb-6">
+                    {isAnsweredTooSoon(question) && (
                         <Button
-                            onClick={handleSubmit}
-                            disabled={submitAnswerDisabled}
+                            onClick={handleReopenSubmit}
+                            disabled={!reopenAnswerAsync}
                             loading={submitting}
                             size="small"
                         >
-                            {t("label.question.form.confirm")}
+                            {t("label.question.form.reopen")}
                         </Button>
+                    )}
+                    {!isAnsweredTooSoon(question) && (
                         <Button
-                            onClick={handleRequestArbitrationSubmit}
-                            onMouseEnter={handleRequestArbitrationMouseEnter}
-                            onMouseLeave={handleRequestArbitrationMouseLeave}
-                            disabled={requestArbitrationDisabled}
-                            loading={requestingArbitration}
+                            onClick={handleFinalizeOracleSubmit}
+                            disabled={!finalizeOracleAsync || oracle.finalized}
+                            loading={finalizingOracle}
                             size="small"
-                            ref={setDisputeFeePopoverAnchor}
                         >
-                            {t("label.question.form.requestArbitration")}
+                            {t("label.question.form.finalize")}
                         </Button>
-                        {!!fees && fees.dispute !== 0n && (
-                            <Popover
-                                anchor={disputeFeePopoverAnchor}
-                                open={disputeFeePopoverOpen}
-                                className={{ root: "px-3 py-2" }}
-                            >
-                                <Typography variant="sm">
-                                    {t("label.question.arbitrator.disputeFee", {
-                                        /* FIXME: reintroduce commify to make number easier to read */
-                                        fee: formatUnits(
-                                            fees.dispute,
-                                            nativeCurrency.decimals
-                                        ),
-                                        symbol: chain?.nativeCurrency.symbol,
-                                    })}
-                                </Typography>
-                            </Popover>
-                        )}
-                    </div>
-                ) : (
-                    <div className="px-6 flex gap-5 mt-6 mb-6">
-                        {isAnsweredTooSoon(question) && (
-                            <Button
-                                onClick={handleReopenSubmit}
-                                disabled={!reopenAnswerAsync}
-                                loading={submitting}
-                                size="small"
-                            >
-                                {t("label.question.form.reopen")}
-                            </Button>
-                        )}
-                        {!isAnsweredTooSoon(question) && (
-                            <Button
-                                onClick={handleFinalizeOracleSubmit}
-                                disabled={
-                                    !finalizeOracleAsync || oracle.finalized
-                                }
-                                loading={finalizingOracle}
-                                size="small"
-                            >
-                                {t("label.question.form.finalize")}
-                            </Button>
-                        )}
-                        {claimAndWithdrawVisible && (
-                            <Button
-                                onClick={handleClaimMultipleAndWithdrawSubmit}
-                                disabled={
-                                    !answerer ||
-                                    !claimMultipleAndWithdrawAsync ||
-                                    question.historyHash === BYTES32_ZERO
-                                }
-                                loading={
-                                    loadingAnswerer ||
-                                    loadingClaimableHistory ||
-                                    claimingAndWithdrawing
-                                }
-                                size="small"
-                            >
-                                {t(
-                                    "label.question.form.claimAndwithdrawWinnings"
-                                )}
-                            </Button>
-                        )}
-                        {withdrawVisible && (
-                            <Button
-                                onClick={handleWithdrawSubmit}
-                                disabled={
-                                    !answerer ||
-                                    !withdrawAsync ||
-                                    withdrawableBalance === 0n
-                                }
-                                loading={
-                                    loadingAnswerer ||
-                                    loadingWithdrawableBalance ||
-                                    withdrawing
-                                }
-                                size="small"
-                            >
-                                {t("label.question.form.withdrawWinnings")}
-                            </Button>
-                        )}
-                    </div>
-                ))}
+                    )}
+                    {claimAndWithdrawVisible && (
+                        <Button
+                            onClick={handleClaimMultipleAndWithdrawSubmit}
+                            disabled={
+                                !answerer ||
+                                !claimMultipleAndWithdrawAsync ||
+                                question.historyHash === BYTES32_ZERO
+                            }
+                            loading={
+                                loadingAnswerer ||
+                                loadingClaimableHistory ||
+                                claimingAndWithdrawing
+                            }
+                            size="small"
+                        >
+                            {t("label.question.form.claimAndwithdrawWinnings")}
+                        </Button>
+                    )}
+                    {withdrawVisible && (
+                        <Button
+                            onClick={handleWithdrawSubmit}
+                            disabled={
+                                !answerer ||
+                                !withdrawAsync ||
+                                withdrawableBalance === 0n
+                            }
+                            loading={
+                                loadingAnswerer ||
+                                loadingWithdrawableBalance ||
+                                withdrawing
+                            }
+                            size="small"
+                        >
+                            {t("label.question.form.withdrawWinnings")}
+                        </Button>
+                    )}
+                </div>
+            )}
         </div>
     );
 };
