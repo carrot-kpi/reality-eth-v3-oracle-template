@@ -12,10 +12,10 @@ address constant REALITY_V3_ADDRESS = address(123456789); // will be replaced by
 
 /// SPDX-License-Identifier: GPL-3.0-or-later
 /// @title Reality oracle
-/// @dev An oracle template imlementation leveraging Reality.eth
+/// @dev An oracle template implementation leveraging Reality.eth's
 /// crowdsourced, manual oracle to get data about real-world events
 /// on-chain. Since the oracle is crowdsourced, it's extremely flexible,
-/// and any condition that can be put into text can leverage Reality.eth
+/// and any condition that can be put into text can use Reality.eth
 /// as an oracle. The setup is of great importance to ensure the safety
 /// of the solution (question timeout, opening timestamp, arbitrator atc must be set
 /// with care to avoid unwanted results).
@@ -45,21 +45,20 @@ contract RealityV3Oracle is IOracle, Initializable {
     /// generally invoked by the oracles manager contract, in turn invoked by a KPI
     /// token template at creation-time. For more info on some of this parameters check
     /// out the Reality.eth docs here: https://reality.eth.limo/app/docs/html/dapp.html#.
-    /// @param _params The params are passed in a struct to make it less likely to encounter
-    /// stack too deep errors while developing new templates. The params struct contains:
-    /// - `_creator`: the address of the entity creating the KPI token.
-    /// - `_kpiToken`: the address of the KPI token to which the oracle must be linked to.
+    /// @param _params The params are passed in a struct and are:
+    /// - `creator`: the address of the entity creating the KPI token.
+    /// - `kpiToken`: the address of the KPI token to which the oracle must be linked to.
     ///   This address is also used to know to which contract to report results back to.
-    /// - `_templateId`: the id of the template.
-    /// - `_data`: an ABI-encoded structure forwarded by the created KPI token from the KPI token
+    /// - `templateId`: the id of the template.
+    /// - `data`: an ABI-encoded structure forwarded by the created KPI token from the KPI token
     ///   creator, containing the initialization parameters for the oracle template.
     ///   In particular the structure is formed in the following way:
-    ///     - `address _arbitrator`: The arbitrator for the Reality.eth question.
-    ///     - `uint256 _realityTemplateId`: The template id for the Reality.eth question.
-    ///     - `string memory _question`: The question that must be submitted to Reality.eth.
-    ///     - `uint32 _questionTimeout`: The question timeout as described in the Reality.eth
+    ///     - `address arbitrator`: The arbitrator for the Reality.eth question.
+    ///     - `uint256 realityTemplateId`: The template id for the Reality.eth question.
+    ///     - `string memory question`: The question that must be submitted to Reality.eth.
+    ///     - `uint32 questionTimeout`: The question timeout as described in the Reality.eth
     ///        docs (linked above).
-    ///     - `uint32 _openingTimestamp`: The question opening timestamp as described in the
+    ///     - `uint32 openingTimestamp`: The question opening timestamp as described in the
     ///        Reality.eth docs (linked above).
     ///     - `uint256 minimumBond`: The minimum bond that can be used to answer the question.
     function initialize(InitializeOracleParams memory _params) external payable override initializer {
