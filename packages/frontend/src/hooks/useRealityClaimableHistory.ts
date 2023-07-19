@@ -12,7 +12,7 @@ import type { Address, Hex } from "viem";
 export function useRealityClaimableHistory(
     realityV3Address?: Address,
     questionId?: Hex,
-    finalized?: boolean
+    finalized?: boolean,
 ): {
     loading: boolean;
     claimable: Record<Hex, RealityResponse[]>;
@@ -24,7 +24,7 @@ export function useRealityClaimableHistory(
 
     const [loading, setLoading] = useState(false);
     const [claimable, setClaimable] = useState<Record<Hex, RealityResponse[]>>(
-        {}
+        {},
     );
 
     useEffect(() => {
@@ -50,7 +50,7 @@ export function useRealityClaimableHistory(
             } catch (error) {
                 console.error(
                     "error fetching reality v3 question responses",
-                    error
+                    error,
                 );
             } finally {
                 if (!cancelled) setLoading(false);

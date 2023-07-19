@@ -34,18 +34,18 @@ const main = async () => {
                 getTemplateComponentWebpackConfig(
                     "creationForm",
                     {},
-                    join(dist, "creationForm")
+                    join(dist, "creationForm"),
                 ),
                 getTemplateComponentWebpackConfig(
                     "page",
                     {},
-                    join(dist, "page")
+                    join(dist, "page"),
                 ),
             ],
             (error, stats) => {
                 if (error) {
                     spinner.fail(
-                        `Failed to build ${chalk.blue("federated modules")}`
+                        `Failed to build ${chalk.blue("federated modules")}`,
                     );
                     console.log();
                     console.log(error.message || error);
@@ -64,7 +64,7 @@ const main = async () => {
                 if (messages.errors.length) {
                     if (messages.errors.length > 1) messages.errors.length = 1;
                     spinner.fail(
-                        `Failed to build ${chalk.blue("federated modules")}`
+                        `Failed to build ${chalk.blue("federated modules")}`,
                     );
                     console.log();
                     console.log(messages.errors.join("\n\n"));
@@ -73,7 +73,9 @@ const main = async () => {
 
                 if (messages.warnings.length) {
                     spinner.warn(
-                        `${chalk.blue("Federated modules")} built with warnings`
+                        `${chalk.blue(
+                            "Federated modules",
+                        )} built with warnings`,
                     );
                     console.log();
                     console.log(messages.warnings.join("\n\n"));
@@ -84,7 +86,7 @@ const main = async () => {
 
                 spinner.succeed(`${chalk.blue("Federated modules")} built`);
                 resolve();
-            }
+            },
         );
     });
     spinner.succeed(`${chalk.blue("Federated modules")} successfully built`);
@@ -92,7 +94,7 @@ const main = async () => {
     spinner = ora(`Building ${chalk.blue("base.json")}`);
     await writeFile(
         join(outDir, "base.json"),
-        JSON.stringify(require("../src/base.json"))
+        JSON.stringify(require("../src/base.json")),
     );
     spinner.succeed(`${chalk.blue("base.json")} built`);
 };

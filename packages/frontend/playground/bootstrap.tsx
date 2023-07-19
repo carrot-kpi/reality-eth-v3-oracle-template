@@ -13,7 +13,7 @@ import { jsonRpcProvider } from "wagmi/providers/jsonRpc";
 import * as chains from "wagmi/chains";
 
 const forkedChain = Object.values(chains).find(
-    (chain) => chain.id === CCT_CHAIN_ID
+    (chain) => chain.id === CCT_CHAIN_ID,
 );
 if (!forkedChain) {
     console.log(`unsupported chain id ${CCT_CHAIN_ID}`);
@@ -43,5 +43,5 @@ createRoot(document.getElementById("root")!).render(
         ]}
         ipfsGatewayURL={CCT_IPFS_GATEWAY_URL}
         oracleTemplateBaseURL={CCT_TEMPLATE_URL}
-    />
+    />,
 );

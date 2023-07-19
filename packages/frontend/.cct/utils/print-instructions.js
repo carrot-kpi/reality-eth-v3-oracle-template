@@ -2,7 +2,7 @@ export const printInstructions = (
     writableStream,
     globals,
     extra,
-    frontendPort
+    frontendPort,
 ) => {
     let printable =
         `Playground core frontend available at:\n\n  http://localhost:${frontendPort}\n\n` +

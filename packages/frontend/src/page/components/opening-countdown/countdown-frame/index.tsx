@@ -20,7 +20,7 @@ export const CountdownFrame = ({
         <div
             className={cx(
                 "flex flex-col justify-center items-center",
-                className?.root
+                className?.root,
             )}
         >
             <Typography

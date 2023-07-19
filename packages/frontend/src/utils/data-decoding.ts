@@ -2,7 +2,7 @@ import { decodeAbiParameters, type Address } from "viem";
 import { type Hex } from "viem";
 
 export const decodeOracleData = (
-    data: Hex
+    data: Hex,
 ): {
     realityV3Address: Address;
     questionId: Hex;
@@ -14,7 +14,7 @@ export const decodeOracleData = (
             { type: "bytes32", name: "questionId" },
             { type: "string", name: "question" },
         ],
-        data
+        data,
     ) as [Address, Hex, string];
     return {
         realityV3Address,
