@@ -94,13 +94,13 @@ export const getTemplateComponentWebpackConfig = (type, globals, outDir) => {
                         __dirname,
                         `./${
                             type === "page" ? "page" : "creation-form"
-                        }-wrapper.tsx`
+                        }-wrapper.tsx`,
                     ),
                     "./i18n": join(
                         __dirname,
                         `../../src/${
                             type === "page" ? "page" : "creation-form"
-                        }/i18n/index.ts`
+                        }/i18n/index.ts`,
                     ),
                 },
                 shared,
