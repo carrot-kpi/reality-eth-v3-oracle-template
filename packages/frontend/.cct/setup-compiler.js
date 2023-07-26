@@ -9,7 +9,7 @@ export const setupCompiler = (
     writableStream,
     firstCompilation,
     type,
-    frontendPort
+    frontendPort,
 ) => {
     return new Promise((resolve) => {
         compiler.hooks.invalid.tap("invalid", () => {
@@ -17,7 +17,7 @@ export const setupCompiler = (
                 printInstructions(
                     writableStream,
                     globals,
-                    `Compiling playground -> ${type}...`
+                    `Compiling playground -> ${type}...`,
                 );
             }
         });
@@ -41,8 +41,8 @@ export const setupCompiler = (
                     writableStream,
                     globals,
                     `Failed to compile playground -> ${type}.\n${messages.errors.join(
-                        "\n\n"
-                    )}`
+                        "\n\n",
+                    )}`,
                 );
 
                 return;
@@ -54,9 +54,9 @@ export const setupCompiler = (
                     globals,
                     chalk.yellow(
                         `Playground compiled with warnings -> ${type}:\n${messages.warnings.join(
-                            "\n\n"
-                        )}`
-                    )
+                            "\n\n",
+                        )}`,
+                    ),
                 );
 
                 return;

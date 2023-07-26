@@ -9,7 +9,7 @@ import { isQuestionFinalized, isQuestionReopenable } from "../utils";
 export function useWatchRealityQuestion(
     realityV3Address?: Address,
     questionId?: Hex,
-    question?: string
+    question?: string,
 ): {
     loading: boolean;
     question: RealityQuestion | null;

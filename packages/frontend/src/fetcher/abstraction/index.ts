@@ -37,7 +37,7 @@ export interface IPartialFetcher {
     fetchQuestion(params: FetchQuestionParams): Promise<RealityQuestion | null>;
 
     fetchClaimableHistory(
-        params: FetchClaimableHistoryParams
+        params: FetchClaimableHistoryParams,
     ): Promise<Record<Hex, RealityResponse[]>>;
 
     isAnswerer(params: IsAnswererParams): Promise<boolean>;
@@ -60,11 +60,11 @@ export type FullFetcheIsAnswererParams =
 
 export interface IFullFetcher {
     fetchQuestion(
-        params: FullFetcherFetchQuestionParams
+        params: FullFetcherFetchQuestionParams,
     ): Promise<RealityQuestion | null>;
 
     fetchClaimableHistory(
-        params: FullFetcherFetchClaimableHistoryParams
+        params: FullFetcherFetchClaimableHistoryParams,
     ): Promise<Record<Hex, RealityResponse[]>>;
 
     isAnswerer(params: FullFetcheIsAnswererParams): Promise<boolean>;

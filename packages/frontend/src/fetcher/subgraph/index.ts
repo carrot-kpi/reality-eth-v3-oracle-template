@@ -49,7 +49,7 @@ class Fetcher implements IPartialFetcher {
             GetQuestionQuery,
             {
                 questionId: `${realityV3Address.toLowerCase()}-${questionId.toLowerCase()}`,
-            }
+            },
         );
         if (!question) return null;
 
@@ -97,7 +97,7 @@ class Fetcher implements IPartialFetcher {
                 GetQuestionQuery,
                 {
                     questionId: `${realityV3Address.toLowerCase()}-${currentQuestionId.toLowerCase()}`,
-                }
+                },
             );
 
             if (!getQuestionResponse.question) break;
@@ -107,7 +107,7 @@ class Fetcher implements IPartialFetcher {
                 GetResponsesQuery,
                 {
                     questionId: `${realityV3Address.toLowerCase()}-${currentQuestionId.toLowerCase()}`,
-                }
+                },
             );
 
             answersHistory = {
@@ -139,7 +139,7 @@ class Fetcher implements IPartialFetcher {
                 GetQuestionQuery,
                 {
                     questionId: `${realityV3Address.toLowerCase()}-${currentQuestionId.toLowerCase()}`,
-                }
+                },
             );
             if (!getQuestionResponse.question) break;
 
@@ -149,7 +149,7 @@ class Fetcher implements IPartialFetcher {
                 {
                     questionId: `${realityV3Address.toLowerCase()}-${currentQuestionId.toLowerCase()}`,
                     user: address,
-                }
+                },
             );
             if (!isAnswererResponse.question) break;
 

@@ -36,7 +36,7 @@ const answerBoxStyles = cva(
                 false: ["md:w-2/3", "md:border-r"],
             },
         },
-    }
+    },
 );
 
 const bondBoxStyles = cva(
@@ -53,7 +53,7 @@ const bondBoxStyles = cva(
                 false: ["md:w-1/3"],
             },
         },
-    }
+    },
 );
 
 interface AnswerProps {

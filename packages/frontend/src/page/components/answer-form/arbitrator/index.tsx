@@ -24,7 +24,7 @@ export const Arbitrator = ({ address }: ArbitratorProps) => {
 
     const [popoverOpen, setPopoverOpen] = useState(false);
     const [arbitrator, setArbitrator] = useState<string | OptionForArbitrator>(
-        ""
+        "",
     );
 
     useEffect(() => {

@@ -48,14 +48,14 @@ export function useArbitratorsFees(addresses: Address[]) {
 
             if (questionFeeResult.error) {
                 console.warn(
-                    `could not fetch question fee for arbitrator at address ${arbitratorAddress}`
+                    `could not fetch question fee for arbitrator at address ${arbitratorAddress}`,
                 );
                 continue;
             }
 
             if (disputeFeeResult.error) {
                 console.warn(
-                    `could not fetch dispute fee for arbitrator at address ${arbitratorAddress}`
+                    `could not fetch dispute fee for arbitrator at address ${arbitratorAddress}`,
                 );
                 continue;
             }

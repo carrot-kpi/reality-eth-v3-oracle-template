@@ -45,7 +45,7 @@ const stripHtml = (value: string) => value.replace(/(<([^>]+)>)/gi, "");
 const checkMinimumQuestionTimeoutWindows = (
     openingTimestamp: Dayjs,
     questionTimeoutSeconds: number,
-    kpiTokenExpirationTimestamp: number
+    kpiTokenExpirationTimestamp: number,
 ): boolean => {
     return (
         openingTimestamp
@@ -53,7 +53,7 @@ const checkMinimumQuestionTimeoutWindows = (
                 dayjs.duration({
                     seconds:
                         questionTimeoutSeconds * MINIMUM_ANSWER_PERIODS_AMOUNT,
-                })
+                }),
             )
             .unix() < kpiTokenExpirationTimestamp
     );
@@ -66,16 +66,16 @@ export const Component = ({
     onChange,
 }: OracleRemoteCreationFormProps<State>): ReactElement => {
     const { chain } = useNetwork();
-    const uploadToIpfs = useDecentralizedStorageUploader("ipfs");
+    const uploadToIpfs = useDecentralizedStorageUploader();
 
     const arbitratorAddresses = useMemo(
         () =>
             !chain || !(chain.id in SupportedChainId)
                 ? []
                 : ARBITRATORS_BY_CHAIN[chain.id as SupportedChainId].map(
-                      (arbitrator) => arbitrator.value.toString() as Address
+                      (arbitrator) => arbitrator.value.toString() as Address,
                   ),
-        [chain]
+        [chain],
     );
 
     const { fees: arbitratorsFees, loading: loadingFees } =
@@ -96,19 +96,19 @@ export const Component = ({
                               fees: {
                                   question: new Amount(
                                       chain.nativeCurrency,
-                                      fees.question
+                                      fees.question,
                                   ),
                                   dispute: new Amount(
                                       chain.nativeCurrency,
-                                      fees.dispute
+                                      fees.dispute,
                                   ),
                               },
                           });
                           return accumulator;
                       },
-                      []
+                      [],
                   ),
-        [chain, loadingFees, arbitratorsFees]
+        [chain, loadingFees, arbitratorsFees],
     );
 
     const timeoutOptions = TIMEOUT_OPTIONS.map((option) => {
@@ -121,25 +121,25 @@ export const Component = ({
     const [arbitrator, setArbitrator] = useState<OptionForArbitrator | null>(
         state.arbitrator
             ? arbitratorsByChain.find(
-                  (option) => option.value === state.arbitrator
+                  (option) => option.value === state.arbitrator,
               ) || null
-            : null
+            : null,
     );
     const [realityTemplateId, setRealityTemplateId] =
         useState<SelectOption<number> | null>(
             state.realityTemplateId !== null &&
                 state.realityTemplateId !== undefined
                 ? REALITY_TEMPLATE_OPTIONS.find(
-                      (option) => option.value === state.realityTemplateId
+                      (option) => option.value === state.realityTemplateId,
                   ) || null
-                : null
+                : null,
         );
     const [question, setQuestion] = useState(state.question || "");
 
     const [questionTimeout, setQuestionTimeout] =
         useState<SelectOption<number> | null>(null);
     const [openingTimestamp, setOpeningTimestamp] = useState<Dayjs | null>(
-        null
+        null,
     );
     const [minimumBond, setMinimumBond] = useState(state.minimumBond || "");
 
@@ -154,7 +154,7 @@ export const Component = ({
     useEffect(() => {
         if (!state.questionTimeout) return;
         const optionFromExternalState = TIMEOUT_OPTIONS.find(
-            (option) => option.seconds === state.questionTimeout
+            (option) => option.seconds === state.questionTimeout,
         );
         if (!optionFromExternalState) return;
         setQuestionTimeout({
@@ -210,7 +210,7 @@ export const Component = ({
                 checkMinimumQuestionTimeoutWindows(
                     openingTimestamp,
                     questionTimeout.value as number,
-                    kpiToken.expiration
+                    kpiToken.expiration,
                 )) &&
             minimumBond &&
             !isNaN(parseInt(minimumBond)) &&
@@ -218,7 +218,7 @@ export const Component = ({
         ) {
             const formattedMinimumBond = parseUnits(
                 minimumBond as `${number}`,
-                chain.nativeCurrency.decimals
+                chain.nativeCurrency.decimals,
             );
             initializationDataGetter = async () => {
                 const questionCid = await uploadToIpfs(question);
@@ -238,7 +238,7 @@ export const Component = ({
                         questionTimeout.value as number,
                         openingTimestamp.unix(),
                         formattedMinimumBond,
-                    ]
+                    ],
                 );
                 return {
                     data: initializationData,
@@ -268,12 +268,12 @@ export const Component = ({
                 !checkMinimumQuestionTimeoutWindows(
                     openingTimestamp,
                     questionTimeout.value as number,
-                    kpiToken.expiration
+                    kpiToken.expiration,
                 )
                     ? t("error.opening.timestamp.tooSoon", {
                           periodsAmount: MINIMUM_ANSWER_PERIODS_AMOUNT,
                       })
-                    : ""
+                    : "",
             );
         }
     }, [kpiToken?.expiration, openingTimestamp, questionTimeout, t]);
@@ -283,10 +283,10 @@ export const Component = ({
             const trimmedValue = stripHtml(value).trim();
             setQuestion(value);
             setQuestionErrorText(
-                !trimmedValue ? t("error.question.empty") : ""
+                !trimmedValue ? t("error.question.empty") : "",
             );
         },
-        [t]
+        [t],
     );
 
     const handleOpeningTimestampChange = useCallback((value: Date) => {
@@ -297,10 +297,10 @@ export const Component = ({
         ({ value }: { value: string }) => {
             setMinimumBond(value);
             setMinimumBondErrorText(
-                !value ? t("error.minimum.bond.empty") : ""
+                !value ? t("error.minimum.bond.empty") : "",
             );
         },
-        [t]
+        [t],
     );
 
     return (
@@ -331,7 +331,7 @@ export const Component = ({
                                     {t("warning.arbitrator.fees.question")}:{" "}
                                     {formatCurrencyAmount(
                                         arbitrator.fees.question,
-                                        true
+                                        true,
                                     )}
                                 </Typography>
                             )}
@@ -340,7 +340,7 @@ export const Component = ({
                                     {t("warning.arbitrator.fees.dispute")}:{" "}
                                     {formatCurrencyAmount(
                                         arbitrator.fees.dispute,
-                                        true
+                                        true,
                                     )}
                                 </Typography>
                             )}

@@ -109,13 +109,13 @@ export const AnswerForm = ({
     const { loading: loadingClaimableHistory, claimable } =
         useRealityClaimableHistory(realityAddress, question.id, finalized);
     const { loading: loadingContent, content } = useQuestionContent(
-        question.content
+        question.content,
     );
     const { loading: loadingAnswerer, answerer } = useIsAnswerer(
         realityAddress,
         question.id,
         connectedAddress,
-        finalized
+        finalized,
     );
 
     const [open, setOpen] = useState(false);
@@ -123,7 +123,7 @@ export const AnswerForm = ({
         useState<HTMLButtonElement | null>(null);
     const [disputeFeePopoverOpen, setDisputeFeePopoverOpen] = useState(false);
     const [booleanValue, setBooleanValue] = useState<BooleanAnswer | null>(
-        null
+        null,
     );
     const [numberValue, setNumberValue] = useState<NumberFormatValue>({
         formattedValue: "",
@@ -166,7 +166,7 @@ export const AnswerForm = ({
                         responses: Hex[];
                     };
                 },
-                questionId
+                questionId,
             ) => {
                 if (!accumulator[questionId]) {
                     accumulator[questionId] = {
@@ -178,25 +178,29 @@ export const AnswerForm = ({
                 }
 
                 accumulator[questionId].historyHashes.push(
-                    ...claimable[questionId as Hex].map((answer) => answer.hash)
+                    ...claimable[questionId as Hex].map(
+                        (answer) => answer.hash,
+                    ),
                 );
                 accumulator[questionId].answerers.push(
                     ...claimable[questionId as Hex].map(
-                        (answer) => answer.answerer
-                    )
+                        (answer) => answer.answerer,
+                    ),
                 );
                 accumulator[questionId].bonds.push(
-                    ...claimable[questionId as Hex].map((answer) => answer.bond)
+                    ...claimable[questionId as Hex].map(
+                        (answer) => answer.bond,
+                    ),
                 );
                 accumulator[questionId].responses.push(
                     ...claimable[questionId as Hex].map(
-                        (answer) => answer.answer
-                    )
+                        (answer) => answer.answer,
+                    ),
                 );
 
                 return accumulator;
             },
-            {}
+            {},
         );
 
         const mergedPayload = Object.keys(payload).reduce(
@@ -208,7 +212,7 @@ export const AnswerForm = ({
                     bonds: bigint[];
                     responses: Hex[];
                 },
-                questionId
+                questionId,
             ) => {
                 // the last history hash must be empty
                 payload[questionId].historyHashes.reverse().shift();
@@ -218,10 +222,10 @@ export const AnswerForm = ({
                 payload[questionId].responses.reverse();
 
                 accumulator.historyLengths.push(
-                    BigInt(payload[questionId].historyHashes.length)
+                    BigInt(payload[questionId].historyHashes.length),
                 );
                 accumulator.historyHashes.push(
-                    ...payload[questionId].historyHashes
+                    ...payload[questionId].historyHashes,
                 );
                 accumulator.answerers.push(...payload[questionId].answerers);
                 accumulator.bonds.push(...payload[questionId].bonds);
@@ -235,7 +239,7 @@ export const AnswerForm = ({
                 answerers: [],
                 bonds: [],
                 responses: [],
-            }
+            },
         );
 
         return mergedPayload;
@@ -248,7 +252,7 @@ export const AnswerForm = ({
                       | Address
                       | undefined)
                 : undefined,
-        [chain]
+        [chain],
     );
 
     const { fees } = useArbitratorFees(arbitratorAddress);
@@ -332,7 +336,7 @@ export const AnswerForm = ({
             !isAnswerMissing(question),
     });
     const { writeAsync: requestArbitrationAsync } = useContractWrite(
-        requestArbitrationConfig
+        requestArbitrationConfig,
     );
 
     const { config: claimMultipleAndWithdrawConfig } = usePrepareContractWrite({
@@ -363,7 +367,7 @@ export const AnswerForm = ({
             !isAnswerMissing(question),
     });
     const { writeAsync: claimMultipleAndWithdrawAsync } = useContractWrite(
-        claimMultipleAndWithdrawConfig
+        claimMultipleAndWithdrawConfig,
     );
 
     const { config: withdrawConfig } = usePrepareContractWrite({
@@ -383,7 +387,7 @@ export const AnswerForm = ({
         setSubmitAnswerDisabled(
             !answer ||
                 (!!finalBond && finalBond < minimumBond) ||
-                !postAnswerAsync
+                !postAnswerAsync,
         );
     }, [answer, finalBond, minimumBond, postAnswerAsync]);
 
@@ -410,15 +414,15 @@ export const AnswerForm = ({
             return setAnswer(
                 isHex(booleanValue)
                     ? booleanValue
-                    : numberToHex(Number(booleanValue), { size: 32 })
+                    : numberToHex(Number(booleanValue), { size: 32 }),
             );
         if (!isNaN(parseFloat(numberValue.value)))
             return setAnswer(
                 bytesToHex(
                     toBytes(parseUnits(numberValue.value as `${number}`, 18), {
                         size: 32,
-                    })
-                )
+                    }),
+                ),
             );
     }, [
         booleanValue,
@@ -431,7 +435,7 @@ export const AnswerForm = ({
         (event: ChangeEvent<HTMLInputElement>) => {
             setBooleanValue(event.target.value as BooleanAnswer);
         },
-        []
+        [],
     );
 
     const handleInvalidChange = useCallback(() => {
@@ -456,7 +460,7 @@ export const AnswerForm = ({
                 value.value && !isNaN(parseInt(value.value))
                     ? (value.value as `${number}`)
                     : ("0" as `${number}`),
-                nativeCurrency.decimals
+                nativeCurrency.decimals,
             );
             let bondErrorText = "";
             if (!value || !value.value || parsedBond === 0n)
@@ -481,7 +485,7 @@ export const AnswerForm = ({
             t,
             userNativeCurrencyBalance,
             minimumBond,
-        ]
+        ],
     );
 
     const handleSubmit = useCallback(() => {
@@ -569,7 +573,7 @@ export const AnswerForm = ({
             } catch (error) {
                 console.error(
                     "error submitting answer reopening to reality v3",
-                    error
+                    error,
                 );
             } finally {
                 if (!cancelled) setSubmitting(false);
@@ -832,7 +836,7 @@ export const AnswerForm = ({
                             className="flex gap-1 items-center"
                             href={formatRealityEthQuestionLink(
                                 question.id,
-                                realityAddress
+                                realityAddress,
                             )}
                             target="_blank"
                             rel="noopener noreferrer"
@@ -933,7 +937,7 @@ export const AnswerForm = ({
                         value={bond}
                         placeholder={formatUnits(
                             minimumBond,
-                            nativeCurrency.decimals
+                            nativeCurrency.decimals,
                         )}
                         errorText={bondErrorText}
                         onChange={handleBondChange}
@@ -976,7 +980,7 @@ export const AnswerForm = ({
                                     /* FIXME: reintroduce commify to make number easier to read */
                                     fee: formatUnits(
                                         fees.dispute,
-                                        nativeCurrency.decimals
+                                        nativeCurrency.decimals,
                                     ),
                                     symbol: chain?.nativeCurrency.symbol,
                                 })}

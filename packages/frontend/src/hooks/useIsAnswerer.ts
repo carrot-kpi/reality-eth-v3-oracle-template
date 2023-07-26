@@ -12,7 +12,7 @@ export function useIsAnswerer(
     realityV3Address?: Address,
     questionId?: Hex,
     address?: Address,
-    finalized?: boolean
+    finalized?: boolean,
 ): {
     loading: boolean;
     answerer: boolean;
@@ -49,7 +49,7 @@ export function useIsAnswerer(
             } catch (error) {
                 console.error(
                     "error fetching reality v3 question answerers",
-                    error
+                    error,
                 );
             } finally {
                 if (!cancelled) setLoading(false);
