@@ -23,6 +23,6 @@
         "carrot-scripts": "0.22.5",
         "husky": "^8.0.3",
         "prettier": "^3.0.0",
-        "turbo": "^1.10.8"
+        "turbo": "^1.10.12"
     }
 }

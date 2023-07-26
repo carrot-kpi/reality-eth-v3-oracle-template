@@ -66,7 +66,7 @@ export const Component = ({
     onChange,
 }: OracleRemoteCreationFormProps<State>): ReactElement => {
     const { chain } = useNetwork();
-    const uploadToIpfs = useDecentralizedStorageUploader("ipfs");
+    const uploadToIpfs = useDecentralizedStorageUploader();
 
     const arbitratorAddresses = useMemo(
         () =>
