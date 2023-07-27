@@ -26,7 +26,7 @@
         "moduleResolution": "node",
         "jsx": "react-jsx",
         "esModuleInterop": true,
-        "skipLibCheck": false,
+        "skipLibCheck": true,
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "verbatimModuleSyntax": true

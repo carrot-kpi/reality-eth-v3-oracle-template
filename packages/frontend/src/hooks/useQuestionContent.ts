@@ -24,7 +24,7 @@ export function useQuestionContent(cid?: string) {
             } catch (error) {
                 console.warn(
                     `could not get question content from raw content ${cid}`,
-                    error
+                    error,
                 );
             } finally {
                 if (!cancelled) setLoading(false);

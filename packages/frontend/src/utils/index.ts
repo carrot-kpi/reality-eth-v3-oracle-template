@@ -81,7 +81,7 @@ export const formatCountDownString = (timeoutSeconds: number) => {
 
 export const formatRealityEthQuestionLink = (
     questionId: string,
-    contractAddress: string
+    contractAddress: string,
 ) => {
     return `${REALITY_DAPP_ENDPOINT}#!/question/${contractAddress.toLowerCase()}-${questionId.toLowerCase()}`;
 };

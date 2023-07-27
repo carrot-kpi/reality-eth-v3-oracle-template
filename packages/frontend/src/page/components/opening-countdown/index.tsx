@@ -25,7 +25,7 @@ export const OpeningCountdown = ({
     countdown,
 }: TimerProps): ReactElement => {
     const [duration, setDuration] = useState(
-        dayjs.duration(dayjs.unix(to).diff(dayjs()))
+        dayjs.duration(dayjs.unix(to).diff(dayjs())),
     );
 
     useEffect(() => {
