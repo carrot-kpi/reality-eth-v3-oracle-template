@@ -50,10 +50,8 @@ const checkMinimumQuestionTimeoutWindows = (
     return (
         openingTimestamp
             .add(
-                dayjs.duration({
-                    seconds:
-                        questionTimeoutSeconds * MINIMUM_ANSWER_PERIODS_AMOUNT,
-                }),
+                questionTimeoutSeconds * MINIMUM_ANSWER_PERIODS_AMOUNT,
+                "seconds",
             )
             .unix() < kpiTokenExpirationTimestamp
     );
