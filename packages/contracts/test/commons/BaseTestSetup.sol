@@ -14,6 +14,9 @@ import {MockKPIToken} from "../mocks/MockKPIToken.sol";
 /// @author Federico Luzzi - <federico.luzzi@protonmail.com>
 abstract contract BaseTestSetup is Test {
     string internal constant REALITY_ETH_SPECIFICATION = "QmRvoExBSESXedwqfC1cs4DGaRymnRR1wA9YGoZbqsE8Mf";
+    address internal constant REALITY_V3_ADDRESS = address(123456789);
+    uint256 internal constant MINIMUM_QUESTION_TIMEOUT = 30;
+    uint256 internal constant MINIMUM_ANSWER_WINDOWS = 3;
 
     ERC20PresetMinterPauser internal firstErc20;
     ERC20PresetMinterPauser internal secondErc20;
@@ -35,7 +38,11 @@ abstract contract BaseTestSetup is Test {
         kpiTokensManager = new KPITokensManager1(address(factory));
         kpiTokensManager.addTemplate(address(mockKPITokenTemplate), "test-specification");
 
-        realityV3OracleTemplate = new RealityV3Oracle();
+        realityV3OracleTemplate = new RealityV3Oracle(
+            REALITY_V3_ADDRESS,
+            MINIMUM_QUESTION_TIMEOUT,
+            MINIMUM_ANSWER_WINDOWS
+        );
         oraclesManager = new OraclesManager1(address(factory));
         oraclesManager.addTemplate(address(realityV3OracleTemplate), REALITY_ETH_SPECIFICATION);
 

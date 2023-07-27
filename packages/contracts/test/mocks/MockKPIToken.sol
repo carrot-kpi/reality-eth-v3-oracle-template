@@ -51,7 +51,7 @@ contract MockKPIToken is IKPIToken {
     }
 
     function expiration() external view override returns (uint256) {
-        return block.timestamp;
+        return block.timestamp + 2 ** 128;
     }
 
     function creationTimestamp() external view override returns (uint256) {
