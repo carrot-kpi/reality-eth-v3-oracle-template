@@ -19,7 +19,7 @@ import {InitializeOracleParams} from "carrot/commons/Types.sol";
 /// with care to avoid unwanted results).
 /// @author Federico Luzzi - <federico.luzzi@protonmail.com>
 contract RealityV3Oracle is IOracle, Initializable {
-    address public immutable realitio;
+    address public immutable reality;
     uint256 public immutable minimumQuestionTimeout;
     uint256 public immutable minimumAnswerWindows;
 
@@ -56,7 +56,7 @@ contract RealityV3Oracle is IOracle, Initializable {
     /// the expiration timestamp of the attached KPI token will have to be set to at
     /// least x + 3 minutes in order for the creation process to go through.
     constructor(address _reality, uint256 _minimumQuestionTimeout, uint256 _minimumAnswerWindows) {
-        realitio = _reality;
+        reality = _reality;
         minimumQuestionTimeout = _minimumQuestionTimeout;
         minimumAnswerWindows = _minimumAnswerWindows;
     }
@@ -111,7 +111,7 @@ contract RealityV3Oracle is IOracle, Initializable {
         templateId = _params.templateId;
         kpiToken = _params.kpiToken;
         question = _question;
-        questionId = IRealityV3(realitio).askQuestionWithMinBond{value: msg.value}(
+        questionId = IRealityV3(reality).askQuestionWithMinBond{value: msg.value}(
             _realityTemplateId, _question, _arbitrator, _questionTimeout, _openingTimestamp, 0, _minimumBond
         );
 
@@ -123,7 +123,7 @@ contract RealityV3Oracle is IOracle, Initializable {
     function finalize() external {
         if (finalized) revert Forbidden();
         finalized = true;
-        uint256 _result = uint256(IRealityV3(realitio).resultForOnceSettled(questionId));
+        uint256 _result = uint256(IRealityV3(reality).resultForOnceSettled(questionId));
         IKPIToken(kpiToken).finalize(_result);
         emit Finalize(_result);
     }
@@ -133,7 +133,7 @@ contract RealityV3Oracle is IOracle, Initializable {
     /// data and some.
     /// @return The ABI-encoded data.
     function data() external view override returns (bytes memory) {
-        return abi.encode(realitio, questionId, question);
+        return abi.encode(reality, questionId, question);
     }
 
     /// @dev View function returning info about the template used to instantiate this oracle.

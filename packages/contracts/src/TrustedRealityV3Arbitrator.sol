@@ -7,12 +7,12 @@ import {IRealityV3Arbitrator} from "./interfaces/external/IRealityV3Arbitrator.s
 import {IRealityV3} from "./interfaces/external/IRealityV3.sol";
 
 contract TrustedRealityV3Arbitrator is Ownable, IRealityV3Arbitrator {
-    address public immutable realitio;
+    address public immutable reality;
 
     uint256 internal disputeFee;
     string public metadata;
 
-    error ZeroAddressRealitio();
+    error ZeroAddressReality();
     error InsufficientFee();
     error TransferFailed();
 
@@ -20,12 +20,12 @@ contract TrustedRealityV3Arbitrator is Ownable, IRealityV3Arbitrator {
     event SetMetadata(string metadata);
     event Withdraw(uint256 withdrawn);
 
-    constructor(address _realitio, string memory _metadata, uint256 _questionFee, uint256 _disputeFee) {
-        if (_realitio == address(0)) revert ZeroAddressRealitio();
-        realitio = _realitio;
+    constructor(address _reality, string memory _metadata, uint256 _questionFee, uint256 _disputeFee) {
+        if (_reality == address(0)) revert ZeroAddressReality();
+        reality = _reality;
         disputeFee = _disputeFee;
         metadata = _metadata;
-        IRealityV3(_realitio).setQuestionFee(_questionFee);
+        IRealityV3(_reality).setQuestionFee(_questionFee);
     }
 
     function getDisputeFee() external view returns (uint256) {
@@ -38,7 +38,7 @@ contract TrustedRealityV3Arbitrator is Ownable, IRealityV3Arbitrator {
     }
 
     function setQuestionFee(uint256 _fee) external onlyOwner {
-        IRealityV3(realitio).setQuestionFee(_fee);
+        IRealityV3(reality).setQuestionFee(_fee);
     }
 
     function setMetaData(string memory _metadata) external onlyOwner {
@@ -47,16 +47,16 @@ contract TrustedRealityV3Arbitrator is Ownable, IRealityV3Arbitrator {
     }
 
     function submitAnswerByArbitrator(bytes32 _questionId, bytes32 _answer, address _answerer) external onlyOwner {
-        IRealityV3(realitio).submitAnswerByArbitrator(_questionId, _answer, _answerer);
+        IRealityV3(reality).submitAnswerByArbitrator(_questionId, _answer, _answerer);
     }
 
     function cancelArbitration(bytes32 _questionId) external onlyOwner {
-        IRealityV3(realitio).cancelArbitration(_questionId);
+        IRealityV3(reality).cancelArbitration(_questionId);
     }
 
     function requestArbitration(bytes32 _questionId, uint256 _maxPrevious) external payable {
         if (msg.value < disputeFee) revert InsufficientFee();
-        IRealityV3(realitio).notifyOfArbitrationRequest(_questionId, msg.sender, _maxPrevious);
+        IRealityV3(reality).notifyOfArbitrationRequest(_questionId, msg.sender, _maxPrevious);
     }
 
     function withdraw(address _address) external onlyOwner {
@@ -64,5 +64,9 @@ contract TrustedRealityV3Arbitrator is Ownable, IRealityV3Arbitrator {
         (bool _success,) = payable(_address).call{value: _withdrawn}("");
         if (!_success) revert TransferFailed();
         emit Withdraw(_withdrawn);
+    }
+
+    function realitio() external view returns (address) {
+        return reality;
     }
 }
