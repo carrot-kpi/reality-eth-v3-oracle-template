@@ -14,18 +14,15 @@ export enum SupportedChainId {
 export const TRUSTED_REALITY_ARBITRATORS: Record<SupportedChainId, Address> = {
     [SupportedChainId.GNOSIS]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0x8B754d790Da1dBB47Cf24be03edFea7b3eC31c7F",
+        : "0xFCcBcC49787Abc4ee48fE09B9DF816D138d7b54C",
     [SupportedChainId.SEPOLIA]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0x2DeCdbFd3D8bFf96463A31F0E0Cd1CF923bB3624",
+        : "0x05B92b5C40a266EFDD8B3fDF0496407e8C0d9cB6",
     [SupportedChainId.SCROLL_TESTNET]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0xd1c1153fd809Aae3bb431b586C032C4856abaeD4",
+        : "0xAcAFe7928cDd2E02bd508a4827b62649726f9460",
 };
 
-// Make ABSOLUTELY sure these addresses are in sync with the
-// codegen-chain-specific-contracts.js script in the contracts
-// package
 export const REALITY_V3_ADDRESS: Record<SupportedChainId, Address> = {
     [SupportedChainId.GNOSIS]: "0xE78996A233895bE74a66F451f1019cA9734205cc",
     [SupportedChainId.SEPOLIA]: "0x64a0745EF9d3772d9739D9350873eD3703bE45eC",

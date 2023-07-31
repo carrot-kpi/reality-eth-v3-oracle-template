@@ -19,6 +19,8 @@ contract Deploy is Script {
         if (_minimumQuestionTimeout == 0) revert ZeroMinimumQuestionTimeout();
         if (_minimumAnswerWindows == 0) revert ZeroMinimumAnswerWindows();
 
+        vm.startBroadcast();
+
         console2.log(
             "Template deployed at address",
             address(
@@ -29,5 +31,7 @@ contract Deploy is Script {
                 )
             )
         );
+        
+        vm.stopBroadcast();
     }
 }

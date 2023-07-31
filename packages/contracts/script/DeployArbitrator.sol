@@ -15,6 +15,8 @@ contract DeployArbitrator is Script {
     function run(address _reality, string calldata _metadata, uint256 _questionFee, uint256 _disputeFee) external {
         if (_reality == address(0)) revert ZeroAddressReality();
 
+        vm.startBroadcast();
+
         console2.log(
             "Arbitrator deployed at address",
             address(
@@ -26,5 +28,7 @@ contract DeployArbitrator is Script {
                 )
             )
         );
+
+        vm.stopBroadcast();
     }
 }
