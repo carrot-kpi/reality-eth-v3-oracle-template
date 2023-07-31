@@ -8,8 +8,6 @@ import {IRealityV3} from "./interfaces/external/IRealityV3.sol";
 import {IBaseTemplatesManager, Template} from "carrot/interfaces/IBaseTemplatesManager.sol";
 import {InitializeOracleParams} from "carrot/commons/Types.sol";
 
-address constant REALITY_V3_ADDRESS = address(123456789); // will be replaced by codegen-chain-specific-contracts.js
-
 /// SPDX-License-Identifier: GPL-3.0-or-later
 /// @title Reality oracle
 /// @dev An oracle template implementation leveraging Reality.eth's
@@ -21,6 +19,10 @@ address constant REALITY_V3_ADDRESS = address(123456789); // will be replaced by
 /// with care to avoid unwanted results).
 /// @author Federico Luzzi - <federico.luzzi@protonmail.com>
 contract RealityV3Oracle is IOracle, Initializable {
+    address public immutable reality;
+    uint256 public immutable minimumQuestionTimeout;
+    uint256 public immutable minimumAnswerWindows;
+
     bool public finalized;
     address public kpiToken;
     address internal oraclesManager;
@@ -40,6 +42,24 @@ contract RealityV3Oracle is IOracle, Initializable {
 
     event Initialize(address indexed kpiToken, uint256 indexed templateId);
     event Finalize(uint256 result);
+
+    /// @dev Sets some of the parameters of the oracle template.
+    /// @param _reality The address of the reference Reality.eth contract.
+    /// @param _minimumQuestionTimeout The minimum question timeout allowed to create
+    /// a question using this template.
+    /// @param _minimumAnswerWindows A number indicating the minimum amount of answer
+    /// windows that must pass between the question opening timestamp and the KPI token
+    /// expiration. This is used to avoid malicious questions that open for answers right
+    /// before the KPI token expires, not leaving the crowdsourced answer process the
+    /// time to play out organically. As an example, if this value is set to 3 and a
+    /// question is asked that opens at time x with a question timeout of 1 minute,
+    /// the expiration timestamp of the attached KPI token will have to be set to at
+    /// least x + 3 minutes in order for the creation process to go through.
+    constructor(address _reality, uint256 _minimumQuestionTimeout, uint256 _minimumAnswerWindows) {
+        reality = _reality;
+        minimumQuestionTimeout = _minimumQuestionTimeout;
+        minimumAnswerWindows = _minimumAnswerWindows;
+    }
 
     /// @dev Initializes the template through the passed in data. This function is
     /// generally invoked by the oracles manager contract, in turn invoked by a KPI
@@ -76,8 +96,13 @@ contract RealityV3Oracle is IOracle, Initializable {
         if (_arbitrator == address(0)) revert ZeroAddressArbitrator();
         if (_realityTemplateId > 4) revert InvalidRealityTemplate();
         if (bytes(_question).length == 0) revert InvalidQuestion();
-        if (_questionTimeout == 0) revert InvalidQuestionTimeout();
-        if (_openingTimestamp <= block.timestamp) {
+        if (_questionTimeout < minimumQuestionTimeout) {
+            revert InvalidQuestionTimeout();
+        }
+        if (
+            _openingTimestamp <= block.timestamp
+                || _questionTimeout * minimumAnswerWindows + _openingTimestamp >= IKPIToken(_params.kpiToken).expiration()
+        ) {
             revert InvalidOpeningTimestamp();
         }
 
@@ -86,7 +111,7 @@ contract RealityV3Oracle is IOracle, Initializable {
         templateId = _params.templateId;
         kpiToken = _params.kpiToken;
         question = _question;
-        questionId = IRealityV3(REALITY_V3_ADDRESS).askQuestionWithMinBond{value: msg.value}(
+        questionId = IRealityV3(reality).askQuestionWithMinBond{value: msg.value}(
             _realityTemplateId, _question, _arbitrator, _questionTimeout, _openingTimestamp, 0, _minimumBond
         );
 
@@ -98,7 +123,7 @@ contract RealityV3Oracle is IOracle, Initializable {
     function finalize() external {
         if (finalized) revert Forbidden();
         finalized = true;
-        uint256 _result = uint256(IRealityV3(REALITY_V3_ADDRESS).resultForOnceSettled(questionId));
+        uint256 _result = uint256(IRealityV3(reality).resultForOnceSettled(questionId));
         IKPIToken(kpiToken).finalize(_result);
         emit Finalize(_result);
     }
@@ -108,7 +133,7 @@ contract RealityV3Oracle is IOracle, Initializable {
     /// data and some.
     /// @return The ABI-encoded data.
     function data() external view override returns (bytes memory) {
-        return abi.encode(REALITY_V3_ADDRESS, questionId, question);
+        return abi.encode(reality, questionId, question);
     }
 
     /// @dev View function returning info about the template used to instantiate this oracle.

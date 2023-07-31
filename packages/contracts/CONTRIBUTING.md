@@ -52,11 +52,14 @@ out.
 ### Deploying the template
 
 In order to deploy the template contract to a given network you can go ahead and
-create a .env.<NETWORK_NAME> file exporting 2 env variables:
+create a .env.<NETWORK_NAME> file exporting 5 env variables:
 
 ```
 export PRIVATE_KEY=""
 export RPC_ENDPOINT=""
+export REALITY_ADDRESS=""
+export MINIMUM_QUESTION_TIMEOUT=""
+export MINIMUM_ANSWER_WINDOWS=""
 ```
 
 brief explainer of the env variables:
@@ -65,6 +68,19 @@ brief explainer of the env variables:
   deployment.
 - `RPC_ENDPOINT`: the RPC endpoint that will be used to broadcast transactions.
   This will also determine the network where the deployment will happen.
+- `REALITY_ADDRESS`: the reference Reality.eth contract address that this template 
+  instance will point to.
+- `MINIMUM_QUESTION_TIMEOUT`: the minimum allowed question timeout when asking 
+  questions on Reality.eth.
+- `MINIMUM_ANSWER_WINDOWS`: a number indicating the minimum amount of answer
+  windows that must pass between the question opening timestamp and the KPI token
+  expiration. This is used to avoid malicious questions that open for answers right
+  before the KPI token expires, not leaving the crowdsourced answer process the
+  time to play out organically. As an example, if this value is set to 3 and a
+  question is asked that opens at time x with a question timeout of 1 minute,
+  the expiration timestamp of the attached KPI token will have to be set to at
+  least x + 3 minutes in order for the creation process to go through.
+
 
 Once you have one instance of this file for each network you're interested in
 (e.g. .`env.goerli`, `.env.gnosis`, `env.mainnet` etc etc), you can go ahead and
@@ -73,7 +89,7 @@ doing that, you can finally execute the following command to initiate the
 deployment:
 
 ```
-FOUNDRY_PROFILE=production forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPOINT Deploy
+FOUNDRY_PROFILE=production forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPOINT --sig 'run(address,uint256,uint256)' Deploy $REALITY_ADDRESS $MINIMUM_QUESTION_TIMEOUT $MINIMUM_ANSWER_WINDOWS
 ```
 
 ### Deploying the trusted arbitrator
@@ -84,8 +100,10 @@ ahead and create a .env.<NETWORK_NAME> file exporting 4 env variables:
 ```
 export PRIVATE_KEY=""
 export RPC_ENDPOINT=""
+export REALITY_ADDRESS=""
 export METADATA=""
 export QUESTION_FEE=""
+export DISPUTE_FEE=""
 ```
 
 brief explainer of the env variables:
@@ -94,9 +112,13 @@ brief explainer of the env variables:
   deployment.
 - `RPC_ENDPOINT`: the RPC endpoint that will be used to broadcast transactions.
   This will also determine the network where the deployment will happen.
+- `REALITY_ADDRESS`: the reference Reality.eth contract address that this arbitrator 
+  instance will point to.
 - `METADATA`: the initial arbitrator metadata. Have a look
   [here](https://reality.eth.limo/app/docs/html/arbitrators.html#getting-information-about-the-arbitrator).
 - `QUESTION_FEE`: the initial arbitrator question fee, expressed in the target
+  chain's native currency.
+- `DISPUTE_FEE`: the initial arbitrator dispute fee, expressed in the target
   chain's native currency.
 
 Once you have one instance of this file for each network you're interested in
@@ -106,7 +128,7 @@ doing that, you can finally execute the following command to initiate the
 deployment:
 
 ```
-FOUNDRY_PROFILE=production forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPOINT --sig 'run(string,uint256)' DeployArbitrator $METADATA $QUESTION_FEE
+FOUNDRY_PROFILE=production forge script --broadcast --slow --private-key $PRIVATE_KEY --fork-url $RPC_ENDPOINT --sig 'run(string,uint256)' DeployArbitrator $REALITY_ETH $METADATA $QUESTION_FEE $DISPUTE_FEE
 ```
 
 ### Setting the trusted arbitrator creation fee
