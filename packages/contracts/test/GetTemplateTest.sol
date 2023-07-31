@@ -22,11 +22,7 @@ contract GetTemplateTest is BaseTestSetup {
             abi.encode(_questionId)
         );
         address kpiToken = address(1);
-        vm.mockCall(
-            kpiToken,
-            abi.encodeWithSignature("expiration()"),
-            abi.encode(2 ** 128)
-        );
+        vm.mockCall(kpiToken, abi.encodeWithSignature("expiration()"), abi.encode(2 ** 128));
         vm.prank(address(oraclesManager));
         oracleInstance.initialize(
             InitializeOracleParams({

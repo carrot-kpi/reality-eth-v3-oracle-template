@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 
 // if forge fmt is executed from the root of the monorepo the
-// paths aren't right. This uses JS' resolve to make it work.
+// paths aren't right.
 
-import { resolve } from "path";
 import { execSync } from "child_process";
 
 let arg = process.argv[2];
@@ -12,15 +11,4 @@ if (!arg) {
     process.exit(1);
 }
 
-const format = arg === "format";
-
-const srcBasePath = resolve("./src");
-const testsBasePath = resolve("./test");
-const scriptsBasePath = resolve("./script");
-
-execSync(
-    `forge fmt ${
-        !format ? "--check " : ""
-    }${srcBasePath}/*.sol ${testsBasePath}/**/*.sol ${scriptsBasePath}/*.sol`,
-    { stdio: "inherit" }
-);
+execSync(`forge fmt ${arg !== "format" ? "--check " : ""}`, { stdio: "inherit" });
