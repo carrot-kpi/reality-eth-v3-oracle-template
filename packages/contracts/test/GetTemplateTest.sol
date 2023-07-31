@@ -1,7 +1,7 @@
 pragma solidity 0.8.19;
 
 import {BaseTestSetup} from "./commons/BaseTestSetup.sol";
-import {REALITY_V3_ADDRESS, RealityV3Oracle} from "../src/RealityV3Oracle.sol";
+import {RealityV3Oracle} from "../src/RealityV3Oracle.sol";
 import {IOraclesManager1} from "carrot/interfaces/oracles-managers/IOraclesManager1.sol";
 import {Template} from "carrot/interfaces/IBaseTemplatesManager.sol";
 import {InitializeOracleParams} from "carrot/commons/Types.sol";
@@ -21,11 +21,17 @@ contract GetTemplateTest is BaseTestSetup {
             abi.encodeWithSignature("askQuestionWithMinBond(uint256,string,address,uint32,uint32,uint256,uint256)"),
             abi.encode(_questionId)
         );
+        address kpiToken = address(1);
+        vm.mockCall(
+            kpiToken,
+            abi.encodeWithSignature("expiration()"),
+            abi.encode(2 ** 128)
+        );
         vm.prank(address(oraclesManager));
         oracleInstance.initialize(
             InitializeOracleParams({
                 creator: address(this),
-                kpiToken: address(1),
+                kpiToken: kpiToken,
                 templateId: _template.id,
                 templateVersion: _template.version,
                 data: abi.encode(REALITY_V3_ADDRESS, 0, "a", 60, block.timestamp + 60, 0)
