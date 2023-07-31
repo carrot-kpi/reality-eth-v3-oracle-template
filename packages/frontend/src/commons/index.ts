@@ -17,10 +17,10 @@ export const TRUSTED_REALITY_ARBITRATORS: Record<SupportedChainId, Address> = {
         : "0xFCcBcC49787Abc4ee48fE09B9DF816D138d7b54C",
     [SupportedChainId.SEPOLIA]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0x05B92b5C40a266EFDD8B3fDF0496407e8C0d9cB6",
+        : "0xAcAFe7928cDd2E02bd508a4827b62649726f9460",
     [SupportedChainId.SCROLL_TESTNET]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0xAcAFe7928cDd2E02bd508a4827b62649726f9460",
+        : "0x05B92b5C40a266EFDD8B3fDF0496407e8C0d9cB6",
 };
 
 export const REALITY_V3_ADDRESS: Record<SupportedChainId, Address> = {
