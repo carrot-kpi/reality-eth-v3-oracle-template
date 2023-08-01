@@ -764,12 +764,15 @@ export const AnswerForm = ({
         isAnswerMissing(question) ||
         isAnswerPendingArbitration(question);
     const claimAndWithdrawVisible =
+        connectedAddress &&
         answerer &&
         withdrawableBalance !== undefined &&
         withdrawableBalance === 0n &&
         question.historyHash !== BYTES32_ZERO;
     const withdrawVisible =
-        withdrawableBalance !== undefined && withdrawableBalance > 0n;
+        connectedAddress &&
+        withdrawableBalance !== undefined &&
+        withdrawableBalance > 0n;
     const formInputsVisible =
         open &&
         connectedAddress &&
@@ -854,7 +857,7 @@ export const AnswerForm = ({
                     loadingQuestion={loadingQuestion}
                 />
             )}
-            <div className="border-b border-black dark:border-white">
+            <div>
                 <QuestionInfo
                     label={t("label.question.question")}
                     className={{
@@ -892,21 +895,21 @@ export const AnswerForm = ({
                     )}
                 </Typography>
             )}
-            {!connectedAddress && (
-                <div className="flex p-6 h-60 items-center justify-center w-full bg-gray-200 dark:bg-black">
-                    <Typography uppercase>
-                        {t("label.answer.form.noWallet")}
-                    </Typography>
-                </div>
-            )}
             {!open && (
-                <div className="px-6 pt-6 flex flex-col gap-5 mb-6">
+                <div className="px-6 pt-6 flex flex-col gap-5 mb-6 border-t border-black dark:border-white">
                     <Typography>{t("label.question.timeLeft")}</Typography>
                     <OpeningCountdown
                         t={t}
                         to={question.openingTimestamp}
                         countdown={true}
                     />
+                </div>
+            )}
+            {!connectedAddress && (
+                <div className="flex p-6 h-60 items-center justify-center w-full border-t border-black dark:border-white bg-gray-200 dark:bg-black">
+                    <Typography uppercase>
+                        {t("label.answer.form.noWallet")}
+                    </Typography>
                 </div>
             )}
             {formInputsVisible && (
@@ -988,7 +991,7 @@ export const AnswerForm = ({
                         </Popover>
                     )}
                 </div>
-            ) : (
+            ) : connectedAddress ? (
                 <div className="px-6 flex flex-col md:flex-row gap-5 mt-6 mb-6">
                     {isAnsweredTooSoon(question) && (
                         <Button
@@ -1047,7 +1050,7 @@ export const AnswerForm = ({
                         </Button>
                     )}
                 </div>
-            )}
+            ) : null}
         </div>
     );
 };
