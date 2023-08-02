@@ -27,7 +27,6 @@ import {
     ARBITRATORS_BY_CHAIN,
     REALITY_TEMPLATE_OPTIONS,
     TIMEOUT_OPTIONS,
-    MINIMUM_ANSWER_PERIODS_AMOUNT,
 } from "../commons";
 import type { OptionForArbitrator, State } from "./types";
 import { ArbitratorOption } from "./components/arbitrator-option";
@@ -37,6 +36,8 @@ import { useArbitratorsFees } from "../hooks/useArbitratorsFees";
 import { encodeAbiParameters, parseUnits } from "viem";
 import { type Address } from "viem";
 import { Amount, formatCurrencyAmount } from "@carrot-kpi/sdk";
+import { useMinimumQuestionTimeout } from "../hooks/useMinimumQuestionTimeout";
+import { useMinimumAnswerWindows } from "../hooks/useMinimumAnswerWindows";
 
 dayjs.extend(durationPlugin);
 
@@ -45,14 +46,12 @@ const stripHtml = (value: string) => value.replace(/(<([^>]+)>)/gi, "");
 const checkMinimumQuestionTimeoutWindows = (
     openingTimestamp: Dayjs,
     questionTimeoutSeconds: number,
+    minimumAnswerWindows: number,
     kpiTokenExpirationTimestamp: number,
 ): boolean => {
     return (
         openingTimestamp
-            .add(
-                questionTimeoutSeconds * MINIMUM_ANSWER_PERIODS_AMOUNT,
-                "seconds",
-            )
+            .add(questionTimeoutSeconds * minimumAnswerWindows, "seconds")
             .unix() < kpiTokenExpirationTimestamp
     );
 };
@@ -60,11 +59,17 @@ const checkMinimumQuestionTimeoutWindows = (
 export const Component = ({
     t,
     state,
+    template,
     kpiToken,
     onChange,
 }: OracleRemoteCreationFormProps<State>): ReactElement => {
     const { chain } = useNetwork();
     const uploadToIpfs = useDecentralizedStorageUploader();
+
+    const { loading: loadingMinimumQuestionTimeout, minimumQuestionTimeout } =
+        useMinimumQuestionTimeout(template.address);
+    const { loading: loadingMinimumAnswerWindows, minimumAnswerWindows } =
+        useMinimumAnswerWindows(template.address);
 
     const arbitratorAddresses = useMemo(
         () =>
@@ -109,12 +114,19 @@ export const Component = ({
         [chain, loadingFees, arbitratorsFees],
     );
 
-    const timeoutOptions = TIMEOUT_OPTIONS.map((option) => {
-        return {
-            label: t(option.tKey),
-            value: option.seconds,
-        };
-    });
+    const timeoutOptions = useMemo(() => {
+        if (loadingMinimumQuestionTimeout) return [];
+        return TIMEOUT_OPTIONS.filter(
+            (option) =>
+                !minimumQuestionTimeout ||
+                option.seconds >= minimumQuestionTimeout,
+        ).map((option) => {
+            return {
+                label: t(option.tKey),
+                value: option.seconds,
+            };
+        });
+    }, [loadingMinimumQuestionTimeout, minimumQuestionTimeout, t]);
 
     const [arbitrator, setArbitrator] = useState<OptionForArbitrator | null>(
         state.arbitrator
@@ -204,10 +216,15 @@ export const Component = ({
             stripHtml(question).trim() &&
             questionTimeout &&
             openingTimestamp &&
+            !loadingMinimumQuestionTimeout &&
+            minimumQuestionTimeout &&
+            !loadingMinimumAnswerWindows &&
+            minimumAnswerWindows &&
             (!kpiToken?.expiration ||
                 checkMinimumQuestionTimeoutWindows(
                     openingTimestamp,
                     questionTimeout.value as number,
+                    Number(minimumAnswerWindows),
                     kpiToken.expiration,
                 )) &&
             minimumBond &&
@@ -249,7 +266,11 @@ export const Component = ({
         arbitrator,
         chain,
         kpiToken?.expiration,
+        loadingMinimumAnswerWindows,
+        loadingMinimumQuestionTimeout,
+        minimumAnswerWindows,
         minimumBond,
+        minimumQuestionTimeout,
         onChange,
         openingTimestamp,
         question,
@@ -259,22 +280,36 @@ export const Component = ({
     ]);
 
     useEffect(() => {
-        if (!openingTimestamp || !questionTimeout || !kpiToken?.expiration) {
+        if (
+            !openingTimestamp ||
+            !questionTimeout ||
+            loadingMinimumAnswerWindows ||
+            !minimumAnswerWindows ||
+            !kpiToken?.expiration
+        ) {
             setOpeningTimestampErrorText("");
         } else {
             setOpeningTimestampErrorText(
                 !checkMinimumQuestionTimeoutWindows(
                     openingTimestamp,
                     questionTimeout.value as number,
+                    Number(minimumAnswerWindows),
                     kpiToken.expiration,
                 )
                     ? t("error.opening.timestamp.tooSoon", {
-                          periodsAmount: MINIMUM_ANSWER_PERIODS_AMOUNT,
+                          periodsAmount: minimumAnswerWindows,
                       })
                     : "",
             );
         }
-    }, [kpiToken?.expiration, openingTimestamp, questionTimeout, t]);
+    }, [
+        kpiToken?.expiration,
+        loadingMinimumAnswerWindows,
+        minimumAnswerWindows,
+        openingTimestamp,
+        questionTimeout,
+        t,
+    ]);
 
     const handleQuestionChange = useCallback(
         (value: string) => {

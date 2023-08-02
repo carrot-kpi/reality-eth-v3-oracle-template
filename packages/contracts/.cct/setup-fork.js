@@ -10,8 +10,8 @@ const REALITY_V3_ADDRESS = {
     [ChainId.GNOSIS]: "0xE78996A233895bE74a66F451f1019cA9734205cc",
     [ChainId.SCROLL_TESTNET]: "0xF2D17C08B6A3A60b5A32b95bC9621D292831446b",
 };
-const MINIMUM_QUESTION_TIMEOUT = 30;
-const MINIMUM_ANSWER_WINDOWS = 3;
+const MINIMUM_QUESTION_TIMEOUT = 60;
+const MINIMUM_ANSWER_WINDOWS = 10;
 
 export const setupFork = async ({ nodeClient, walletClient }) => {
     const chainId = await nodeClient.getChainId();
@@ -27,7 +27,11 @@ export const setupFork = async ({ nodeClient, walletClient }) => {
             hash: await walletClient.deployContract({
                 abi: templateAbi,
                 bytecode: templateBytecode,
-                args: [REALITY_V3_ADDRESS[chainId], MINIMUM_QUESTION_TIMEOUT, MINIMUM_ANSWER_WINDOWS]
+                args: [
+                    REALITY_V3_ADDRESS[chainId],
+                    MINIMUM_QUESTION_TIMEOUT,
+                    MINIMUM_ANSWER_WINDOWS,
+                ],
             }),
         });
 
@@ -42,7 +46,12 @@ export const setupFork = async ({ nodeClient, walletClient }) => {
             hash: await walletClient.deployContract({
                 abi: arbitratorAbi,
                 bytecode: arbitratorBytecode,
-                args: [REALITY_V3_ADDRESS[chainId], "{}", parseUnits("1", 18), parseUnits("1", 18)],
+                args: [
+                    REALITY_V3_ADDRESS[chainId],
+                    "{}",
+                    parseUnits("1", 18),
+                    parseUnits("1", 18),
+                ],
             }),
         });
 
