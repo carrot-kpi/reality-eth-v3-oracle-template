@@ -1,5 +1,26 @@
 export default [
     {
+        inputs: [
+            {
+                internalType: "address",
+                name: "_reality",
+                type: "address",
+            },
+            {
+                internalType: "uint256",
+                name: "_minimumQuestionTimeout",
+                type: "uint256",
+            },
+            {
+                internalType: "uint256",
+                name: "_minimumAnswerWindows",
+                type: "uint256",
+            },
+        ],
+        stateMutability: "nonpayable",
+        type: "constructor",
+    },
+    {
         inputs: [],
         name: "Forbidden",
         type: "error",
@@ -160,6 +181,45 @@ export default [
     {
         inputs: [],
         name: "kpiToken",
+        outputs: [
+            {
+                internalType: "address",
+                name: "",
+                type: "address",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [],
+        name: "minimumAnswerWindows",
+        outputs: [
+            {
+                internalType: "uint256",
+                name: "",
+                type: "uint256",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [],
+        name: "minimumQuestionTimeout",
+        outputs: [
+            {
+                internalType: "uint256",
+                name: "",
+                type: "uint256",
+            },
+        ],
+        stateMutability: "view",
+        type: "function",
+    },
+    {
+        inputs: [],
+        name: "reality",
         outputs: [
             {
                 internalType: "address",
