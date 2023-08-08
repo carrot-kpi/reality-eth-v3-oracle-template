@@ -991,7 +991,7 @@ export const AnswerForm = ({
                         </Popover>
                     )}
                 </div>
-            ) : connectedAddress ? (
+            ) : open && connectedAddress ? (
                 <div className="px-6 flex flex-col md:flex-row gap-5 mt-6 mb-6">
                     {isAnsweredTooSoon(question) && (
                         <Button
