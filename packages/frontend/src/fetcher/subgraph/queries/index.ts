@@ -44,8 +44,8 @@ export interface GetQuestionQueryResponse {
 }
 
 export const GetQuestionQuery = `
-    query getQuestionByID($id: ID!) {
-        question(id: $id) {
+    query getQuestionByID($questionId: ID!) {
+        question(id: $questionId) {
             ${QuestionDataFields}
             reopenedBy {
                 ${QuestionDataFields}
@@ -59,7 +59,7 @@ export const GetQuestionQuery = `
 
 export interface SubgraphResponse {
     historyHash: Hash;
-    user: Address;
+    answerer: Address;
     bond: string;
     answer?: Hex;
     timestamp: string;
@@ -67,7 +67,7 @@ export interface SubgraphResponse {
 
 export const ResponseDataFields = `
     historyHash
-    user
+    answerer: user
     bond
     answer
     timestamp
@@ -83,6 +83,22 @@ export const GetResponsesQuery = `
     query getQuestionResponses($questionId: ID!) {
         question(id: $questionId) {
             responses(orderBy: timestamp, orderDirection: asc) {
+                ${ResponseDataFields}
+            }
+        }
+    }
+`;
+
+export interface IsAnswererQueryResponse {
+    question?: {
+        responses: SubgraphResponse[];
+    };
+}
+
+export const IsAnswererQuery = `
+    query isAnswerer($questionId: ID!, $user: Bytes!) {
+        question(id: $questionId) {
+            responses(where: { user: $user }) {
                 ${ResponseDataFields}
             }
         }

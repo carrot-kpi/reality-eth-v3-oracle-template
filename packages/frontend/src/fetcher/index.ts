@@ -1,6 +1,7 @@
 import { type PublicClient } from "wagmi";
 import type { RealityResponse, RealityQuestion } from "../page/types";
 import type {
+    FullFetcheIsAnswererParams,
     FullFetcherFetchClaimableHistoryParams,
     FullFetcherFetchQuestionParams,
     IFullFetcher,
@@ -30,6 +31,7 @@ class FullFetcher implements IFullFetcher {
         realityV3Address,
         question,
         questionId,
+        devMode,
     }: FullFetcherFetchQuestionParams): Promise<RealityQuestion | null> {
         const useSubgraph = await this.shouldUseSubgraph({
             publicClient,
@@ -41,12 +43,14 @@ class FullFetcher implements IFullFetcher {
                   realityV3Address,
                   question,
                   questionId,
+                  devMode,
               })
             : OnChainFetcher.fetchQuestion({
                   publicClient,
                   realityV3Address,
                   question,
                   questionId,
+                  devMode,
               });
     }
 
@@ -55,6 +59,7 @@ class FullFetcher implements IFullFetcher {
         publicClient,
         realityV3Address,
         questionId,
+        devMode,
     }: FullFetcherFetchClaimableHistoryParams): Promise<
         Record<Hex, RealityResponse[]>
     > {
@@ -67,11 +72,42 @@ class FullFetcher implements IFullFetcher {
                   publicClient,
                   realityV3Address,
                   questionId,
+                  devMode,
               })
             : OnChainFetcher.fetchClaimableHistory({
                   publicClient,
                   realityV3Address,
                   questionId,
+                  devMode,
+              });
+    }
+
+    public async isAnswerer({
+        preferDecentralization,
+        publicClient,
+        realityV3Address,
+        questionId,
+        address,
+        devMode,
+    }: FullFetcheIsAnswererParams): Promise<boolean> {
+        const useSubgraph = await this.shouldUseSubgraph({
+            publicClient,
+            preferDecentralization,
+        });
+        return useSubgraph
+            ? SubgraphFetcher.isAnswerer({
+                  publicClient,
+                  realityV3Address,
+                  questionId,
+                  address,
+                  devMode,
+              })
+            : OnChainFetcher.isAnswerer({
+                  publicClient,
+                  realityV3Address,
+                  questionId,
+                  address,
+                  devMode,
               });
     }
 }

@@ -1,29 +1,37 @@
-import { execSync } from "child_process";
+import { ChainId } from "@carrot-kpi/sdk";
 import { createRequire } from "module";
 import { fileURLToPath } from "url";
 import { getContract, parseUnits } from "viem";
 
 const require = createRequire(fileURLToPath(import.meta.url));
 
+const REALITY_V3_ADDRESS = {
+    [ChainId.SEPOLIA]: "0x64a0745EF9d3772d9739D9350873eD3703bE45eC",
+    [ChainId.GNOSIS]: "0xE78996A233895bE74a66F451f1019cA9734205cc",
+    [ChainId.SCROLL_TESTNET]: "0xF2D17C08B6A3A60b5A32b95bC9621D292831446b",
+};
+const MINIMUM_QUESTION_TIMEOUT = 60;
+const MINIMUM_ANSWER_WINDOWS = 10;
+
 export const setupFork = async ({ nodeClient, walletClient }) => {
     const chainId = await nodeClient.getChainId();
-    execSync(
-        `node ./packages/contracts/codegen-chain-specific-contracts.js ${chainId}`,
-        { stdio: "ignore" }
-    );
-    execSync("yarn build:contracts", { stdio: "ignore" });
 
     // deploy template
     const {
         abi: templateAbi,
         bytecode: { object: templateBytecode },
-    } = require(`../out/RealityV3Oracle${chainId}.sol/RealityV3Oracle.json`);
+    } = require(`../out/RealityV3Oracle.sol/RealityV3Oracle.json`);
 
     const { contractAddress: templateAddress } =
         await nodeClient.getTransactionReceipt({
             hash: await walletClient.deployContract({
                 abi: templateAbi,
                 bytecode: templateBytecode,
+                args: [
+                    REALITY_V3_ADDRESS[chainId],
+                    MINIMUM_QUESTION_TIMEOUT,
+                    MINIMUM_ANSWER_WINDOWS,
+                ],
             }),
         });
 
@@ -31,14 +39,19 @@ export const setupFork = async ({ nodeClient, walletClient }) => {
     const {
         abi: arbitratorAbi,
         bytecode: { object: arbitratorBytecode },
-    } = require(`../out/TrustedRealityV3Arbitrator${chainId}.sol/TrustedRealityV3Arbitrator.json`);
+    } = require(`../out/TrustedRealityV3Arbitrator.sol/TrustedRealityV3Arbitrator.json`);
 
     const { contractAddress: arbitratorAddress } =
         await nodeClient.getTransactionReceipt({
             hash: await walletClient.deployContract({
                 abi: arbitratorAbi,
                 bytecode: arbitratorBytecode,
-                args: ["{}", 0],
+                args: [
+                    REALITY_V3_ADDRESS[chainId],
+                    "{}",
+                    parseUnits("1", 18),
+                    parseUnits("1", 18),
+                ],
             }),
         });
 
@@ -48,9 +61,6 @@ export const setupFork = async ({ nodeClient, walletClient }) => {
         publicClient: nodeClient,
         walletClient: walletClient,
     });
-
-    // set a minimum arbitration fee
-    await arbitratorContract.write.setDisputeFee([parseUnits("1", 18)]);
 
     // FIXME: This ONLY works because the ERC20 KPI token template manually adds the tokens on the default token list when running in dev mode.
     // It relies on a dev-only logic present in another template.

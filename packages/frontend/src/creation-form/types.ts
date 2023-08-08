@@ -1,3 +1,4 @@
+import type { Amount, Currency } from "@carrot-kpi/sdk";
 import type { SelectOption } from "@carrot-kpi/ui";
 import type { FunctionComponent, SVGProps } from "react";
 import { type Address } from "viem";
@@ -13,5 +14,8 @@ export interface State {
 
 export interface OptionForArbitrator extends SelectOption<Address> {
     icon: FunctionComponent<SVGProps<SVGSVGElement>>;
-    disputeFee?: string;
+    fees?: {
+        question: Amount<Currency>;
+        dispute: Amount<Currency>;
+    };
 }

@@ -1,23 +1,26 @@
 import { Typography } from "@carrot-kpi/ui";
 import { cx } from "class-variance-authority";
+import type { Duration } from "dayjs/plugin/duration";
 import type { ReactElement } from "react";
 
 interface CountdownFrameProps {
     label: string;
-    timeFrame: string;
+    duration: Duration;
+    format: string;
     className?: { root?: string };
 }
 
 export const CountdownFrame = ({
     label,
-    timeFrame,
+    duration,
+    format,
     className,
 }: CountdownFrameProps): ReactElement => {
     return (
         <div
             className={cx(
                 "flex flex-col justify-center items-center",
-                className?.root
+                className?.root,
             )}
         >
             <Typography
@@ -26,7 +29,7 @@ export const CountdownFrame = ({
                 }}
                 weight="medium"
             >
-                {timeFrame}
+                {duration.as("seconds") >= 0 ? duration.format(format) : "00"}
             </Typography>
             <Typography uppercase>{label}</Typography>
         </div>

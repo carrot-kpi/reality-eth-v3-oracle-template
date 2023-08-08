@@ -17,21 +17,12 @@ struct OracleData {
 contract MockKPIToken is IKPIToken {
     address[] internal _oracles;
 
-    function initialize(InitializeKPITokenParams memory _params)
-        external
-        payable
-        override
-    {
-        OracleData[] memory _oracleData = abi.decode(
-            _params.oraclesData,
-            (OracleData[])
-        );
+    function initialize(InitializeKPITokenParams memory _params) external payable override {
+        OracleData[] memory _oracleData = abi.decode(_params.oraclesData, (OracleData[]));
         for (uint8 _i = 0; _i < _oracleData.length; _i++) {
             _oracles.push(
                 IOraclesManager1(_params.oraclesManager).instantiate(
-                    _params.creator,
-                    _oracleData[_i].templateId,
-                    _oracleData[_i].data
+                    _params.creator, _oracleData[_i].templateId, _oracleData[_i].data
                 )
             );
         }
@@ -48,13 +39,7 @@ contract MockKPIToken is IKPIToken {
     function transferOwnership(address _newOwner) external override {}
 
     function template() external pure override returns (Template memory) {
-        return
-            Template({
-                id: 1,
-                addrezz: address(0),
-                version: 1,
-                specification: "foo"
-            });
+        return Template({id: 1, addrezz: address(0), version: 1, specification: "foo"});
     }
 
     function description() external pure override returns (string memory) {
@@ -66,7 +51,7 @@ contract MockKPIToken is IKPIToken {
     }
 
     function expiration() external view override returns (uint256) {
-        return block.timestamp;
+        return block.timestamp + 2 ** 128;
     }
 
     function creationTimestamp() external view override returns (uint256) {

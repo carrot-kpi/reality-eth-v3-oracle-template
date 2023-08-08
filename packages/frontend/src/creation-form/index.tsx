@@ -8,7 +8,10 @@ import {
     useMemo,
     useState,
 } from "react";
-import { type OracleRemoteCreationFormProps } from "@carrot-kpi/react";
+import {
+    type OracleInitializationBundleGetter,
+    type OracleRemoteCreationFormProps,
+} from "@carrot-kpi/react";
 import {
     Select,
     type SelectOption,
@@ -24,15 +27,17 @@ import {
     ARBITRATORS_BY_CHAIN,
     REALITY_TEMPLATE_OPTIONS,
     TIMEOUT_OPTIONS,
-    MINIMUM_ANSWER_PERIODS_AMOUNT,
 } from "../commons";
 import type { OptionForArbitrator, State } from "./types";
 import { ArbitratorOption } from "./components/arbitrator-option";
 import dayjs, { Dayjs } from "dayjs";
 import durationPlugin from "dayjs/plugin/duration";
-import { useArbitratorsDisputeFee } from "../hooks/useArbitratorsDisputeFee";
+import { useArbitratorsFees } from "../hooks/useArbitratorsFees";
 import { encodeAbiParameters, parseUnits } from "viem";
 import { type Address } from "viem";
+import { Amount, formatCurrencyAmount } from "@carrot-kpi/sdk";
+import { useMinimumQuestionTimeout } from "../hooks/useMinimumQuestionTimeout";
+import { useMinimumAnswerWindows } from "../hooks/useMinimumAnswerWindows";
 
 dayjs.extend(durationPlugin);
 
@@ -41,16 +46,12 @@ const stripHtml = (value: string) => value.replace(/(<([^>]+)>)/gi, "");
 const checkMinimumQuestionTimeoutWindows = (
     openingTimestamp: Dayjs,
     questionTimeoutSeconds: number,
-    kpiTokenExpirationTimestamp: number
+    minimumAnswerWindows: number,
+    kpiTokenExpirationTimestamp: number,
 ): boolean => {
     return (
         openingTimestamp
-            .add(
-                dayjs.duration({
-                    seconds:
-                        questionTimeoutSeconds * MINIMUM_ANSWER_PERIODS_AMOUNT,
-                })
-            )
+            .add(questionTimeoutSeconds * minimumAnswerWindows, "seconds")
             .unix() < kpiTokenExpirationTimestamp
     );
 };
@@ -58,67 +59,97 @@ const checkMinimumQuestionTimeoutWindows = (
 export const Component = ({
     t,
     state,
+    template,
     kpiToken,
     onChange,
 }: OracleRemoteCreationFormProps<State>): ReactElement => {
     const { chain } = useNetwork();
-    const uploadToIpfs = useDecentralizedStorageUploader("ipfs");
+    const uploadToIpfs = useDecentralizedStorageUploader();
+
+    const { loading: loadingMinimumQuestionTimeout, minimumQuestionTimeout } =
+        useMinimumQuestionTimeout(template.address);
+    const { loading: loadingMinimumAnswerWindows, minimumAnswerWindows } =
+        useMinimumAnswerWindows(template.address);
 
     const arbitratorAddresses = useMemo(
         () =>
             !chain || !(chain.id in SupportedChainId)
                 ? []
                 : ARBITRATORS_BY_CHAIN[chain.id as SupportedChainId].map(
-                      (arbitrator) => arbitrator.value.toString() as Address
+                      (arbitrator) => arbitrator.value.toString() as Address,
                   ),
-        [chain]
+        [chain],
     );
 
-    const { fees: arbitratorDisputeFees } =
-        useArbitratorsDisputeFee(arbitratorAddresses);
+    const { fees: arbitratorsFees, loading: loadingFees } =
+        useArbitratorsFees(arbitratorAddresses);
 
     const arbitratorsByChain = useMemo(
         () =>
-            !chain || !(chain.id in SupportedChainId)
+            !chain || !(chain.id in SupportedChainId) || loadingFees
                 ? []
-                : ARBITRATORS_BY_CHAIN[chain.id as SupportedChainId].map(
-                      (arbitrator) => ({
-                          ...arbitrator,
-                          disputeFee: arbitratorDisputeFees[arbitrator.value],
-                      })
+                : ARBITRATORS_BY_CHAIN[chain.id as SupportedChainId].reduce(
+                      (accumulator: OptionForArbitrator[], arbitrator) => {
+                          // in case there was an error fetching fees for a given arbitrator,
+                          // we won't show it in the list
+                          const fees = arbitratorsFees[arbitrator.value];
+                          if (!fees) return accumulator;
+                          accumulator.push({
+                              ...arbitrator,
+                              fees: {
+                                  question: new Amount(
+                                      chain.nativeCurrency,
+                                      fees.question,
+                                  ),
+                                  dispute: new Amount(
+                                      chain.nativeCurrency,
+                                      fees.dispute,
+                                  ),
+                              },
+                          });
+                          return accumulator;
+                      },
+                      [],
                   ),
-        [chain, arbitratorDisputeFees]
+        [chain, loadingFees, arbitratorsFees],
     );
 
-    const timeoutOptions = TIMEOUT_OPTIONS.map((option) => {
-        return {
-            label: t(option.tKey),
-            value: option.seconds,
-        };
-    });
+    const timeoutOptions = useMemo(() => {
+        if (loadingMinimumQuestionTimeout) return [];
+        return TIMEOUT_OPTIONS.filter(
+            (option) =>
+                !minimumQuestionTimeout ||
+                option.seconds >= minimumQuestionTimeout,
+        ).map((option) => {
+            return {
+                label: t(option.tKey),
+                value: option.seconds,
+            };
+        });
+    }, [loadingMinimumQuestionTimeout, minimumQuestionTimeout, t]);
 
     const [arbitrator, setArbitrator] = useState<OptionForArbitrator | null>(
         state.arbitrator
             ? arbitratorsByChain.find(
-                  (option) => option.value === state.arbitrator
+                  (option) => option.value === state.arbitrator,
               ) || null
-            : null
+            : null,
     );
     const [realityTemplateId, setRealityTemplateId] =
         useState<SelectOption<number> | null>(
             state.realityTemplateId !== null &&
                 state.realityTemplateId !== undefined
                 ? REALITY_TEMPLATE_OPTIONS.find(
-                      (option) => option.value === state.realityTemplateId
+                      (option) => option.value === state.realityTemplateId,
                   ) || null
-                : null
+                : null,
         );
     const [question, setQuestion] = useState(state.question || "");
 
     const [questionTimeout, setQuestionTimeout] =
         useState<SelectOption<number> | null>(null);
     const [openingTimestamp, setOpeningTimestamp] = useState<Dayjs | null>(
-        null
+        null,
     );
     const [minimumBond, setMinimumBond] = useState(state.minimumBond || "");
 
@@ -133,7 +164,7 @@ export const Component = ({
     useEffect(() => {
         if (!state.questionTimeout) return;
         const optionFromExternalState = TIMEOUT_OPTIONS.find(
-            (option) => option.seconds === state.questionTimeout
+            (option) => option.seconds === state.questionTimeout,
         );
         if (!optionFromExternalState) return;
         setQuestionTimeout({
@@ -175,7 +206,9 @@ export const Component = ({
             openingTimestamp: openingTimestamp ? openingTimestamp.unix() : null,
             minimumBond,
         };
-        let initializationDataGetter = undefined;
+        let initializationDataGetter:
+            | OracleInitializationBundleGetter
+            | undefined = undefined;
         if (
             chain &&
             arbitrator &&
@@ -183,11 +216,16 @@ export const Component = ({
             stripHtml(question).trim() &&
             questionTimeout &&
             openingTimestamp &&
+            !loadingMinimumQuestionTimeout &&
+            minimumQuestionTimeout &&
+            !loadingMinimumAnswerWindows &&
+            minimumAnswerWindows &&
             (!kpiToken?.expiration ||
                 checkMinimumQuestionTimeoutWindows(
                     openingTimestamp,
                     questionTimeout.value as number,
-                    kpiToken.expiration
+                    Number(minimumAnswerWindows),
+                    kpiToken.expiration,
                 )) &&
             minimumBond &&
             !isNaN(parseInt(minimumBond)) &&
@@ -195,7 +233,7 @@ export const Component = ({
         ) {
             const formattedMinimumBond = parseUnits(
                 minimumBond as `${number}`,
-                chain.nativeCurrency.decimals
+                chain.nativeCurrency.decimals,
             );
             initializationDataGetter = async () => {
                 const questionCid = await uploadToIpfs(question);
@@ -211,13 +249,16 @@ export const Component = ({
                     [
                         arbitrator.value as Address,
                         BigInt(realityTemplateId.value),
-                        `${questionCid}-${realityTemplateId.value}`,
+                        questionCid,
                         questionTimeout.value as number,
                         openingTimestamp.unix(),
                         formattedMinimumBond,
-                    ]
+                    ],
                 );
-                return { data: initializationData, value: 0n };
+                return {
+                    data: initializationData,
+                    value: arbitrator.fees ? arbitrator.fees.question.raw : 0n,
+                };
             };
         }
         onChange(newState, initializationDataGetter);
@@ -225,7 +266,11 @@ export const Component = ({
         arbitrator,
         chain,
         kpiToken?.expiration,
+        loadingMinimumAnswerWindows,
+        loadingMinimumQuestionTimeout,
+        minimumAnswerWindows,
         minimumBond,
+        minimumQuestionTimeout,
         onChange,
         openingTimestamp,
         question,
@@ -235,32 +280,46 @@ export const Component = ({
     ]);
 
     useEffect(() => {
-        if (!openingTimestamp || !questionTimeout || !kpiToken?.expiration) {
+        if (
+            !openingTimestamp ||
+            !questionTimeout ||
+            loadingMinimumAnswerWindows ||
+            !minimumAnswerWindows ||
+            !kpiToken?.expiration
+        ) {
             setOpeningTimestampErrorText("");
         } else {
             setOpeningTimestampErrorText(
                 !checkMinimumQuestionTimeoutWindows(
                     openingTimestamp,
                     questionTimeout.value as number,
-                    kpiToken.expiration
+                    Number(minimumAnswerWindows),
+                    kpiToken.expiration,
                 )
                     ? t("error.opening.timestamp.tooSoon", {
-                          periodsAmount: MINIMUM_ANSWER_PERIODS_AMOUNT,
+                          periodsAmount: minimumAnswerWindows,
                       })
-                    : ""
+                    : "",
             );
         }
-    }, [kpiToken?.expiration, openingTimestamp, questionTimeout, t]);
+    }, [
+        kpiToken?.expiration,
+        loadingMinimumAnswerWindows,
+        minimumAnswerWindows,
+        openingTimestamp,
+        questionTimeout,
+        t,
+    ]);
 
     const handleQuestionChange = useCallback(
         (value: string) => {
             const trimmedValue = stripHtml(value).trim();
             setQuestion(value);
             setQuestionErrorText(
-                !trimmedValue ? t("error.question.empty") : ""
+                !trimmedValue ? t("error.question.empty") : "",
             );
         },
-        [t]
+        [t],
     );
 
     const handleOpeningTimestampChange = useCallback((value: Date) => {
@@ -271,10 +330,10 @@ export const Component = ({
         ({ value }: { value: string }) => {
             setMinimumBond(value);
             setMinimumBondErrorText(
-                !value ? t("error.minimum.bond.empty") : ""
+                !value ? t("error.minimum.bond.empty") : "",
             );
         },
-        [t]
+        [t],
     );
 
     return (
@@ -291,6 +350,36 @@ export const Component = ({
                 </a>
                 .
             </Typography>
+            {chain &&
+                arbitrator?.fees &&
+                (arbitrator.fees.question.isPositive() ||
+                    arbitrator.fees.dispute.isPositive()) && (
+                    <div className="mt-1 mb-b rounded-xl flex flex-col p-4 border border-orange bg-orange bg-opacity-20 gap-3">
+                        <Typography className={{ root: "text-orange" }}>
+                            {t("warning.arbitrator.fees")}
+                        </Typography>
+                        <div className="flex flex-col">
+                            {arbitrator.fees.question.isPositive() && (
+                                <Typography className={{ root: "text-orange" }}>
+                                    {t("warning.arbitrator.fees.question")}:{" "}
+                                    {formatCurrencyAmount(
+                                        arbitrator.fees.question,
+                                        true,
+                                    )}
+                                </Typography>
+                            )}
+                            {arbitrator.fees.dispute.isPositive() && (
+                                <Typography className={{ root: "text-orange" }}>
+                                    {t("warning.arbitrator.fees.dispute")}:{" "}
+                                    {formatCurrencyAmount(
+                                        arbitrator.fees.dispute,
+                                        true,
+                                    )}
+                                </Typography>
+                            )}
+                        </div>
+                    </div>
+                )}
             <div className="flex flex-col gap-2 md:flex-row">
                 <div className="w-full md:w-2/3">
                     <Select

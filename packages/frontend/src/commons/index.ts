@@ -14,13 +14,20 @@ export enum SupportedChainId {
 export const TRUSTED_REALITY_ARBITRATORS: Record<SupportedChainId, Address> = {
     [SupportedChainId.GNOSIS]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0xd5192f7DB2c20764aa66336F61f711e3Fe9CC43C",
+        : "0xFCcBcC49787Abc4ee48fE09B9DF816D138d7b54C",
     [SupportedChainId.SEPOLIA]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0x54ca9Bc25Fd623c94f5E1db4f7CEe846513AA844",
+        : "0xAcAFe7928cDd2E02bd508a4827b62649726f9460",
     [SupportedChainId.SCROLL_TESTNET]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0x87d24272071593B4a7907fd133E74EC30025D4F9",
+        : "0x05B92b5C40a266EFDD8B3fDF0496407e8C0d9cB6",
+};
+
+export const REALITY_V3_ADDRESS: Record<SupportedChainId, Address> = {
+    [SupportedChainId.GNOSIS]: "0xE78996A233895bE74a66F451f1019cA9734205cc",
+    [SupportedChainId.SEPOLIA]: "0x64a0745EF9d3772d9739D9350873eD3703bE45eC",
+    [SupportedChainId.SCROLL_TESTNET]:
+        "0xF2D17C08B6A3A60b5A32b95bC9621D292831446b",
 };
 
 export const ARBITRATORS_BY_CHAIN: Record<
@@ -159,10 +166,3 @@ export enum BooleanAnswer {
 // when the question has no answer yet, this is the finalization ts value.
 export const SUBGRAPH_CURRENT_ANSWER_FINALIZATION_TIMESTAMP_NULL_VALUE =
     "2147483647";
-
-// the minimum amount of answer periods (they depend on what question
-// timeout the user picks) that must be available between the opening
-// timestamp and the KPI token expiration. These are to avoid that a
-// KPI token expires before the Reality.eth question has had the time
-// to be answered.
-export const MINIMUM_ANSWER_PERIODS_AMOUNT = 3;

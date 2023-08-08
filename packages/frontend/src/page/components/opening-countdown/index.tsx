@@ -25,7 +25,7 @@ export const OpeningCountdown = ({
     countdown,
 }: TimerProps): ReactElement => {
     const [duration, setDuration] = useState(
-        dayjs.duration(dayjs.unix(to).diff(dayjs()))
+        dayjs.duration(dayjs.unix(to).diff(dayjs())),
     );
 
     useEffect(() => {
@@ -42,22 +42,26 @@ export const OpeningCountdown = ({
         <div className="flex gap-3 justify-between md:justify-start sm:gap-3 md:gap-5 content-center">
             <CountdownFrame
                 label={t("label.question.time.days")}
-                timeFrame={duration.format("DD")}
+                duration={duration}
+                format={"DD"}
             />
             <VerticalDivider />
             <CountdownFrame
                 label={t("label.question.time.hours")}
-                timeFrame={duration.format("HH")}
+                duration={duration}
+                format={"HH"}
             />
             <VerticalDivider />
             <CountdownFrame
                 label={t("label.question.time.minutes")}
-                timeFrame={duration.format("mm")}
+                duration={duration}
+                format={"mm"}
             />
             <VerticalDivider />
             <CountdownFrame
                 label={t("label.question.time.seconds")}
-                timeFrame={duration.format("ss")}
+                duration={duration}
+                format={"ss"}
                 className={{ root: "hidden sm:flex" }}
             />
         </div>

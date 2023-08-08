@@ -1,7 +1,7 @@
 pragma solidity 0.8.19;
 
 import {BaseTestSetup} from "./commons/BaseTestSetup.sol";
-import {REALITY_V3_ADDRESS, RealityV3Oracle} from "../src/RealityV3Oracle.sol";
+import {RealityV3Oracle} from "../src/RealityV3Oracle.sol";
 import {IOraclesManager1} from "carrot/interfaces/oracles-managers/IOraclesManager1.sol";
 import {Template} from "carrot/interfaces/IBaseTemplatesManager.sol";
 import {InitializeOracleParams} from "carrot/commons/Types.sol";
@@ -32,11 +32,13 @@ contract InitializeTest is BaseTestSetup {
         RealityV3Oracle oracleInstance = RealityV3Oracle(ClonesUpgradeable.clone(address(realityV3OracleTemplate)));
         Template memory _template = oraclesManager.template(1);
         vm.expectRevert(abi.encodeWithSignature("ZeroAddressArbitrator()"));
+        address kpiToken = address(1);
+        vm.mockCall(kpiToken, abi.encodeWithSignature("expiration()"), abi.encode(2 ** 128));
         vm.prank(address(oraclesManager));
         oracleInstance.initialize(
             InitializeOracleParams({
                 creator: address(this),
-                kpiToken: address(1),
+                kpiToken: kpiToken,
                 templateId: _template.id,
                 templateVersion: _template.version,
                 data: abi.encode(address(0), 0, "a", 60, block.timestamp + 60, 0)
@@ -48,11 +50,13 @@ contract InitializeTest is BaseTestSetup {
         RealityV3Oracle oracleInstance = RealityV3Oracle(ClonesUpgradeable.clone(address(realityV3OracleTemplate)));
         Template memory _template = oraclesManager.template(1);
         vm.expectRevert(abi.encodeWithSignature("InvalidQuestion()"));
+        address kpiToken = address(1);
+        vm.mockCall(kpiToken, abi.encodeWithSignature("expiration()"), abi.encode(2 ** 128));
         vm.prank(address(oraclesManager));
         oracleInstance.initialize(
             InitializeOracleParams({
                 creator: address(this),
-                kpiToken: address(1),
+                kpiToken: kpiToken,
                 templateId: _template.id,
                 templateVersion: _template.version,
                 data: abi.encode(address(1), 0, "", 60, block.timestamp + 60, 0)
@@ -60,15 +64,17 @@ contract InitializeTest is BaseTestSetup {
         );
     }
 
-    function testInvalidTimeout() external {
+    function testZeroTimeout() external {
         RealityV3Oracle oracleInstance = RealityV3Oracle(ClonesUpgradeable.clone(address(realityV3OracleTemplate)));
         Template memory _template = oraclesManager.template(1);
         vm.expectRevert(abi.encodeWithSignature("InvalidQuestionTimeout()"));
+        address kpiToken = address(1);
+        vm.mockCall(kpiToken, abi.encodeWithSignature("expiration()"), abi.encode(2 ** 128));
         vm.prank(address(oraclesManager));
         oracleInstance.initialize(
             InitializeOracleParams({
                 creator: address(this),
-                kpiToken: address(1),
+                kpiToken: kpiToken,
                 templateId: _template.id,
                 templateVersion: _template.version,
                 data: abi.encode(address(1), 0, "a", 0, block.timestamp + 60, 0)
@@ -76,18 +82,63 @@ contract InitializeTest is BaseTestSetup {
         );
     }
 
-    function testInvalidOpeningTimestamp() external {
+    function testTooShortTimeout() external {
         RealityV3Oracle oracleInstance = RealityV3Oracle(ClonesUpgradeable.clone(address(realityV3OracleTemplate)));
         Template memory _template = oraclesManager.template(1);
-        vm.expectRevert(abi.encodeWithSignature("InvalidOpeningTimestamp()"));
+        vm.expectRevert(abi.encodeWithSignature("InvalidQuestionTimeout()"));
+        address kpiToken = address(1);
+        vm.mockCall(kpiToken, abi.encodeWithSignature("expiration()"), abi.encode(2 ** 128));
         vm.prank(address(oraclesManager));
         oracleInstance.initialize(
             InitializeOracleParams({
                 creator: address(this),
-                kpiToken: address(1),
+                kpiToken: kpiToken,
+                templateId: _template.id,
+                templateVersion: _template.version,
+                data: abi.encode(address(1), 0, "a", MINIMUM_QUESTION_TIMEOUT - 1, block.timestamp + 60, 0)
+            })
+        );
+    }
+
+    function testOpeningTimestampInThePast() external {
+        RealityV3Oracle oracleInstance = RealityV3Oracle(ClonesUpgradeable.clone(address(realityV3OracleTemplate)));
+        Template memory _template = oraclesManager.template(1);
+        vm.expectRevert(abi.encodeWithSignature("InvalidOpeningTimestamp()"));
+        address kpiToken = address(1);
+        vm.mockCall(kpiToken, abi.encodeWithSignature("expiration()"), abi.encode(2 ** 128));
+        vm.prank(address(oraclesManager));
+        oracleInstance.initialize(
+            InitializeOracleParams({
+                creator: address(this),
+                kpiToken: kpiToken,
                 templateId: _template.id,
                 templateVersion: _template.version,
                 data: abi.encode(address(1), 0, "a", 60, block.timestamp, 0)
+            })
+        );
+    }
+
+    function testOpeningTimestampMinimumAnswerWindows() external {
+        RealityV3Oracle oracleInstance = RealityV3Oracle(ClonesUpgradeable.clone(address(realityV3OracleTemplate)));
+        Template memory _template = oraclesManager.template(1);
+        vm.expectRevert(abi.encodeWithSignature("InvalidOpeningTimestamp()"));
+        address kpiToken = address(1);
+        uint256 questionTimeout = 60;
+        uint256 openingTimestamp = block.timestamp + 2;
+        vm.mockCall(
+            kpiToken,
+            abi.encodeWithSignature("expiration()"),
+            // just a second before the value is valid
+            abi.encode(uint256(questionTimeout * MINIMUM_ANSWER_WINDOWS + openingTimestamp - 1))
+        );
+        vm.prank(address(oraclesManager));
+        oracleInstance.initialize(
+            InitializeOracleParams({
+                creator: address(this),
+                kpiToken: kpiToken,
+                templateId: _template.id,
+                templateVersion: _template.version,
+                data: abi.encode(address(1), 0, "a", questionTimeout, openingTimestamp, 0)
             })
         );
     }
@@ -102,11 +153,13 @@ contract InitializeTest is BaseTestSetup {
             abi.encode(_questionId)
         );
         uint256 _openingTs = block.timestamp + 60;
+        address kpiToken = address(1);
+        vm.mockCall(kpiToken, abi.encodeWithSignature("expiration()"), abi.encode(2 ** 128));
         vm.prank(address(oraclesManager));
         oracleInstance.initialize(
             InitializeOracleParams({
                 creator: address(this),
-                kpiToken: address(1),
+                kpiToken: kpiToken,
                 templateId: _template.id,
                 templateVersion: _template.version,
                 data: abi.encode(address(1), 0, "a", 60, _openingTs, 0)
