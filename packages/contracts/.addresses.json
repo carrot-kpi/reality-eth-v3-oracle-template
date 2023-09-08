@@ -6,9 +6,5 @@
     "11155111": {
         "template": "0xF451feb55eeA54EeF90AcB301212b80E03d82819",
         "arbitrator": "0xAcAFe7928cDd2E02bd508a4827b62649726f9460"
-    },
-    "534353": {
-        "template": "0x929c7c3EBCeea1794CEF757Fb696e4b6d794bbB3",
-        "arbitrator": "0x05B92b5C40a266EFDD8B3fDF0496407e8C0d9cB6"
     }
 }
