@@ -18,6 +18,7 @@ export const setupCompiler = (
                     writableStream,
                     globals,
                     `Compiling playground -> ${type}...`,
+                    frontendPort,
                 );
             }
         });
@@ -43,6 +44,7 @@ export const setupCompiler = (
                     `Failed to compile playground -> ${type}.\n${messages.errors.join(
                         "\n\n",
                     )}`,
+                    frontendPort,
                 );
 
                 return;
@@ -57,6 +59,7 @@ export const setupCompiler = (
                             "\n\n",
                         )}`,
                     ),
+                    frontendPort,
                 );
 
                 return;
