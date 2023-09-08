@@ -19,6 +19,7 @@ import {
     MarkdownInput,
     DateTimeInput,
     Typography,
+    WarningBox,
 } from "@carrot-kpi/ui";
 import { useDecentralizedStorageUploader } from "@carrot-kpi/react";
 import { useNetwork } from "wagmi";
@@ -337,8 +338,8 @@ export const Component = ({
     );
 
     return (
-        <div className="flex flex-col gap-2 w-full">
-            <Typography className={{ root: "mb-2" }}>
+        <div className="flex flex-col gap-4 w-full">
+            <Typography className={{ root: "px-4" }}>
                 {t("info")}
                 <a
                     className="text-orange underline"
@@ -354,13 +355,15 @@ export const Component = ({
                 arbitrator?.fees &&
                 (arbitrator.fees.question.isPositive() ||
                     arbitrator.fees.dispute.isPositive()) && (
-                    <div className="mt-1 mb-b rounded-xl flex flex-col p-4 border border-orange bg-orange bg-opacity-20 gap-3">
-                        <Typography className={{ root: "text-orange" }}>
-                            {t("warning.arbitrator.fees")}
-                        </Typography>
-                        <div className="flex flex-col">
+                    <WarningBox
+                        icon
+                        messages={{ title: t("warning.arbitrator.title") }}
+                        className={{ root: "border-x-0" }}
+                    >
+                        <Typography>{t("warning.arbitrator.fees")}</Typography>
+                        <div className="flex flex-col mt-2">
                             {arbitrator.fees.question.isPositive() && (
-                                <Typography className={{ root: "text-orange" }}>
+                                <Typography>
                                     {t("warning.arbitrator.fees.question")}:{" "}
                                     {formatCurrencyAmount(
                                         arbitrator.fees.question,
@@ -369,7 +372,7 @@ export const Component = ({
                                 </Typography>
                             )}
                             {arbitrator.fees.dispute.isPositive() && (
-                                <Typography className={{ root: "text-orange" }}>
+                                <Typography>
                                     {t("warning.arbitrator.fees.dispute")}:{" "}
                                     {formatCurrencyAmount(
                                         arbitrator.fees.dispute,
@@ -378,9 +381,9 @@ export const Component = ({
                                 </Typography>
                             )}
                         </div>
-                    </div>
+                    </WarningBox>
                 )}
-            <div className="flex flex-col gap-2 md:flex-row">
+            <div className="flex flex-col gap-2 md:flex-row px-4">
                 <div className="w-full md:w-2/3">
                     <Select
                         id="arbitrator"
@@ -395,6 +398,7 @@ export const Component = ({
                                 {t("info.arbitrator")}
                             </Typography>
                         }
+                        messages={{ noResults: "" }}
                         placeholder={t("placeholder.pick")}
                         onChange={setArbitrator}
                         options={arbitratorsByChain}
@@ -416,6 +420,7 @@ export const Component = ({
                                 {t("info.reality.template")}
                             </Typography>
                         }
+                        messages={{ noResults: "" }}
                         placeholder={t("placeholder.pick")}
                         onChange={setRealityTemplateId}
                         options={REALITY_TEMPLATE_OPTIONS}
@@ -423,7 +428,7 @@ export const Component = ({
                     />
                 </div>
             </div>
-            <div className="flex flex-col gap-2 md:flex-row">
+            <div className="flex flex-col gap-2 md:flex-row px-4">
                 <div className="md:w-1/2">
                     <Select
                         id="question-timeout"
@@ -438,6 +443,7 @@ export const Component = ({
                                 {t("info.question.timeout")}
                             </Typography>
                         }
+                        messages={{ noResults: "" }}
                         placeholder={t("placeholder.number")}
                         options={timeoutOptions}
                         onChange={setQuestionTimeout}
@@ -468,42 +474,46 @@ export const Component = ({
                     />
                 </div>
             </div>
-            <NumberInput
-                id="minimum-bond"
-                className={{
-                    root: "w-full",
-                    input: "w-full",
-                    inputWrapper: "w-full",
-                }}
-                label={t("label.minimum.bond")}
-                info={
-                    <Typography variant="sm">
-                        {t("info.minimum.bond")}
-                    </Typography>
-                }
-                placeholder={t("placeholder.number")}
-                onValueChange={handleMinimumBondChange}
-                value={minimumBond}
-                error={!!minimumBondErrorText}
-                errorText={minimumBondErrorText}
-            />
-            <MarkdownInput
-                id="question"
-                label={t("label.question")}
-                info={
-                    <Typography variant="sm">{t("info.question")}</Typography>
-                }
-                placeholder={t("placeholder.pick")}
-                onChange={handleQuestionChange}
-                value={question}
-                error={!!questionErrorText}
-                errorText={questionErrorText}
-                className={{
-                    root: "w-full",
-                    input: "w-full",
-                    inputWrapper: "w-full",
-                }}
-            />
+            <div className="px-4">
+                <NumberInput
+                    id="minimum-bond"
+                    className={{
+                        root: "w-full",
+                        input: "w-full",
+                        inputWrapper: "w-full",
+                    }}
+                    label={t("label.minimum.bond")}
+                    info={
+                        <Typography variant="sm">
+                            {t("info.minimum.bond")}
+                        </Typography>
+                    }
+                    placeholder={t("placeholder.number")}
+                    onValueChange={handleMinimumBondChange}
+                    value={minimumBond}
+                    error={!!minimumBondErrorText}
+                    errorText={minimumBondErrorText}
+                />
+                <MarkdownInput
+                    id="question"
+                    label={t("label.question")}
+                    info={
+                        <Typography variant="sm">
+                            {t("info.question")}
+                        </Typography>
+                    }
+                    placeholder={t("placeholder.pick")}
+                    onChange={handleQuestionChange}
+                    value={question}
+                    error={!!questionErrorText}
+                    errorText={questionErrorText}
+                    className={{
+                        root: "w-full",
+                        input: "w-full",
+                        inputWrapper: "w-full",
+                    }}
+                />
+            </div>
         </div>
     );
 };
