@@ -8,7 +8,7 @@ const require = createRequire(fileURLToPath(import.meta.url));
 const REALITY_V3_ADDRESS = {
     [ChainId.SEPOLIA]: "0x64a0745EF9d3772d9739D9350873eD3703bE45eC",
     [ChainId.GNOSIS]: "0xE78996A233895bE74a66F451f1019cA9734205cc",
-    [ChainId.SCROLL_SEPOLIA]: "0xF2D17C08B6A3A60b5A32b95bC9621D292831446b",
+    // TODO: add support for SCROLL_SEPOLIA once the reality.eth oracle is deployed on scroll
 };
 const MINIMUM_QUESTION_TIMEOUT = 60;
 const MINIMUM_ANSWER_WINDOWS = 10;

@@ -5,10 +5,10 @@ import type { OptionForArbitrator } from "../creation-form/types";
 import { type Address } from "viem";
 
 // TODO: add arbitrum goerli to supported chains
+// TODO: add support for scroll sepolia once the reality.eth oracle is deployed on scroll
 export enum SupportedChainId {
     GNOSIS = ChainId.GNOSIS,
     SEPOLIA = ChainId.SEPOLIA,
-    SCROLL_SEPOLIA = ChainId.SCROLL_SEPOLIA,
 }
 
 export const TRUSTED_REALITY_ARBITRATORS: Record<SupportedChainId, Address> = {
@@ -18,16 +18,11 @@ export const TRUSTED_REALITY_ARBITRATORS: Record<SupportedChainId, Address> = {
     [SupportedChainId.SEPOLIA]: __DEV__
         ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
         : "0xAcAFe7928cDd2E02bd508a4827b62649726f9460",
-    [SupportedChainId.SCROLL_SEPOLIA]: __DEV__
-        ? (CCT_TRUSTED_ARBITRATOR_ADDRESS as Address)
-        : "0x05B92b5C40a266EFDD8B3fDF0496407e8C0d9cB6",
 };
 
 export const REALITY_V3_ADDRESS: Record<SupportedChainId, Address> = {
     [SupportedChainId.GNOSIS]: "0xE78996A233895bE74a66F451f1019cA9734205cc",
     [SupportedChainId.SEPOLIA]: "0x64a0745EF9d3772d9739D9350873eD3703bE45eC",
-    [SupportedChainId.SCROLL_SEPOLIA]:
-        "0xF2D17C08B6A3A60b5A32b95bC9621D292831446b",
 };
 
 export const ARBITRATORS_BY_CHAIN: Record<
@@ -48,20 +43,12 @@ export const ARBITRATORS_BY_CHAIN: Record<
             icon: CarrotIcon,
         },
     ],
-    [SupportedChainId.SCROLL_SEPOLIA]: [
-        {
-            value: TRUSTED_REALITY_ARBITRATORS[SupportedChainId.SCROLL_SEPOLIA],
-            label: "Carrot",
-            icon: CarrotIcon,
-        },
-    ],
 };
 
 export const SUBGRAPH_URL: Record<SupportedChainId, string | null> = {
     [SupportedChainId.GNOSIS]:
         "https://api.thegraph.com/subgraphs/name/realityeth/realityeth-xdai",
     [SupportedChainId.SEPOLIA]: null,
-    [SupportedChainId.SCROLL_SEPOLIA]: null,
 };
 
 interface TimeoutOption {
