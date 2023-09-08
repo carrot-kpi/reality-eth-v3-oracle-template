@@ -10,6 +10,7 @@ import {
     Typography,
     Skeleton,
     Popover,
+    WarningBox,
 } from "@carrot-kpi/ui";
 import {
     type ChangeEvent,
@@ -791,10 +792,14 @@ export const AnswerForm = ({
     return (
         <div className="flex flex-col">
             {kpiToken.expired && !oracle.finalized && (
-                <div className="p-6 flex gap-3 items-center border-b border-black bg-orange/40 dark:border-white">
+                <WarningBox
+                    icon
+                    messages={{ title: t("label.question.kpiExpired.title") }}
+                    className={{ root: "border-x-0" }}
+                >
                     <Danger width={36} height={36} />
                     <Typography>{t("label.question.kpiExpired")}</Typography>
-                </div>
+                </WarningBox>
             )}
             <div className="flex flex-col md:flex-row justify-between">
                 <div className="w-full flex border-b border-black dark:border-white">

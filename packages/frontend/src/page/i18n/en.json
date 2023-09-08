@@ -10,6 +10,7 @@
     "label.question.rewards": "Rewards",
     "label.question.timeout": "Timeout",
     "label.question.oracleLink": "Direct oracle link",
+    "label.question.kpiExpired.title": "Important",
     "label.question.kpiExpired": "The KPI token is expired and answers won't have an effect on it, but you can continue answering the question regardless. The Reality.eth crypto incentives to answer the question are still valid.",
     "label.question.subtitle.1": "If you know the answer you can submit it using the form below. You can learn how Reality.eth works by having a look at the ",
     "label.question.subtitle.2": "official docs",

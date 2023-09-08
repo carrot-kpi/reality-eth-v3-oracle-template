@@ -9,10 +9,10 @@ import {
     BYTES32_ZERO,
     SUBGRAPH_CURRENT_ANSWER_FINALIZATION_TIMESTAMP_NULL_VALUE,
     SUBGRAPH_URL,
+    SupportedChainId,
 } from "../../commons";
 import {
     CHAIN_ADDRESSES,
-    ChainId,
     enforce,
     query,
     type ChainAddresses,
@@ -32,7 +32,8 @@ import type { PublicClient } from "wagmi";
 class Fetcher implements IPartialFetcher {
     public supportedInChain({ chainId }: SupportedInChainParams): boolean {
         return (
-            chainId in ChainId && !!SUBGRAPH_URL[chainId as unknown as ChainId]
+            chainId in SupportedChainId &&
+            !!SUBGRAPH_URL[chainId as unknown as SupportedChainId]
         );
     }
 
@@ -171,10 +172,13 @@ class Fetcher implements IPartialFetcher {
         publicClient: PublicClient;
     }): Promise<{ subgraphURL: string; chainAddresses: ChainAddresses }> {
         const chainId = await publicClient.getChainId();
-        enforce(chainId in ChainId, `unsupported chain with id ${chainId}`);
-        const subgraphURL = SUBGRAPH_URL[chainId as ChainId];
+        enforce(
+            chainId in SupportedChainId,
+            `unsupported chain with id ${chainId}`,
+        );
+        const subgraphURL = SUBGRAPH_URL[chainId as SupportedChainId];
         enforce(!!subgraphURL, `no subgraph available in chain ${chainId}`);
-        const chainAddresses = CHAIN_ADDRESSES[chainId as ChainId];
+        const chainAddresses = CHAIN_ADDRESSES[chainId as SupportedChainId];
         enforce(!!chainAddresses, `no addresses available in chain ${chainId}`);
 
         return {
