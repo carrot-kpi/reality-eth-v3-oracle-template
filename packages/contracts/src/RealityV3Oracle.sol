@@ -6,6 +6,8 @@ import {IOraclesManager1} from "carrot/interfaces/oracles-managers/IOraclesManag
 import {IKPIToken} from "carrot/interfaces/kpi-tokens/IKPIToken.sol";
 import {IRealityV3} from "./interfaces/external/IRealityV3.sol";
 import {IBaseTemplatesManager, Template} from "carrot/interfaces/IBaseTemplatesManager.sol";
+import {BaseOracle} from "carrot/presets/oracles/BaseOracle.sol";
+import {ConstrainedOracle, Constraint} from "carrot/presets/oracles/ConstrainedOracle.sol";
 import {InitializeOracleParams} from "carrot/commons/Types.sol";
 
 /// SPDX-License-Identifier: GPL-3.0-or-later
@@ -18,16 +20,11 @@ import {InitializeOracleParams} from "carrot/commons/Types.sol";
 /// of the solution (question timeout, opening timestamp, arbitrator atc must be set
 /// with care to avoid unwanted results).
 /// @author Federico Luzzi - <federico.luzzi@protonmail.com>
-contract RealityV3Oracle is IOracle, Initializable {
+contract RealityV3Oracle is BaseOracle, ConstrainedOracle {
     address public immutable reality;
     uint256 public immutable minimumQuestionTimeout;
     uint256 public immutable minimumAnswerWindows;
 
-    bool public finalized;
-    address public kpiToken;
-    address internal oraclesManager;
-    uint128 internal templateVersion;
-    uint256 internal templateId;
     bytes32 internal questionId;
     string internal question;
 
@@ -82,7 +79,7 @@ contract RealityV3Oracle is IOracle, Initializable {
     ///        Reality.eth docs (linked above).
     ///     - `uint256 minimumBond`: The minimum bond that can be used to answer the question.
     function initialize(InitializeOracleParams memory _params) external payable override initializer {
-        if (_params.kpiToken == address(0)) revert ZeroAddressKpiToken();
+        __BaseOracle_init(_params.kpiToken, _params.templateId, _params.templateVersion);
 
         (
             address _arbitrator,
@@ -90,11 +87,17 @@ contract RealityV3Oracle is IOracle, Initializable {
             string memory _question,
             uint32 _questionTimeout,
             uint32 _openingTimestamp,
-            uint256 _minimumBond
-        ) = abi.decode(_params.data, (address, uint256, string, uint32, uint32, uint256));
+            uint256 _minimumBond,
+            Constraint _constraint,
+            uint256 _value0,
+            uint256 _value1
+        ) = abi.decode(_params.data, (address, uint256, string, uint32, uint32, uint256, Constraint, uint256, uint256));
+
+        __ConstrainedOracle_init(_constraint, _value0, _value1);
 
         if (_arbitrator == address(0)) revert ZeroAddressArbitrator();
-        if (_realityTemplateId > 4) revert InvalidRealityTemplate();
+        // we only support bool, uint, single select and datetime templates for now
+        if (_realityTemplateId == 3 || _realityTemplateId > 4) revert InvalidRealityTemplate();
         if (bytes(_question).length == 0) revert InvalidQuestion();
         if (_questionTimeout < minimumQuestionTimeout) {
             revert InvalidQuestionTimeout();
@@ -106,10 +109,6 @@ contract RealityV3Oracle is IOracle, Initializable {
             revert InvalidOpeningTimestamp();
         }
 
-        oraclesManager = msg.sender;
-        templateVersion = _params.templateVersion;
-        templateId = _params.templateId;
-        kpiToken = _params.kpiToken;
         question = _question;
         questionId = IRealityV3(reality).askQuestionWithMinBond{value: msg.value}(
             _realityTemplateId, _question, _arbitrator, _questionTimeout, _openingTimestamp, 0, _minimumBond
@@ -124,8 +123,7 @@ contract RealityV3Oracle is IOracle, Initializable {
         if (finalized) revert Forbidden();
         finalized = true;
         uint256 _result = uint256(IRealityV3(reality).resultForOnceSettled(questionId));
-        IKPIToken(kpiToken).finalize(_result);
-        emit Finalize(_result);
+        IKPIToken(kpiToken).finalize(_toCompletionPercentage(_result));
     }
 
     /// @dev View function returning all the most important data about the oracle, in
@@ -133,12 +131,6 @@ contract RealityV3Oracle is IOracle, Initializable {
     /// data and some.
     /// @return The ABI-encoded data.
     function data() external view override returns (bytes memory) {
-        return abi.encode(reality, questionId, question);
-    }
-
-    /// @dev View function returning info about the template used to instantiate this oracle.
-    /// @return The template struct.
-    function template() external view override returns (Template memory) {
-        return IBaseTemplatesManager(oraclesManager).template(templateId, templateVersion);
+        return abi.encode(constraint, value0, value1, reality, questionId, question);
     }
 }

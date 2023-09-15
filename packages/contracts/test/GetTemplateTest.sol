@@ -5,6 +5,7 @@ import {RealityV3Oracle} from "../src/RealityV3Oracle.sol";
 import {IOraclesManager1} from "carrot/interfaces/oracles-managers/IOraclesManager1.sol";
 import {Template} from "carrot/interfaces/IBaseTemplatesManager.sol";
 import {InitializeOracleParams} from "carrot/commons/Types.sol";
+import {Constraint} from "carrot/presets/oracles/ConstrainedOracle.sol";
 import {ClonesUpgradeable} from "oz-upgradeable/proxy/ClonesUpgradeable.sol";
 
 /// SPDX-License-Identifier: GPL-3.0-or-later
@@ -30,7 +31,7 @@ contract GetTemplateTest is BaseTestSetup {
                 kpiToken: kpiToken,
                 templateId: _template.id,
                 templateVersion: _template.version,
-                data: abi.encode(REALITY_V3_ADDRESS, 0, "a", 60, block.timestamp + 60, 0)
+                data: abi.encode(REALITY_V3_ADDRESS, 0, "a", 60, block.timestamp + 60, 0, Constraint.Equal, 10, 0)
             })
         );
 
