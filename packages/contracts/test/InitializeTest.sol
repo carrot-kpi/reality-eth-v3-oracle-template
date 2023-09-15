@@ -6,6 +6,7 @@ import {IOraclesManager1} from "carrot/interfaces/oracles-managers/IOraclesManag
 import {Template} from "carrot/interfaces/IBaseTemplatesManager.sol";
 import {InitializeOracleParams} from "carrot/commons/Types.sol";
 import {ClonesUpgradeable} from "oz-upgradeable/proxy/ClonesUpgradeable.sol";
+import {Constraint} from "carrot/presets/oracles/ConstrainedOracle.sol";
 
 /// SPDX-License-Identifier: GPL-3.0-or-later
 /// @title Reality oracle intialize test
@@ -15,7 +16,7 @@ contract InitializeTest is BaseTestSetup {
     function testZeroAddressKpiToken() external {
         RealityV3Oracle oracleInstance = RealityV3Oracle(ClonesUpgradeable.clone(address(realityV3OracleTemplate)));
         Template memory _template = oraclesManager.template(1);
-        vm.expectRevert(abi.encodeWithSignature("ZeroAddressKpiToken()"));
+        vm.expectRevert(abi.encodeWithSignature("ZeroAddressKPIToken()"));
         vm.prank(address(oraclesManager));
         oracleInstance.initialize(
             InitializeOracleParams({
@@ -41,7 +42,7 @@ contract InitializeTest is BaseTestSetup {
                 kpiToken: kpiToken,
                 templateId: _template.id,
                 templateVersion: _template.version,
-                data: abi.encode(address(0), 0, "a", 60, block.timestamp + 60, 0)
+                data: abi.encode(address(0), 0, "a", 60, block.timestamp + 60, 0, Constraint.Equal, 10, 0)
             })
         );
     }
@@ -59,7 +60,7 @@ contract InitializeTest is BaseTestSetup {
                 kpiToken: kpiToken,
                 templateId: _template.id,
                 templateVersion: _template.version,
-                data: abi.encode(address(1), 0, "", 60, block.timestamp + 60, 0)
+                data: abi.encode(address(1), 0, "", 60, block.timestamp + 60, 0, Constraint.Equal, 10, 0)
             })
         );
     }
@@ -77,7 +78,7 @@ contract InitializeTest is BaseTestSetup {
                 kpiToken: kpiToken,
                 templateId: _template.id,
                 templateVersion: _template.version,
-                data: abi.encode(address(1), 0, "a", 0, block.timestamp + 60, 0)
+                data: abi.encode(address(1), 0, "a", 0, block.timestamp + 60, 0, Constraint.Equal, 10, 0)
             })
         );
     }
@@ -95,7 +96,9 @@ contract InitializeTest is BaseTestSetup {
                 kpiToken: kpiToken,
                 templateId: _template.id,
                 templateVersion: _template.version,
-                data: abi.encode(address(1), 0, "a", MINIMUM_QUESTION_TIMEOUT - 1, block.timestamp + 60, 0)
+                data: abi.encode(
+                    address(1), 0, "a", MINIMUM_QUESTION_TIMEOUT - 1, block.timestamp + 60, 0, Constraint.Equal, 10, 0
+                    )
             })
         );
     }
@@ -113,7 +116,7 @@ contract InitializeTest is BaseTestSetup {
                 kpiToken: kpiToken,
                 templateId: _template.id,
                 templateVersion: _template.version,
-                data: abi.encode(address(1), 0, "a", 60, block.timestamp, 0)
+                data: abi.encode(address(1), 0, "a", 60, block.timestamp, 0, Constraint.Equal, 10, 0)
             })
         );
     }
@@ -138,7 +141,7 @@ contract InitializeTest is BaseTestSetup {
                 kpiToken: kpiToken,
                 templateId: _template.id,
                 templateVersion: _template.version,
-                data: abi.encode(address(1), 0, "a", questionTimeout, openingTimestamp, 0)
+                data: abi.encode(address(1), 0, "a", questionTimeout, openingTimestamp, 0, Constraint.Equal, 10, 0)
             })
         );
     }
@@ -162,7 +165,7 @@ contract InitializeTest is BaseTestSetup {
                 kpiToken: kpiToken,
                 templateId: _template.id,
                 templateVersion: _template.version,
-                data: abi.encode(address(1), 0, "a", 60, _openingTs, 0)
+                data: abi.encode(address(1), 0, "a", 60, _openingTs, 0, Constraint.Equal, 10, 0)
             })
         );
 
@@ -172,8 +175,17 @@ contract InitializeTest is BaseTestSetup {
         vm.mockCall(REALITY_V3_ADDRESS, abi.encodeWithSignature("getTimeout(bytes32)"), abi.encode(uint32(60)));
         vm.mockCall(REALITY_V3_ADDRESS, abi.encodeWithSignature("getOpeningTS(bytes32)"), abi.encode(_openingTs));
         bytes memory _data = oracleInstance.data();
-        (address _onChainReality, bytes32 _onChainQuestionId, string memory _onChainQuestion) =
-            abi.decode(_data, (address, bytes32, string));
+        (
+            Constraint _constraint,
+            uint256 _value0,
+            uint256 _value1,
+            address _onChainReality,
+            bytes32 _onChainQuestionId,
+            string memory _onChainQuestion
+        ) = abi.decode(_data, (Constraint, uint256, uint256, address, bytes32, string));
+        assertEq(uint256(_constraint), uint256(Constraint.Equal));
+        assertEq(_value0, 10);
+        assertEq(_value1, 0);
         assertEq(_onChainReality, REALITY_V3_ADDRESS);
         assertEq(_onChainQuestionId, _questionId);
         assertEq(_onChainQuestion, "a");
